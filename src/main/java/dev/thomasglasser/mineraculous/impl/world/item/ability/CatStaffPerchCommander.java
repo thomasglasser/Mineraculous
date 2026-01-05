@@ -1,17 +1,14 @@
 package dev.thomasglasser.mineraculous.impl.world.item.ability;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundPerchVerticalInputPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateStaffInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 /**
@@ -61,18 +58,13 @@ public class CatStaffPerchCommander {
         }
     }
 
-    public static boolean onLeftClick(Level level, LivingEntity user) {
+    public static void onLeftClick(Level level, LivingEntity user) {
         if (!level.isClientSide()) {
             newPerchingCatStaffData data = user.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
             if (data.isModeActive() && data.onGround() && data.state() == newPerchingCatStaffData.PerchingState.STAND) {
                 CatStaffPerchGroundWorker.startLeaning(user, data);
             }
-            if (user instanceof Player player) {
-                player.awardStat(Stats.ITEM_USED.get(MineraculousItems.CAT_STAFF.value()));
-                return true;
-            }
         }
-        return false;
     }
 
     /**
@@ -111,10 +103,10 @@ public class CatStaffPerchCommander {
 
     private static void signalMovementInputToServer(newPerchingCatStaffData data) {
         sendVerticalInput(data);
-        sendHorizontalInput();
+        sendWASDJumpInput();
     }
 
-    private static void sendHorizontalInput() {
+    private static void sendWASDJumpInput() {
         MineraculousClientUtils.InputState input = MineraculousClientUtils.captureInput();
         if (input.hasInput()) {
             int packedInput = input.packInputs();

@@ -256,11 +256,8 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     @Override
     public boolean onLeftClick(ItemStack stack, LivingEntity livingEntity) {
         if (Active.isActive(stack)) {
-            Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE.get());
             Level level = livingEntity.level();
-            if (CatStaffPerchCommander.onLeftClick(level, livingEntity)) {
-                return true;
-            }
+            CatStaffPerchCommander.onLeftClick(level, livingEntity);
         }
         return false;
     }

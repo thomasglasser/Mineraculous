@@ -11,6 +11,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
 public record ServerboundUpdateStaffInputPayload(int input) implements ExtendedPacketPayload {
@@ -47,17 +48,26 @@ public record ServerboundUpdateStaffInputPayload(int input) implements ExtendedP
     @Override
     public void handle(Player player) {
         newPerchingCatStaffData perchingData = player.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
-        boolean standing = perchingData.state() == newPerchingCatStaffData.PerchingState.STAND;
-        if (perchingData.isModeActive() && standing && hasInput()) {
-            Vec3 playerToStaffHorizontal = new Vec3(perchingData.staffOrigin().x - player.getX(), 0, perchingData.staffOrigin().z - player.getZ());
-            Vec3 movement = MineraculousMathUtils.getMovementVector(player.getYRot(), up(), down(), left(), right());
-            movement = MineraculousMathUtils.projectOnCircle(playerToStaffHorizontal, movement);
-            if (movement.length() > CatStaffItem.HORIZONTAL_MOVEMENT_THRESHOLD) {
-                movement = movement.scale(CatStaffItem.HORIZONTAL_MOVEMENT_SCALE);
+        if (perchingData.isModeActive() && hasInput()) {
+            boolean standing = perchingData.state() == newPerchingCatStaffData.PerchingState.STAND;
+            boolean leaning = perchingData.state() == newPerchingCatStaffData.PerchingState.LEAN;
+            if (standing) {
+                Vec3 playerToStaffHorizontal = new Vec3(perchingData.staffOrigin().x - player.getX(), 0, perchingData.staffOrigin().z - player.getZ());
+                Vec3 movement = MineraculousMathUtils.getMovementVector(player.getYRot(), up(), down(), left(), right());
+                movement = MineraculousMathUtils.projectOnCircle(playerToStaffHorizontal, movement);
+                if (movement.length() > CatStaffItem.HORIZONTAL_MOVEMENT_THRESHOLD) {
+                    movement = movement.scale(CatStaffItem.HORIZONTAL_MOVEMENT_SCALE);
+                }
+                movement = player.getDeltaMovement().multiply(0, 1, 0).add(movement);
+                player.setDeltaMovement(movement);
+                player.hurtMarked = true;
+            } else if (leaning && jump()) {
+                Vec2 horizontal = MineraculousMathUtils.getHorizontalFacingVector(player.getYRot());
+                Vec3 movement = new Vec3(horizontal.x * 2, 2, horizontal.y * 2);
+                player.setDeltaMovement(movement);
+                player.hurtMarked = true;
+                perchingData.withEnabled(false).save(player);
             }
-            movement = player.getDeltaMovement().multiply(0, 1, 0).add(movement);
-            player.setDeltaMovement(movement);
-            player.hurtMarked = true;
         }
     }
 

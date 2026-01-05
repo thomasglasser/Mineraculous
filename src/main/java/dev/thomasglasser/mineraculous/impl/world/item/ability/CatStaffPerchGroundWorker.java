@@ -47,12 +47,6 @@ public class CatStaffPerchGroundWorker {
         }
     }
 
-    protected static Vec3 userToStaff(Entity user, newPerchingCatStaffData data) {
-        Vec3 staffHorizontalPosition = data.horizontalPosition();
-        Vec3 userHorizontalPosition = new Vec3(user.getX(), 0, user.getZ());
-        return staffHorizontalPosition.subtract(userHorizontalPosition);
-    }
-
     protected static double expectedUserY(Entity user, newPerchingCatStaffData data) {
         double userHeight = user.getBbHeight();
         return data.staffTip().y - (userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET);
@@ -67,7 +61,7 @@ public class CatStaffPerchGroundWorker {
 
         if (onGround && data.state() == newPerchingCatStaffData.PerchingState.STAND) {
             data = applyVerticalInput(user, data);
-        } else {
+        } else if (data.state() != newPerchingCatStaffData.PerchingState.LEAN) {
             data = data.withStaffTipY(expectedStaffTipY);
         }
 
@@ -79,65 +73,73 @@ public class CatStaffPerchGroundWorker {
     }
 
     protected static newPerchingCatStaffData transitionState(Entity user, newPerchingCatStaffData data) {
-        switch (data.state()) {
-            case LAUNCH -> {
-                boolean userFalling = user.getDeltaMovement().y < 0;
-                if (userFalling && data.onGround()) {
-                    return data.withStaffTipY(expectedStaffTipY(user))
-                            .withState(newPerchingCatStaffData.PerchingState.STAND)
-                            .withGravity(false);
-                }
+        if (data.state() == newPerchingCatStaffData.PerchingState.LAUNCH) {
+            boolean userFalling = user.getDeltaMovement().y < 0;
+            if (userFalling && data.onGround()) {
+                return data.withStaffTipY(expectedStaffTipY(user))
+                        .withState(newPerchingCatStaffData.PerchingState.STAND)
+                        .withGravity(false);
             }
-            case RELEASE -> {
-                boolean userFellTooMuch = user.getY() - data.staffOrigin().y < 0.5;
-                boolean userGotTooFar = data.horizontalPosition().subtract(user.getX(), 0, user.getZ()).length() > CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS + 0.5d;
-                if (userFellTooMuch || userGotTooFar) {
-                    return data.withEnabled(false);
-                }
+        } else if (data.state() == newPerchingCatStaffData.PerchingState.RELEASE) {
+            boolean userFellTooMuch = user.getY() - data.staffOrigin().y < 0.5;
+            boolean userGotTooFar = data.horizontalPosition().subtract(user.getX(), 0, user.getZ()).length() > CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS + 0.5d;
+            if (userFellTooMuch || userGotTooFar) {
+                return data.withEnabled(false);
+            }
+        } else if (data.state() == newPerchingCatStaffData.PerchingState.LEAN) {
+            boolean userFellTooMuch = user.getY() + 0.5 < data.staffOrigin().y;
+            boolean userJumped = user.getDeltaMovement().y > 0;
+            boolean userGotTooFar = user.position().subtract(data.staffOrigin()).length() - data.staffLength() > 1;
+            if (userJumped || userFellTooMuch || user.onGround() || userGotTooFar) {
+                return data.withEnabled(false);
             }
         }
+
         return data;
     }
 
     protected static void startLeaning(Entity user, newPerchingCatStaffData data) {
+        Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user.getYRot());
+        Vec3 push = new Vec3(horizontalFacing.x, 0, horizontalFacing.y);
+        user.setDeltaMovement(push.scale(data.staffLength() / 10));
+        user.hurtMarked = true;
         getUserLeaningData(user, data).save(user);
     }
 
     protected static void constrainUserPosition(Entity user, newPerchingCatStaffData data) {
-        switch (data.state()) {
-            case STAND -> {
-                Vec3 userHorizontalPosition = new Vec3(user.getX(), 0, user.getZ());
-                Vec3 fromPlayerToStaff = data.horizontalPosition().subtract(userHorizontalPosition);
-                double distance = fromPlayerToStaff.length();
-                boolean shouldConstrain = Math.abs(distance - CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS) > POSITION_EPSILON;
-                if (shouldConstrain) {
-                    Vec3 constrain = fromPlayerToStaff
-                            .normalize()
-                            .scale(distance - CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS);
-                    user.move(MoverType.SELF, constrain);
-                    user.hurtMarked = true;
-                }
+        if (data.state() == newPerchingCatStaffData.PerchingState.STAND) {
+            Vec3 userHorizontalPosition = new Vec3(user.getX(), 0, user.getZ());
+            Vec3 fromPlayerToStaff = data.horizontalPosition().subtract(userHorizontalPosition);
+            double distance = fromPlayerToStaff.length();
+            boolean shouldConstrain = Math.abs(distance - CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS) > POSITION_EPSILON;
+            if (shouldConstrain) {
+                Vec3 constrain = fromPlayerToStaff
+                        .normalize()
+                        .scale(distance - CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS);
+                user.move(MoverType.SELF, constrain);
+                user.hurtMarked = true;
             }
-            case LEAN -> {
-                Vec3 fromPlayerToOrigin = data.staffOrigin().subtract(user.position());
-                double distance = fromPlayerToOrigin.length();
-                boolean shouldConstrain = distance - data.staffLength() > POSITION_EPSILON;
-                if (shouldConstrain) {
-                    Vec3 constrain = fromPlayerToOrigin
-                            .normalize()
-                            .scale(distance - data.staffLength());
-                    user.move(MoverType.SELF, constrain);
-                    user.hurtMarked = true;
-                }
+        } else if (data.state() == newPerchingCatStaffData.PerchingState.LEAN) {
+            Vec3 fromPlayerToOrigin = data.staffOrigin().subtract(user.position());
+            double distance = fromPlayerToOrigin.length();
+            boolean shouldConstrain = Math.abs(distance - data.staffLength()) > POSITION_EPSILON &&
+                    user.getY() > data.staffOrigin().y;
+            if (shouldConstrain) {
+                Vec3 constrain = fromPlayerToOrigin
+                        .normalize()
+                        .scale(distance - data.staffLength());
+                user.move(MoverType.SELF, constrain);
+                user.hurtMarked = true;
             }
         }
     }
 
     private static newPerchingCatStaffData getUserLeaningData(Entity user, newPerchingCatStaffData data) {
         Vec3 userPosition = user.position();
-        return data
+        newPerchingCatStaffData leaningData = data
                 .withState(newPerchingCatStaffData.PerchingState.LEAN)
                 .withUserPositionBeforeLeaning(userPosition);
+        return leaningData;
     }
 
     private static void launchUser(Entity user) {

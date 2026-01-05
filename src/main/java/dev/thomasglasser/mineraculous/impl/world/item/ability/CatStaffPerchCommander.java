@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.world.item.ability;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundPerchVerticalInputPayload;
@@ -8,8 +10,10 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateStaffInputPa
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -62,6 +66,20 @@ public class CatStaffPerchCommander {
         }
     }
 
+    public static boolean onLeftClick(Level level, LivingEntity user) {
+        if (!level.isClientSide()) {
+            newPerchingCatStaffData data = user.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
+            if (data.isModeActive() && data.onGround() && data.state() == newPerchingCatStaffData.PerchingState.STAND) {
+                CatStaffPerchGroundWorker.startLeaning(user, data);
+            }
+            if (user instanceof Player player) {
+                player.awardStat(Stats.ITEM_USED.get(MineraculousItems.CAT_STAFF.value()));
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * This method gets triggered every tick while the player has the
      * cat staff in their inventory, regardless of the selected mode.
@@ -89,7 +107,9 @@ public class CatStaffPerchCommander {
     }
 
     private static void cancelFallDamage(Entity user, newPerchingCatStaffData data) {
-        if (data.shouldCancelFallDamage()) {
+        boolean shouldCancelFallDamageWhileLeaning = data.state() == newPerchingCatStaffData.PerchingState.LEAN &&
+                user.getY() + 1 > data.staffOrigin().y;
+        if (data.shouldCancelFallDamage() || shouldCancelFallDamageWhileLeaning) {
             user.resetFallDistance();
         }
     }
@@ -105,14 +125,23 @@ public class CatStaffPerchCommander {
     private static void decideToConstrainUserPosition(Entity user, newPerchingCatStaffData data) {
         if (data.state() == newPerchingCatStaffData.PerchingState.STAND) {
             Vec3 userToStaff = CatStaffPerchGroundWorker.userToStaff(user, data);
-            if (shouldConstrainPositon(userToStaff)) {
-                CatStaffPerchGroundWorker.constrainUserToRadius(user, data);
-            }
+            boolean shouldConstrainPosition = Math.abs(userToStaff.length() - CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS) > POSITION_EPSILON;
+            MineraculousEntityUtils.constrainEntityPositionToSphere(
+                    user,
+                    data.staffOrigin(),
+                    CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS,
+                    shouldConstrainPosition);
         }
-    }
-
-    private static boolean shouldConstrainPositon(Vec3 userToStaff) {
-        return Math.abs(userToStaff.length() - CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS) > POSITION_EPSILON;
+        if (data.state() == newPerchingCatStaffData.PerchingState.LEAN) {
+            Vec3 originToUser = user.position().subtract(data.staffOrigin());
+            double distance = Math.abs(originToUser.length() - (data.staffLength() - user.getBbHeight() - CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET));
+            boolean shouldConstrainPosition = distance > POSITION_EPSILON;
+            MineraculousEntityUtils.constrainEntityPositionToSphere(
+                    user,
+                    data.staffOrigin(),
+                    data.staffLength(),
+                    shouldConstrainPosition);
+        }
     }
 
     private static void signalMovementInputToServer(newPerchingCatStaffData data) {

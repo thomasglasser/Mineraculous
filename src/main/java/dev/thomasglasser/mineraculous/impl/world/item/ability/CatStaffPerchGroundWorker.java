@@ -46,22 +46,6 @@ public class CatStaffPerchGroundWorker {
         }
     }
 
-    /**
-     * This method constrains the user movement to a circle.
-     * The radius is CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS.
-     *
-     * @param user The constrained movement entity.
-     * @param data The user's perching data.
-     */
-    protected static void constrainUserToRadius(Entity user, newPerchingCatStaffData data) {
-        Vec3 userToStaff = userToStaff(user, data);
-        double distance = userToStaff.length();
-        Vec3 constrain = userToStaff
-                .normalize()
-                .scale(distance - CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS);
-        user.move(MoverType.SELF, constrain);
-    }
-
     protected static Vec3 userToStaff(Entity user, newPerchingCatStaffData data) {
         Vec3 staffHorizontalPosition = data.horizontalPosition();
         Vec3 userHorizontalPosition = new Vec3(user.getX(), 0, user.getZ());
@@ -114,6 +98,17 @@ public class CatStaffPerchGroundWorker {
         return data;
     }
 
+    protected static void startLeaning(Entity user, newPerchingCatStaffData data) {
+        getUserLeaningData(user, data).save(user);
+    }
+
+    private static newPerchingCatStaffData getUserLeaningData(Entity user, newPerchingCatStaffData data) {
+        Vec3 userPosition = user.position();
+        return data
+                .withState(newPerchingCatStaffData.PerchingState.LEAN)
+                .withUserPositionBeforeLeaning(userPosition);
+    }
+
     private static void launchUser(Entity user) {
         user.hurtMarked = true;
         user.setDeltaMovement(new Vec3(0, LAUNCHING_USER_STRENGTH, 0));
@@ -140,7 +135,7 @@ public class CatStaffPerchGroundWorker {
 
     private static Vec3 staffTipStartup(Entity user) {
         Vec3 userPosition = user.position();
-        Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user);
+        Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user.getYRot());
         double userHeight = user.getBbHeight();
         return new Vec3(
                 userPosition.x + horizontalFacing.x,

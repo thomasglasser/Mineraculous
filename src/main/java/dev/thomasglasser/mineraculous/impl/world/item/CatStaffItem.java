@@ -258,13 +258,8 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
         if (Active.isActive(stack)) {
             Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE.get());
             Level level = livingEntity.level();
-            if (mode == Mode.PERCH) {
-                //PerchingCatStaffData perchingCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-                //CatStaffPerchHandler.itemLeftClicked(level, livingEntity, perchingCatStaffData);
-                if (livingEntity instanceof Player player) {
-                    player.awardStat(Stats.ITEM_USED.get(this));
-                    return true;
-                }
+            if (CatStaffPerchCommander.onLeftClick(level, livingEntity)) {
+                return true;
             }
         }
         return false;

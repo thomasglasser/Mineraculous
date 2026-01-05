@@ -50,7 +50,7 @@ public record ServerboundUpdateStaffInputPayload(int input) implements ExtendedP
         boolean standing = perchingData.state() == newPerchingCatStaffData.PerchingState.STAND;
         if (perchingData.isModeActive() && standing && hasInput()) {
             Vec3 playerToStaffHorizontal = new Vec3(perchingData.staffOrigin().x - player.getX(), 0, perchingData.staffOrigin().z - player.getZ());
-            Vec3 movement = MineraculousMathUtils.getMovementVector(player, up(), down(), left(), right());
+            Vec3 movement = MineraculousMathUtils.getMovementVector(player.getYRot(), up(), down(), left(), right());
             movement = MineraculousMathUtils.projectOnCircle(playerToStaffHorizontal, movement);
             if (movement.length() > CatStaffItem.HORIZONTAL_MOVEMENT_THRESHOLD) {
                 movement = movement.scale(CatStaffItem.HORIZONTAL_MOVEMENT_SCALE);

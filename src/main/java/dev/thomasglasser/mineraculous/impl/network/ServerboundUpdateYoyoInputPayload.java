@@ -76,7 +76,7 @@ public record ServerboundUpdateYoyoInputPayload(int input) implements ExtendedPa
                 } else if (up() || down() || left() || right()) { //WASD
                     if (player.getY() < thrownYoyo.getY()) {
 
-                        Vec3 movement = MineraculousMathUtils.getMovementVector(player, up(), down(), left(), right());
+                        Vec3 movement = MineraculousMathUtils.getMovementVector(player.getY(), up(), down(), left(), right());
                         movement = MineraculousMathUtils.projectOnCircle(fromProjectileToPlayer.scale(-1), movement);
 
                         Vec3 ropeDir = fromProjectileToPlayer.normalize();

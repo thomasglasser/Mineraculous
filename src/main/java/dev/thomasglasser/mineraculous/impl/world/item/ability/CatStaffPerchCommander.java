@@ -1,13 +1,11 @@
 package dev.thomasglasser.mineraculous.impl.world.item.ability;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundPerchVerticalInputPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateStaffInputPayload;
-import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.stats.Stats;
@@ -15,7 +13,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 
 /**
  * This class makes decisions regarding what should happen based on the
@@ -47,8 +44,6 @@ import net.minecraft.world.phys.Vec3;
  * the staff's ground position will make the tool retract completely.
  */
 public class CatStaffPerchCommander {
-    private static final double POSITION_EPSILON = 1e-5;
-
     /**
      * This method gets triggered when the user right clicks with the cat staff.
      * 
@@ -95,7 +90,7 @@ public class CatStaffPerchCommander {
         if (data.isModeActive()) {
             cancelFallDamage(user, data);
             CatStaffPerchGroundWorker.alignUserVerticalPosition(user, data);
-            decideToConstrainUserPosition(user, data);
+            CatStaffPerchGroundWorker.constrainUserPosition(user, data);
             if (level.isClientSide()) {
                 signalMovementInputToServer(data);
             } else {
@@ -111,36 +106,6 @@ public class CatStaffPerchCommander {
                 user.getY() + 1 > data.staffOrigin().y;
         if (data.shouldCancelFallDamage() || shouldCancelFallDamageWhileLeaning) {
             user.resetFallDistance();
-        }
-    }
-
-    /**
-     * Tethering states are states only used to determine if the user's position should be
-     * constrained.
-     * See PerchingCatStaffData to see which states are considered tethering.
-     * 
-     * @param user The entity whose position is questioned whether to be constrained.
-     * @param data The user's perching data.
-     */
-    private static void decideToConstrainUserPosition(Entity user, newPerchingCatStaffData data) {
-        if (data.state() == newPerchingCatStaffData.PerchingState.STAND) {
-            Vec3 userToStaff = CatStaffPerchGroundWorker.userToStaff(user, data);
-            boolean shouldConstrainPosition = Math.abs(userToStaff.length() - CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS) > POSITION_EPSILON;
-            MineraculousEntityUtils.constrainEntityPositionToSphere(
-                    user,
-                    data.staffOrigin(),
-                    CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS,
-                    shouldConstrainPosition);
-        }
-        if (data.state() == newPerchingCatStaffData.PerchingState.LEAN) {
-            Vec3 originToUser = user.position().subtract(data.staffOrigin());
-            double distance = Math.abs(originToUser.length() - (data.staffLength() - user.getBbHeight() - CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET));
-            boolean shouldConstrainPosition = distance > POSITION_EPSILON;
-            MineraculousEntityUtils.constrainEntityPositionToSphere(
-                    user,
-                    data.staffOrigin(),
-                    data.staffLength(),
-                    shouldConstrainPosition);
         }
     }
 

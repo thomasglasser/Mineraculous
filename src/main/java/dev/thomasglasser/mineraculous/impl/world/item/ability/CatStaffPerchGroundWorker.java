@@ -15,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class CatStaffPerchGroundWorker {
     private static final double LAUNCHING_USER_STRENGTH = 2.0;
+    private static final double POSITION_EPSILON = 1e-5;
 
     protected static void activateMode(Level level, LivingEntity user) {
         if (!level.isClientSide()) {
@@ -100,6 +101,36 @@ public class CatStaffPerchGroundWorker {
 
     protected static void startLeaning(Entity user, newPerchingCatStaffData data) {
         getUserLeaningData(user, data).save(user);
+    }
+
+    protected static void constrainUserPosition(Entity user, newPerchingCatStaffData data) {
+        switch (data.state()) {
+            case STAND -> {
+                Vec3 userHorizontalPosition = new Vec3(user.getX(), 0, user.getZ());
+                Vec3 fromPlayerToStaff = data.horizontalPosition().subtract(userHorizontalPosition);
+                double distance = fromPlayerToStaff.length();
+                boolean shouldConstrain = Math.abs(distance - CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS) > POSITION_EPSILON;
+                if (shouldConstrain) {
+                    Vec3 constrain = fromPlayerToStaff
+                            .normalize()
+                            .scale(distance - CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS);
+                    user.move(MoverType.SELF, constrain);
+                    user.hurtMarked = true;
+                }
+            }
+            case LEAN -> {
+                Vec3 fromPlayerToOrigin = data.staffOrigin().subtract(user.position());
+                double distance = fromPlayerToOrigin.length();
+                boolean shouldConstrain = distance - data.staffLength() > POSITION_EPSILON;
+                if (shouldConstrain) {
+                    Vec3 constrain = fromPlayerToOrigin
+                            .normalize()
+                            .scale(distance - data.staffLength());
+                    user.move(MoverType.SELF, constrain);
+                    user.hurtMarked = true;
+                }
+            }
+        }
     }
 
     private static newPerchingCatStaffData getUserLeaningData(Entity user, newPerchingCatStaffData data) {

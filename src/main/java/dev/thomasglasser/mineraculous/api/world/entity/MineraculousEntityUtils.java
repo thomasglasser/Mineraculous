@@ -35,7 +35,6 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -44,30 +43,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.Nullable;
 
 public class MineraculousEntityUtils {
-    /**
-     * Moves an entity to a sphere's surface.
-     * 
-     * @param entity          The entity being moved.
-     * @param sphereCenter    The center of the sphere in world position.
-     * @param sphereRadius    The radius of the sphere.
-     * @param whenToConstrain Decides when to move the entity.
-     */
-    public static void constrainEntityPositionToSphere(
-            Entity entity,
-            Vec3 sphereCenter,
-            double sphereRadius,
-            boolean whenToConstrain) {
-        if (whenToConstrain) {
-            Vec3 sphereCenterToEntity = entity.position().subtract(sphereCenter);
-            Vec3 targetPosition = sphereCenterToEntity
-                    .normalize()
-                    .scale(sphereRadius);
-            Vec3 constrain = targetPosition.subtract(sphereCenterToEntity);
-            entity.move(MoverType.SELF, constrain);
-            entity.hurtMarked = true;
-        }
-    }
-
     /**
      * Applies the provided {@link MobEffect} to the provided {@link LivingEntity} at the provided amplifier invisibly for an infinite duration.
      *

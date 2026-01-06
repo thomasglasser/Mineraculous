@@ -110,7 +110,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private static final double SUMMON_ORB_ANGLE_STEP = 0.5;
     private static final double SUMMON_ORB_MAX_RADIUS = 1.5;
     private static final double SUMMON_TRAIL_ANGLE_STEP = Math.toRadians(26);
-    private static final double SUMMON_TRAIL_MAX_RADIUS = 0.89;
+    private static final double SUMMON_TRAIL_MAX_RADIUS = 0.4;
     private static final double OWNER_HEIGHT_ADJUSTMENT = 2.5d / 4d;
 
     private static final EntityDataAccessor<Integer> DATA_SUMMON_TICKS = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.INT);
@@ -293,7 +293,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         SummoningAppearance appearance = getSummoningAppearance();
 
         if (summonAngle == 0 && appearance == SummoningAppearance.TRAIL) {
-            summonAngle = Math.toRadians(Math.random() * 180);
+            summonAngle = -0.75;
         }
         setSummonTicks(getSummonTicks() - 1);
         if (owner != null) {

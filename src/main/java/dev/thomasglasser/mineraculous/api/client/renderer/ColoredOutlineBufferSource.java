@@ -5,15 +5,15 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 
 /**
- * This class is used for rendering the special glowing appearance for kwamis.
- * Its purpose is to render the kwamis fully colored in their miraculous color.
+ * Forces all rendered vertices to be written using a fixed RGB color,
+ * ignoring any per-vertex color values supplied during rendering.
  */
 public class ColoredOutlineBufferSource implements MultiBufferSource, AutoCloseable {
-    private final MultiBufferSource.BufferSource kwamiBufferSource;
+    private final MultiBufferSource.BufferSource bufferSource;
     private int color;
 
     public ColoredOutlineBufferSource(BufferSource bufferSource) {
-        kwamiBufferSource = bufferSource;
+        this.bufferSource = bufferSource;
     }
 
     public void setColor(int color) {
@@ -22,16 +22,16 @@ public class ColoredOutlineBufferSource implements MultiBufferSource, AutoClosea
 
     @Override
     public VertexConsumer getBuffer(RenderType renderType) {
-        VertexConsumer delegate = this.kwamiBufferSource.getBuffer(renderType);
-        return new KwamiOutlineGenerator(delegate, this.color);
+        VertexConsumer delegate = this.bufferSource.getBuffer(renderType);
+        return new EntityOutlineGenerator(delegate, this.color);
     }
 
     @Override
     public void close() {
-        this.kwamiBufferSource.endBatch();
+        this.bufferSource.endBatch();
     }
 
-    public static record KwamiOutlineGenerator(VertexConsumer delegate, int color) implements VertexConsumer {
+    public record EntityOutlineGenerator(VertexConsumer delegate, int color) implements VertexConsumer {
         @Override
         public VertexConsumer setColor(int red, int green, int blue, int alpha) {
             final int r = (color >> 16) & 0xFF;

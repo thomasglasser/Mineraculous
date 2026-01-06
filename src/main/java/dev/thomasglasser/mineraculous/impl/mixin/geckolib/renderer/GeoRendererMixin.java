@@ -34,7 +34,7 @@ public interface GeoRendererMixin {
 
     @ModifyReturnValue(method = "bufferNeedsRefresh", at = @At("RETURN"))
     private boolean modifyBufferRefreshForKwamiOutline(boolean original, VertexConsumer buffer) {
-        if (buffer instanceof ColoredOutlineBufferSource.KwamiOutlineGenerator kwamiGlows) {
+        if (buffer instanceof ColoredOutlineBufferSource.EntityOutlineGenerator kwamiGlows) {
             return bufferNeedsRefresh(kwamiGlows.delegate());
         }
         if (original) {
@@ -53,9 +53,9 @@ public interface GeoRendererMixin {
         if (isReRender)
             return original;
 
-        if (original instanceof ColoredOutlineBufferSource.KwamiOutlineGenerator kwami
+        if (original instanceof ColoredOutlineBufferSource.EntityOutlineGenerator kwami
                 && bufferNeedsRefresh(kwami.delegate())) {
-            return new ColoredOutlineBufferSource.KwamiOutlineGenerator(
+            return new ColoredOutlineBufferSource.EntityOutlineGenerator(
                     bufferSource.getBuffer(renderType),
                     kwami.color());
         }

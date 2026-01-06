@@ -122,7 +122,6 @@ public class MineraculousClientUtils {
         kwamiTarget = renderTarget;
     }
 
-    //public static float kwamiGlowPower = 0.0f;
     public static void initKwami() {
         if (getKwamiEffect() != null) {
             getKwamiEffect().close();

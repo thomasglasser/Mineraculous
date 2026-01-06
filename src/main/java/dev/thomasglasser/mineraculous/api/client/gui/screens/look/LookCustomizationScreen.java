@@ -58,25 +58,25 @@ public class LookCustomizationScreen<T> extends Screen {
     public static final Component UNDO = Component.translatable("gui.mineraculous.look_customization.undo");
     public static final Component RESET = Component.translatable("gui.mineraculous.look_customization.reset");
 
-    private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
-    private final TabManager tabManager = new TabManager(this::addRenderableWidget, this::removeWidget);
+    protected final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
+    protected final TabManager tabManager = new TabManager(this::addRenderableWidget, this::removeWidget);
 
-    private final ImmutableSet<Holder<LookContext>> contextSet;
-    private final LookMetadataType<Set<ResourceKey<T>>> metadataType;
-    private final Holder<T> selected;
-    private final Function<Player, LookData> lookDataGetter;
-    private final BiConsumer<Player, LookData> lookDataSetter;
-    private final BiConsumer<Player, LookData> onApply;
+    protected final ImmutableSet<Holder<LookContext>> contextSet;
+    protected final LookMetadataType<Set<ResourceKey<T>>> metadataType;
+    protected final Holder<T> selected;
+    protected final Function<Player, LookData> lookDataGetter;
+    protected final BiConsumer<Player, LookData> lookDataSetter;
+    protected final BiConsumer<Player, LookData> onApply;
 
-    private ImmutableMultimap<ResourceKey<LookContext>, ResourceLocation> looks;
-    private Map<ResourceKey<LookContext>, ResourceLocation> selectedLooks;
-    private PlayerPreview leftPreview;
-    private PlayerPreview centerPreview;
-    private PlayerPreview rightPreview;
-    private ExtendedTabNavigationBar tabNavigationBar;
-    private EditBox nameEdit;
-    private Button previousButton;
-    private Button nextButton;
+    protected ImmutableMultimap<ResourceKey<LookContext>, ResourceLocation> looks;
+    protected Map<ResourceKey<LookContext>, ResourceLocation> selectedLooks;
+    protected PlayerPreview leftPreview;
+    protected PlayerPreview centerPreview;
+    protected PlayerPreview rightPreview;
+    protected ExtendedTabNavigationBar tabNavigationBar;
+    protected EditBox nameEdit;
+    protected Button previousButton;
+    protected Button nextButton;
 
     public LookCustomizationScreen(ImmutableSet<Holder<LookContext>> contextSet, LookMetadataType<Set<ResourceKey<T>>> metadataType, Holder<T> selected, Function<Player, LookData> lookDataGetter, BiConsumer<Player, LookData> lookDataSetter, BiConsumer<Player, LookData> onApply) {
         super(Component.empty());

@@ -84,6 +84,8 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 
         basicItem(MineraculousItems.CATACLYSM_DUST);
         basicItem(MineraculousItems.LADYBUG_POTTERY_SHERD);
+        basicItem(MineraculousItems.BUTTERFLY_POTTERY_SHERD);
+        basicItem(MineraculousItems.CAT_POTTERY_SHERD);
         basicItem(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE);
         basicItem(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE);
         basicItem(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE);

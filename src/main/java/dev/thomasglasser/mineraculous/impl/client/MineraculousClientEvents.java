@@ -187,6 +187,8 @@ public class MineraculousClientEvents {
 
             // Pottery Sherds
             event.insertAfter(Items.HOWL_POTTERY_SHERD.getDefaultInstance(), MineraculousItems.LADYBUG_POTTERY_SHERD.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.LADYBUG_POTTERY_SHERD.toStack(), MineraculousItems.CAT_POTTERY_SHERD.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.CAT_POTTERY_SHERD.toStack(), MineraculousItems.BUTTERFLY_POTTERY_SHERD.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
 
             // Armor Trims
             event.insertAfter(Items.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE.getDefaultInstance(), MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);

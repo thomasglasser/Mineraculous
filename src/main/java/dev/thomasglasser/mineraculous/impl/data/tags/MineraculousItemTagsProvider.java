@@ -137,7 +137,9 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
     private void addPotterySherds() {
         tag(ItemTags.DECORATED_POT_SHERDS)
-                .add(MineraculousItems.LADYBUG_POTTERY_SHERD);
+                .add(MineraculousItems.LADYBUG_POTTERY_SHERD)
+                .add(MineraculousItems.CAT_POTTERY_SHERD)
+                .add(MineraculousItems.BUTTERFLY_POTTERY_SHERD);
     }
 
     private void addArmorTrims() {

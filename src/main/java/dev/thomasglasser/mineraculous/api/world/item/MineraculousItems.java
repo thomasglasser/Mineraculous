@@ -64,6 +64,8 @@ public class MineraculousItems {
 
     // Pottery Sherds
     public static final DeferredItem<Item> LADYBUG_POTTERY_SHERD = registerSherd("ladybug", new Item.Properties());
+    public static final DeferredItem<Item> CAT_POTTERY_SHERD = registerSherd("cat", new Item.Properties());
+    public static final DeferredItem<Item> BUTTERFLY_POTTERY_SHERD = registerSherd("butterfly", new Item.Properties());
 
     // Smithing Templates
     public static final DeferredItem<SmithingTemplateItem> LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE = registerSmithingTemplate(MineraculousTrimPatterns.LADYBUG);

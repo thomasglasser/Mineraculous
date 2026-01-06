@@ -16,6 +16,9 @@ import net.minecraft.world.phys.Vec3;
 public class CatStaffPerchGroundWorker {
     private static final double LAUNCHING_USER_STRENGTH = 2.0;
     private static final double POSITION_EPSILON = 1e-5;
+    private static final int LEANING_PUSH_SCALE_DIVISOR = 10;
+    private static final double USER_FELL_TOO_MUCH_THRESHOLD = 0.5;
+    private static final double USER_TOO_FAR_THRESHOLD = 1;
 
     protected static void activateMode(Level level, LivingEntity user) {
         if (!level.isClientSide()) {
@@ -81,27 +84,26 @@ public class CatStaffPerchGroundWorker {
                         .withGravity(false);
             }
         } else if (data.state() == newPerchingCatStaffData.PerchingState.RELEASE) {
-            boolean userFellTooMuch = user.getY() - data.staffOrigin().y < 0.5;
-            boolean userGotTooFar = data.horizontalPosition().subtract(user.getX(), 0, user.getZ()).length() > CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS + 0.5d;
+            boolean userFellTooMuch = user.getY() - data.staffOrigin().y < USER_FELL_TOO_MUCH_THRESHOLD;
+            boolean userGotTooFar = data.horizontalPosition().subtract(user.getX(), 0, user.getZ()).length() > USER_TOO_FAR_THRESHOLD;
             if (userFellTooMuch || userGotTooFar) {
                 return data.withEnabled(false);
             }
         } else if (data.state() == newPerchingCatStaffData.PerchingState.LEAN) {
-            boolean userFellTooMuch = user.getY() + 0.5 < data.staffOrigin().y;
+            boolean userFellTooMuch = user.getY() + USER_FELL_TOO_MUCH_THRESHOLD < data.staffOrigin().y;
             boolean userJumped = user.getDeltaMovement().y > 0;
-            boolean userGotTooFar = user.position().subtract(data.staffOrigin()).length() - data.staffLength() > 1;
+            boolean userGotTooFar = user.position().subtract(data.staffOrigin()).length() - data.staffLength() > USER_TOO_FAR_THRESHOLD;
             if (userJumped || userFellTooMuch || user.onGround() || userGotTooFar) {
                 return data.withEnabled(false);
             }
         }
-
         return data;
     }
 
     protected static void startLeaning(Entity user, newPerchingCatStaffData data) {
         Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user.getYRot());
         Vec3 push = new Vec3(horizontalFacing.x, 0, horizontalFacing.y);
-        user.setDeltaMovement(push.scale(data.staffLength() / 10));
+        user.setDeltaMovement(push.scale(data.staffLength() / LEANING_PUSH_SCALE_DIVISOR));
         user.hurtMarked = true;
         getUserLeaningData(user, data).save(user);
     }
@@ -136,10 +138,9 @@ public class CatStaffPerchGroundWorker {
 
     private static newPerchingCatStaffData getUserLeaningData(Entity user, newPerchingCatStaffData data) {
         Vec3 userPosition = user.position();
-        newPerchingCatStaffData leaningData = data
+        return data
                 .withState(newPerchingCatStaffData.PerchingState.LEAN)
                 .withUserPositionBeforeLeaning(userPosition);
-        return leaningData;
     }
 
     private static void launchUser(Entity user) {
@@ -193,18 +194,16 @@ public class CatStaffPerchGroundWorker {
 
     private static newPerchingCatStaffData extendDownward(Level level, double expectedStaffTipY, newPerchingCatStaffData data) {
         double maxLength = MineraculousServerConfig.get().maxToolLength.get();
-        BlockPos targetPosition = BlockPos.containing(data.staffOrigin().subtract(0, CatStaffItem.STAFF_GROWTH_SPEED, 0)).below();
-        int numberOfCheckedBlocks = 0;
-        while (!level.getBlockState(targetPosition).isAir() && numberOfCheckedBlocks < maxLength) {
-            targetPosition = targetPosition.above();
-            numberOfCheckedBlocks++;
+        BlockPos targetPosition = BlockPos.containing(data.staffOrigin());
+        int analyzedBlocks = 0;
+        while (level.getBlockState(targetPosition.below()).isAir() && analyzedBlocks <= CatStaffItem.STAFF_GROWTH_SPEED) {
+            analyzedBlocks++;
+            targetPosition = targetPosition.below();
         }
-        if (level.getBlockState(targetPosition).isAir()) {
-            Vec3 newStaffOrigin = data.withStaffOriginY(targetPosition.getY()).staffOrigin();
-            double newLength = expectedStaffTipY - newStaffOrigin.y;
-            if (newLength < maxLength) {
-                data = data.withStaffLength(newLength, false);
-            }
+        Vec3 newStaffOrigin = data.withStaffOriginY(targetPosition.getY()).staffOrigin();
+        double newLength = expectedStaffTipY - newStaffOrigin.y;
+        if (newLength < maxLength) {
+            data = data.withStaffLength(newLength, false);
         }
         return data;
     }
@@ -223,7 +222,7 @@ public class CatStaffPerchGroundWorker {
         double maxLength = MineraculousServerConfig.get().maxToolLength.get();
         double minLength = user.getBbHeight() + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
         double length = data.staffLength();
-        length += length + yMovement < maxLength ? yMovement : 0;
+        length += (length + yMovement < maxLength) ? yMovement : 0;
         length = Math.max(minLength, length);
 
         return data.withStaffLength(length, true);

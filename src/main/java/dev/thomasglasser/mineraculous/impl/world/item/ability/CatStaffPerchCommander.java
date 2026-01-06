@@ -5,6 +5,7 @@ import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundPerchVerticalInputPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateStaffInputPayload;
+import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.world.entity.Entity;
@@ -17,36 +18,8 @@ import net.minecraft.world.level.Level;
  *
  * The perch mode allows the user to extend its staff until it anchors on
  * the ground. This mode has 3 behavior states : LAUNCH, STAND, RELEASE, LEAN.
- *
- * LAUNCH state makes the staff extend itself downwards and rocket the user
- * into the air until it reaches the ground. The staff will never extend past
- * the limit set in server configuration for max tool length.
- *
- * STAND state describes the moment when the staff is completely still and will
- * change its length only when the user uses the ascend and descend tool keybinds
- * which lately changes the VerticalMovement of the Perching State.
- * The staff length can never be negative and will always be bigger than the user's
- * height and smaller than the max tool length value set in configuration.
- *
- * RELEASE state means the user slowly lets go of the staff, therefore slips and
- * descends quickly without fall damage. If they move horizontally too much, the
- * tool will retract completely, and they will get fall damage. The staff
- * can transition to RELEASE state only from STAND state and when the user
- * right-clicks the tool.
- *
- * LEAN state will incline the staff causing a circular-motion fall. The user
- * won't experience damage as long as the staff has not retracted during the fall.
- * The staff can transition to LEAN state only from STAND state and when the user
- * left-clicks the tool. Jumping while falling or falling below the Y coordinate of
- * the staff's ground position will make the tool retract completely.
  */
 public class CatStaffPerchCommander {
-    /**
-     * This method gets triggered when the user right clicks with the cat staff.
-     * 
-     * @param level The level where the tool is.
-     * @param user  The entity using the cat staff while in perch mode.
-     */
     public static void itemUsed(Level level, LivingEntity user) {
         newPerchingCatStaffData data = user.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
         if (data.isModeActive()) {
@@ -74,7 +47,11 @@ public class CatStaffPerchCommander {
      * @param level The level where the tool is.
      * @param user  The entity using the tool.
      */
-    public static void tick(Level level, Entity user) {
+    public static void tick(Level level, Entity user, CatStaffItem.Mode mode) {
+        if (mode != CatStaffItem.Mode.PERCH && user.hasData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF)) {
+            newPerchingCatStaffData.remove(user);
+        }
+
         newPerchingCatStaffData originalData = user.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
         newPerchingCatStaffData data = originalData;
 
@@ -114,11 +91,6 @@ public class CatStaffPerchCommander {
         }
     }
 
-    /**
-     * This method is called on the client, and it signals the user's input to the server.
-     * 
-     * @param data The user's perching data, used only to check if the client can signal the server.
-     */
     private static void sendVerticalInput(newPerchingCatStaffData data) {
         if (data.state() == newPerchingCatStaffData.PerchingState.STAND) {
             boolean ascend = MineraculousKeyMappings.ASCEND_TOOL.isDown();

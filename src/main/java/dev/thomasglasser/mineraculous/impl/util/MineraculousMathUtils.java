@@ -31,22 +31,13 @@ public class MineraculousMathUtils {
     }
 
     public static Vec2 getHorizontalFacingVector(float yaw) {
-        while (yaw < 0.0f) {
-            yaw += 360.0f;
-        }
-        while (yaw >= 360.0f) {
-            yaw -= 360.0f;
-        }
+        yaw = (yaw % 360.0f + 360.0f) % 360.0f;
         float cos = (float) Math.cos(Math.toRadians(yaw));
         float sin = (float) -Math.sin(Math.toRadians(yaw));
         return new Vec2(sin, cos).normalized();
     }
 
-    public static Vec3 getMovementVector(double yaw, boolean... inputs) {
-        boolean front = inputs[0];
-        boolean back = inputs[1];
-        boolean left = inputs[2];
-        boolean right = inputs[3];
+    public static Vec3 getMovementVector(double yaw, boolean front, boolean back, boolean left, boolean right) {
         Vec3 movement = new Vec3(0f, 0f, 0f);
         double yawRad = Math.toRadians(yaw);
         Vec3 frontMovement = new Vec3(-Math.sin(yawRad), 0, Math.cos(yawRad)).normalize();

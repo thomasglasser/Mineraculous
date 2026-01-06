@@ -11,7 +11,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
 public record ServerboundPerchVerticalInputPayload(boolean ascend, boolean descend) implements ExtendedPacketPayload {
-    public static final Type<ServerboundPerchVerticalInputPayload> TYPE = new Type<>(MineraculousConstants.modLoc("staff_perch_vertical_input"));
+    public static final Type<ServerboundPerchVerticalInputPayload> TYPE = new Type<>(MineraculousConstants.modLoc("perch_vertical_input"));
     public static final StreamCodec<ByteBuf, ServerboundPerchVerticalInputPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL, ServerboundPerchVerticalInputPayload::ascend,
             ByteBufCodecs.BOOL, ServerboundPerchVerticalInputPayload::descend,

@@ -165,10 +165,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
         if (entity instanceof LivingEntity livingEntity) {
             Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
             boolean inHand = livingEntity.getMainHandItem() == stack || livingEntity.getOffhandItem() == stack;
-            CatStaffPerchCommander.tick(level, entity);
-            if (mode != Mode.PERCH) {
-                newPerchingCatStaffData.remove(entity);
-            }
+            CatStaffPerchCommander.tick(level, entity, mode);
             if (!inHand || !Active.isActive(stack)) {
                 newPerchingCatStaffData.remove(entity);
             }

@@ -83,16 +83,7 @@ public record newPerchingCatStaffData(
     }
 
     public newPerchingCatStaffData withVerticalMovement(VerticalMovement newVerticalMovement) {
-        return new newPerchingCatStaffData(
-                state,
-                newVerticalMovement,
-                pawDirection,
-                userPositionBeforeLeaning,
-                staffOrigin,
-                staffTip,
-                isModeActive,
-                onGround,
-                userGravity);
+        return new newPerchingCatStaffData(state, newVerticalMovement, pawDirection, userPositionBeforeLeaning, staffOrigin, staffTip, isModeActive, onGround, userGravity);
     }
 
     public newPerchingCatStaffData withStaffTipY(double y) {
@@ -100,16 +91,7 @@ public record newPerchingCatStaffData(
     }
 
     public newPerchingCatStaffData withStaffTip(Vec3 newStaffTip) {
-        newPerchingCatStaffData toReturn = new newPerchingCatStaffData(
-                state,
-                verticalMovement,
-                pawDirection,
-                userPositionBeforeLeaning,
-                staffOrigin,
-                newStaffTip,
-                isModeActive,
-                onGround,
-                userGravity);
+        newPerchingCatStaffData toReturn = new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeaning, staffOrigin, newStaffTip, isModeActive, onGround, userGravity);
         toReturn.validate();
         return toReturn;
     }
@@ -119,83 +101,29 @@ public record newPerchingCatStaffData(
     }
 
     public newPerchingCatStaffData withStaffOrigin(Vec3 newStaffOrigin) {
-        newPerchingCatStaffData toReturn = new newPerchingCatStaffData(
-                state,
-                verticalMovement,
-                pawDirection,
-                userPositionBeforeLeaning,
-                newStaffOrigin,
-                staffTip,
-                isModeActive,
-                onGround,
-                userGravity);
+        newPerchingCatStaffData toReturn = new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeaning, newStaffOrigin, staffTip, isModeActive, onGround, userGravity);
         toReturn.validate();
         return toReturn;
     }
 
     public newPerchingCatStaffData withGravity(boolean newGravity) {
-        return new newPerchingCatStaffData(
-                state,
-                verticalMovement,
-                pawDirection,
-                userPositionBeforeLeaning,
-                staffOrigin,
-                staffTip,
-                isModeActive,
-                onGround,
-                newGravity);
+        return new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeaning, staffOrigin, staffTip, isModeActive, onGround, newGravity);
     }
 
     public newPerchingCatStaffData withState(PerchingState newState) {
-        return new newPerchingCatStaffData(
-                newState,
-                verticalMovement,
-                pawDirection,
-                userPositionBeforeLeaning,
-                staffOrigin,
-                staffTip,
-                isModeActive,
-                onGround,
-                userGravity);
+        return new newPerchingCatStaffData(newState, verticalMovement, pawDirection, userPositionBeforeLeaning, staffOrigin, staffTip, isModeActive, onGround, userGravity);
     }
 
     public newPerchingCatStaffData withGround(boolean hitGround) {
-        return new newPerchingCatStaffData(
-                state,
-                verticalMovement,
-                pawDirection,
-                userPositionBeforeLeaning,
-                staffOrigin,
-                staffTip,
-                isModeActive,
-                hitGround,
-                userGravity);
+        return new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeaning, staffOrigin, staffTip, isModeActive, hitGround, userGravity);
     }
 
     public newPerchingCatStaffData withEnabled(boolean enable) {
-        return new newPerchingCatStaffData(
-                state,
-                verticalMovement,
-                pawDirection,
-                userPositionBeforeLeaning,
-                staffOrigin,
-                staffTip,
-                enable,
-                onGround,
-                userGravity);
+        return new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeaning, staffOrigin, staffTip, enable, onGround, userGravity);
     }
 
     public newPerchingCatStaffData withUserPositionBeforeLeaning(Vec3 position) {
-        return new newPerchingCatStaffData(
-                state,
-                verticalMovement,
-                pawDirection,
-                position,
-                staffOrigin,
-                staffTip,
-                isModeActive,
-                onGround,
-                userGravity);
+        return new newPerchingCatStaffData(state, verticalMovement, pawDirection, position, staffOrigin, staffTip, isModeActive, onGround, userGravity);
     }
 
     public Vec3 horizontalPosition() {
@@ -229,6 +157,29 @@ public record newPerchingCatStaffData(
     public static void remove(Entity entity) {
         entity.removeData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
     }
+    /**
+     * LAUNCH state makes the staff extend itself downwards and rocket the user
+     * into the air until it reaches the ground. The staff will never extend past
+     * the limit set in server configuration for max tool length.
+     * <p>
+     * STAND state describes the moment when the staff is completely still and will
+     * change its length only when the user uses the ascend and descend tool keybinds
+     * which lately changes the VerticalMovement of the Perching State.
+     * The staff length can never be negative and will always be bigger than the user's
+     * height and smaller than the max tool length value set in configuration.
+     * <p>
+     * RELEASE state means the user slowly lets go of the staff, therefore slips and
+     * descends quickly without fall damage. If they move horizontally too much, the
+     * tool will retract completely, and they will get fall damage. The staff
+     * can transition to RELEASE state only from STAND state and when the user
+     * right-clicks the tool.
+     * <p>
+     * LEAN state will incline the staff causing a circular-motion fall. The user
+     * won't experience damage as long as the staff has not retracted during the fall.
+     * The staff can transition to LEAN state only from STAND state and when the user
+     * left-clicks the tool. Jumping while falling or falling below the Y coordinate of
+     * the staff's ground position will make the tool retract completely.
+     */
     public enum PerchingState implements StringRepresentable {
         STAND,
         LEAN,

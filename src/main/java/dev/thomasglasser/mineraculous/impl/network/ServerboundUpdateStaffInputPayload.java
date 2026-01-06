@@ -20,7 +20,9 @@ public record ServerboundUpdateStaffInputPayload(int input) implements ExtendedP
             ByteBufCodecs.VAR_INT, ServerboundUpdateStaffInputPayload::input,
             ServerboundUpdateStaffInputPayload::new);
 
-    // helpers
+    private static final double LEAN_JUMP_HORIZONTAL_MULTIPLIER = 2.0;
+    private static final double LEAN_JUMP_VERTICAL_MULTIPLIER = 2.0;
+
     public boolean up() {
         return (input & ServerboundUpdateYoyoInputPayload.UP) != 0;
     }
@@ -63,7 +65,10 @@ public record ServerboundUpdateStaffInputPayload(int input) implements ExtendedP
                 player.hurtMarked = true;
             } else if (leaning && jump()) {
                 Vec2 horizontal = MineraculousMathUtils.getHorizontalFacingVector(player.getYRot());
-                Vec3 movement = new Vec3(horizontal.x * 2, 2, horizontal.y * 2);
+                Vec3 movement = new Vec3(
+                        horizontal.x * LEAN_JUMP_HORIZONTAL_MULTIPLIER,
+                        LEAN_JUMP_VERTICAL_MULTIPLIER,
+                        horizontal.y * LEAN_JUMP_HORIZONTAL_MULTIPLIER);
                 player.setDeltaMovement(movement);
                 player.hurtMarked = true;
                 perchingData.withEnabled(false).save(player);

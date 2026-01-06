@@ -97,7 +97,7 @@ public class CatStaffPerchCommander {
             boolean descend = MineraculousKeyMappings.DESCEND_TOOL.isDown();
             newPerchingCatStaffData.VerticalMovement suggestedMovement = newPerchingCatStaffData.getVerticalMovement(ascend, descend);
             if (suggestedMovement != data.verticalMovement()) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundPerchVerticalInputPayload(ascend, descend));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundPerchVerticalInputPayload(suggestedMovement));
             }
         }
     }

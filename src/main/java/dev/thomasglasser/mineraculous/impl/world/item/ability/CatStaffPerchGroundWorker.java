@@ -62,8 +62,16 @@ public class CatStaffPerchGroundWorker {
 
         data = data.withGround(onGround);
 
+
         if (onGround && data.state() == newPerchingCatStaffData.PerchingState.STAND) {
             data = applyVerticalInput(user, data);
+            double length = data.staffLength();
+            double maxLength = MineraculousServerConfig.get().maxToolLength.get();
+            if (length > maxLength) {
+                double delta = Math.min(1, length - maxLength);
+                length -= delta;
+                data = data.withStaffLength(length, true);
+            }
         } else if (data.state() != newPerchingCatStaffData.PerchingState.LEAN) {
             data = data.withStaffTipY(expectedStaffTipY);
         }
@@ -214,7 +222,6 @@ public class CatStaffPerchGroundWorker {
             case ASCENDING -> CatStaffItem.USER_VERTICAL_MOVEMENT_SPEED;
             case DESCENDING -> -CatStaffItem.USER_VERTICAL_MOVEMENT_SPEED;
         };
-
         if (yMovement == 0.0) {
             return data;
         }
@@ -222,9 +229,8 @@ public class CatStaffPerchGroundWorker {
         double maxLength = MineraculousServerConfig.get().maxToolLength.get();
         double minLength = user.getBbHeight() + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
         double length = data.staffLength();
-        length += (length + yMovement < maxLength) ? yMovement : 0;
+        length += (length + yMovement < maxLength) ? yMovement : (maxLength - length);
         length = Math.max(minLength, length);
-
         return data.withStaffLength(length, true);
     }
 }

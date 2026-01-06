@@ -30,6 +30,7 @@ import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.Per
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterCosmeticOptions;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.SpecialPlayerData;
+import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRevertConvertedEntityPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetInventoryTrackedPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetMiraculousLookDataPayload;
@@ -44,6 +45,7 @@ import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.KamikotizedMinion;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
@@ -69,6 +71,7 @@ import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -531,6 +534,19 @@ public class MineraculousClientUtils {
             return livingEntity.getEyePosition(partialTick).add(-cosRot * armOffset - sinRot * frontOffsetScaled, (double) crouchOffset + heightOffset * (double) scale, -sinRot * armOffset + cosRot * frontOffsetScaled);
         }
         return Vec3.ZERO;
+    }
+
+    public static void renderCatStaffsInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level != null) {
+            for (Entity entity : level.entitiesForRendering()) {
+                newPerchingCatStaffData perchingData = entity.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
+                boolean renderPerch = perchingData.isModeActive();
+                if (renderPerch) {
+                    CatStaffRenderer.renderStaffInWorldSpace(poseStack, bufferSource, light, perchingData.staffOrigin(), perchingData.staffTip());
+                }
+            }
+        }
     }
 
     public record InputState(boolean front, boolean back, boolean left, boolean right, boolean jump) {

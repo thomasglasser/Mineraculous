@@ -62,7 +62,6 @@ public class CatStaffPerchGroundWorker {
 
         data = data.withGround(onGround);
 
-
         if (onGround && data.state() == newPerchingCatStaffData.PerchingState.STAND) {
             data = applyVerticalInput(user, data);
             double length = data.staffLength();

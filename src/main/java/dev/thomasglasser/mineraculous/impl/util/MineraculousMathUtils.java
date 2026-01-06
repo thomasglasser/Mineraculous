@@ -11,6 +11,10 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
 
 public class MineraculousMathUtils {
+    public static final Vec3 UP = new Vec3(0, 1, 0);
+    public static final Vec3 NORTH = new Vec3(0, 0, -1);
+    public static final Vec3 EAST = new Vec3(1, 0, 0);
+
     public static Vec3 rotateYaw(Vec3 vec3, double yaw) {
         return new Vec3(vec3.x * Math.cos(yaw) - vec3.z * Math.sin(yaw), vec3.y, vec3.x * Math.sin(yaw) + vec3.z * Math.cos(yaw));
     }

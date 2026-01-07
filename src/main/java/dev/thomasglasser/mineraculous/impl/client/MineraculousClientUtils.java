@@ -43,6 +43,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPay
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.KamikotizedMinion;
+import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchGroundWorker;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
@@ -58,8 +59,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.client.Camera;
@@ -536,14 +540,65 @@ public class MineraculousClientUtils {
         return Vec3.ZERO;
     }
 
-    public static void renderCatStaffsInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light) {
+    public record CatStaffTickData(Vec3 prevOrigin, Vec3 currOrigin) {}
+
+    public static Map<Integer, CatStaffTickData> catStaffPastTickExtremitiesEntityMap = new HashMap<>();
+
+    public static void updateCatStaffMap() {
+        catStaffPastTickExtremitiesEntityMap.clear();
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level != null) {
+            Set<Integer> seenThisTick = new HashSet<>();
+            for (Entity entity : level.entitiesForRendering()) {
+                newPerchingCatStaffData data = entity.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
+                if (!data.isModeActive()) continue;
+                seenThisTick.add(entity.getId());
+                catStaffPastTickExtremitiesEntityMap.compute(entity.getId(), (id, old) -> {
+                    if (old == null) {
+                        return new CatStaffTickData(
+                                data.staffOrigin(),
+                                data.staffOrigin());
+                    }
+                    return new CatStaffTickData(
+                            old.currOrigin(),
+                            data.staffOrigin());
+                });
+            }
+            catStaffPastTickExtremitiesEntityMap.keySet().removeIf(id -> !seenThisTick.contains(id));
+        }
+    }
+
+    public static void renderCatStaffsInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level != null) {
             for (Entity entity : level.entitiesForRendering()) {
                 newPerchingCatStaffData perchingData = entity.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
                 boolean renderPerch = perchingData.isModeActive();
                 if (renderPerch) {
-                    CatStaffRenderer.renderStaffInWorldSpace(poseStack, bufferSource, light, perchingData.staffOrigin(), perchingData.staffTip());
+                    CatStaffTickData extremities = catStaffPastTickExtremitiesEntityMap.get(entity.getId());
+                    if (extremities != null) {
+                        Vec3 interpolatedOrigin = extremities.prevOrigin.lerp(extremities.currOrigin, partialTick);
+                        double y = CatStaffPerchGroundWorker.expectedStaffTip(entity, partialTick).y;
+                        Vec3 interpolatedTip = perchingData.withStaffTipY(y).staffTip();
+
+                        boolean leaning = perchingData.state() == newPerchingCatStaffData.PerchingState.LEAN;
+                        if (leaning) {
+                            Vec3 userGroundProjected = perchingData.userPositionBeforeLeanOrRelease().multiply(1, 0, 1).add(0, perchingData.staffOrigin().y, 0);
+                            Vec3 oldUserPosition = new Vec3(entity.xOld, entity.yOld, entity.zOld);
+                            Vec3 userPosition = oldUserPosition.lerp(entity.position(), partialTick);
+                            Quaternionf rotation = new Quaternionf().rotationTo(MineraculousMathUtils.UP.toVector3f(), userPosition.subtract(userGroundProjected).normalize().toVector3f());
+                            poseStack.pushPose();
+                            poseStack.rotateAround(
+                                    rotation,
+                                    (float) perchingData.staffOrigin().x,
+                                    (float) perchingData.staffOrigin().y,
+                                    (float) perchingData.staffOrigin().z);
+                        }
+                        CatStaffRenderer.renderStaffInWorldSpace(poseStack, bufferSource, light, interpolatedOrigin, interpolatedTip);
+                        if (leaning) {
+                            poseStack.popPose();
+                        }
+                    }
                 }
             }
         }

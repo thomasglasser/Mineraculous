@@ -16,22 +16,22 @@ import net.minecraft.world.phys.Vec3;
  * See CatStaffPerchCommander to see how the perch mode works.
  * This record does not get any additional context related to the game.
  *
- * @param state                     The current state of the mode, see CatStaffPerchCommander for more details
- * @param verticalMovement          The movement of the player during STAND state.
- * @param pawDirection              The direction the user was facing when perch mode became active.
- * @param userPositionBeforeLeaning The coordinates of the player before transitioning to LEAN state
- * @param staffOrigin               The lower extremity's coordinates of the staff.
- * @param staffTip                  The upper extremity's coordinates of the staff.
- * @param isModeActive              Weather or not the perch mode is active.
- * @param onGround                  Weather or not the staff is anchored.
- * @param userGravity               Weather or not the user should be affected by gravity.
+ * @param state                           The current state of the mode, see CatStaffPerchCommander for more details
+ * @param verticalMovement                The movement of the player during STAND state.
+ * @param pawDirection                    The direction the user was facing when perch mode became active.
+ * @param userPositionBeforeLeanOrRelease The coordinates of the player before transitioning to LEAN state
+ * @param staffOrigin                     The lower extremity's coordinates of the staff.
+ * @param staffTip                        The upper extremity's coordinates of the staff.
+ * @param isModeActive                    Weather or not the perch mode is active.
+ * @param onGround                        Weather or not the staff is anchored.
+ * @param userGravity                     Weather or not the user should be affected by gravity.
  */
 
 public record newPerchingCatStaffData(
         PerchingState state,
         VerticalMovement verticalMovement,
         Direction pawDirection,
-        Vec3 userPositionBeforeLeaning,
+        Vec3 userPositionBeforeLeanOrRelease,
         Vec3 staffOrigin,
         Vec3 staffTip,
         boolean isModeActive,
@@ -42,7 +42,7 @@ public record newPerchingCatStaffData(
             PerchingState.STREAM_CODEC, newPerchingCatStaffData::state,
             VerticalMovement.STREAM_CODEC, newPerchingCatStaffData::verticalMovement,
             Direction.STREAM_CODEC, newPerchingCatStaffData::pawDirection,
-            TommyLibExtraStreamCodecs.VEC_3, newPerchingCatStaffData::userPositionBeforeLeaning,
+            TommyLibExtraStreamCodecs.VEC_3, newPerchingCatStaffData::userPositionBeforeLeanOrRelease,
             TommyLibExtraStreamCodecs.VEC_3, newPerchingCatStaffData::staffOrigin,
             TommyLibExtraStreamCodecs.VEC_3, newPerchingCatStaffData::staffTip,
             ByteBufCodecs.BOOL, newPerchingCatStaffData::isModeActive,
@@ -83,7 +83,7 @@ public record newPerchingCatStaffData(
     }
 
     public newPerchingCatStaffData withVerticalMovement(VerticalMovement newVerticalMovement) {
-        return new newPerchingCatStaffData(state, newVerticalMovement, pawDirection, userPositionBeforeLeaning, staffOrigin, staffTip, isModeActive, onGround, userGravity);
+        return new newPerchingCatStaffData(state, newVerticalMovement, pawDirection, userPositionBeforeLeanOrRelease, staffOrigin, staffTip, isModeActive, onGround, userGravity);
     }
 
     public newPerchingCatStaffData withStaffTipY(double y) {
@@ -91,7 +91,7 @@ public record newPerchingCatStaffData(
     }
 
     public newPerchingCatStaffData withStaffTip(Vec3 newStaffTip) {
-        newPerchingCatStaffData toReturn = new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeaning, staffOrigin, newStaffTip, isModeActive, onGround, userGravity);
+        newPerchingCatStaffData toReturn = new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeanOrRelease, staffOrigin, newStaffTip, isModeActive, onGround, userGravity);
         toReturn.validate();
         return toReturn;
     }
@@ -101,28 +101,28 @@ public record newPerchingCatStaffData(
     }
 
     public newPerchingCatStaffData withStaffOrigin(Vec3 newStaffOrigin) {
-        newPerchingCatStaffData toReturn = new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeaning, newStaffOrigin, staffTip, isModeActive, onGround, userGravity);
+        newPerchingCatStaffData toReturn = new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeanOrRelease, newStaffOrigin, staffTip, isModeActive, onGround, userGravity);
         toReturn.validate();
         return toReturn;
     }
 
     public newPerchingCatStaffData withGravity(boolean newGravity) {
-        return new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeaning, staffOrigin, staffTip, isModeActive, onGround, newGravity);
+        return new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeanOrRelease, staffOrigin, staffTip, isModeActive, onGround, newGravity);
     }
 
     public newPerchingCatStaffData withState(PerchingState newState) {
-        return new newPerchingCatStaffData(newState, verticalMovement, pawDirection, userPositionBeforeLeaning, staffOrigin, staffTip, isModeActive, onGround, userGravity);
+        return new newPerchingCatStaffData(newState, verticalMovement, pawDirection, userPositionBeforeLeanOrRelease, staffOrigin, staffTip, isModeActive, onGround, userGravity);
     }
 
     public newPerchingCatStaffData withGround(boolean hitGround) {
-        return new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeaning, staffOrigin, staffTip, isModeActive, hitGround, userGravity);
+        return new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeanOrRelease, staffOrigin, staffTip, isModeActive, hitGround, userGravity);
     }
 
     public newPerchingCatStaffData withEnabled(boolean enable) {
-        return new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeaning, staffOrigin, staffTip, enable, onGround, userGravity);
+        return new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeanOrRelease, staffOrigin, staffTip, enable, onGround, userGravity);
     }
 
-    public newPerchingCatStaffData withUserPositionBeforeLeaning(Vec3 position) {
+    public newPerchingCatStaffData withUserPositionBeforeLeanOrRelease(Vec3 position) {
         return new newPerchingCatStaffData(state, verticalMovement, pawDirection, position, staffOrigin, staffTip, isModeActive, onGround, userGravity);
     }
 

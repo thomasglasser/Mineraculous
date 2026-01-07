@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.item.ability;
 
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
@@ -20,6 +21,25 @@ public class CatStaffPerchGroundWorker {
     private static final double USER_FELL_TOO_MUCH_THRESHOLD = 0.5;
     private static final double USER_TOO_FAR_THRESHOLD = 1;
 
+    /**
+     * Used for rendering purposes only, already lerped.
+     * 
+     * @param user
+     * @return
+     */
+    public static Vec3 expectedStaffTip(Entity user, float partialTick) {
+        newPerchingCatStaffData perchingData = user.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
+        boolean movingTip = perchingData.state() == newPerchingCatStaffData.PerchingState.LAUNCH || perchingData.state() == newPerchingCatStaffData.PerchingState.STAND;
+        if (movingTip) {
+            Vec3 oldPos = new Vec3(user.xOld, user.yOld, user.zOld);
+            Vec3 from = oldPos.add(0, user.getBbHeight() + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET, 0);
+            Vec3 to = user.position().add(0, user.getBbHeight() + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET, 0);
+            return from.lerp(to, partialTick);
+        } else {
+            return perchingData.userPositionBeforeLeanOrRelease().add(0, user.getBbHeight() + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET, 0);
+        }
+    }
+
     protected static void activateMode(Level level, LivingEntity user) {
         if (!level.isClientSide()) {
             setUserLaunchingData(user);
@@ -31,6 +51,7 @@ public class CatStaffPerchGroundWorker {
         data
                 .withState(newPerchingCatStaffData.PerchingState.RELEASE)
                 .withGravity(true)
+                .withUserPositionBeforeLeanOrRelease(user.position())
                 .save(user);
     }
 
@@ -147,7 +168,7 @@ public class CatStaffPerchGroundWorker {
         Vec3 userPosition = user.position();
         return data
                 .withState(newPerchingCatStaffData.PerchingState.LEAN)
-                .withUserPositionBeforeLeaning(userPosition);
+                .withUserPositionBeforeLeanOrRelease(userPosition);
     }
 
     private static void launchUser(Entity user) {

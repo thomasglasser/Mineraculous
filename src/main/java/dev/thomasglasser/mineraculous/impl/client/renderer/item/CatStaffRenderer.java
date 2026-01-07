@@ -44,7 +44,8 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
     private static final IntPair STAFF_LINE_WORLD_DIMENSION_PIXELS = new IntPair(STAFF_WIDTH_WORLD_PIXELS, STAFF_GLOWING_LINE_HEIGHT_PIXELS); // DO NOT FETCH
 
     // TODO fetch the following:
-    private static final IntPair STAFF_TEXTURE_SIZE_PIXELS = new IntPair(64, 64);
+    private static final int STAFF_TEXTURE_HEIGHT = 64;
+    private static final int STAFF_TEXTURE_WIDTH = 64;
     private static final QuadUV NORTH = new QuadUV(new IntPair(0, 4), new IntPair(4, 33));
     private static final QuadUV EAST = new QuadUV(new IntPair(0, 4), new IntPair(4, 33));
     private static final QuadUV WEST = new QuadUV(new IntPair(0, 4), new IntPair(4, 33));
@@ -135,20 +136,19 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
         double segmentLength = STAFF_SELECTED_UV_HEIGHT_WORLD_PIXELS * PIXEL;
         int segmentCount = (int) Math.floor(totalLength / segmentLength);
 
-        for (int i = 0; i < segmentCount; i++) {
-            Vec3 segmentTip = staffTip.subtract(direction.scale(i * segmentLength));
-            Vec3 segmentOrigin = staffTip.subtract(direction.scale((i + 1) * segmentLength));
-
-            renderStaffSegment(
-                    poseStack,
-                    bufferSource,
-                    light,
-                    segmentOrigin,
-                    segmentTip);
+        int iteratedSegment = 0;
+        while (iteratedSegment < segmentCount) {
+            Vec3 segmentTip = staffTip.subtract(direction.scale(iteratedSegment * segmentLength));
+            Vec3 segmentOrigin = staffTip.subtract(direction.scale((iteratedSegment + 1) * segmentLength));
+            renderStaffSegment(poseStack, bufferSource, light, segmentOrigin, segmentTip, 1);
+            iteratedSegment++;
         }
+        Vec3 segmentTip = staffTip.subtract(direction.scale(iteratedSegment * segmentLength));
+        float multiplier = (float) (segmentTip.subtract(staffOrigin).length() / segmentLength);
+        renderStaffSegment(poseStack, bufferSource, light, staffOrigin, segmentTip, multiplier);
     }
 
-    private static void renderStaffSegment(PoseStack poseStack, MultiBufferSource bufferSource, int light, Vec3 segmentOrigin, Vec3 segmentTip) {
+    private static void renderStaffSegment(PoseStack poseStack, MultiBufferSource bufferSource, int light, Vec3 segmentOrigin, Vec3 segmentTip, float heightMultiplier) {
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(EXTENDED_LOCATION));
 
         Vec3 axis = segmentTip.subtract(segmentOrigin).normalize();
@@ -173,10 +173,10 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
         QuadCoords westSide = buildSideQuad(segmentOrigin, segmentTip, localWest, localNorth);
 
         PoseStack.Pose pose = poseStack.last();
-        quad(vertexConsumer, pose, light, NORTH, northSide);
-        quad(vertexConsumer, pose, light, EAST, eastSide);
-        quad(vertexConsumer, pose, light, SOUTH, southSide);
-        quad(vertexConsumer, pose, light, WEST, westSide);
+        quad(vertexConsumer, pose, light, NORTH, northSide, heightMultiplier);
+        quad(vertexConsumer, pose, light, EAST, eastSide, heightMultiplier);
+        quad(vertexConsumer, pose, light, SOUTH, southSide, heightMultiplier);
+        quad(vertexConsumer, pose, light, WEST, westSide, heightMultiplier);
     }
 
     private static void quad(
@@ -184,11 +184,12 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
             PoseStack.Pose pose,
             int light,
             QuadUV uv,
-            QuadCoords coords) {
-        float down = (float) uv.downRightUV.second / STAFF_TEXTURE_SIZE_PIXELS.first;
-        float right = (float) uv.upLeftUV.first / STAFF_TEXTURE_SIZE_PIXELS.first;
-        float up = (float) uv.upLeftUV.second / STAFF_TEXTURE_SIZE_PIXELS.first;
-        float left = (float) uv.downRightUV.first / STAFF_TEXTURE_SIZE_PIXELS.first;
+            QuadCoords coords,
+            float heightMultiplier) {
+        float down = (float) uv.downRightUV.second / STAFF_TEXTURE_HEIGHT * heightMultiplier;
+        float right = (float) uv.upLeftUV.first / STAFF_TEXTURE_WIDTH;
+        float up = (float) uv.upLeftUV.second / STAFF_TEXTURE_HEIGHT;
+        float left = (float) uv.downRightUV.first / STAFF_TEXTURE_WIDTH;
 
         MineraculousClientUtils.vertex(vertexConsumer, pose, (float) coords.upLeft.x, (float) coords.upLeft.y, (float) coords.upLeft.z, left, up, light);
         MineraculousClientUtils.vertex(vertexConsumer, pose, (float) coords.upRight.x, (float) coords.upRight.y, (float) coords.upRight.z, right, up, light);

@@ -343,6 +343,7 @@ public class MineraculousClientEvents {
         if (player != null) {
             checkYoyoInput(player);
         }
+        MineraculousClientUtils.updateCatStaffMap();
     }
 
     private static void checkYoyoInput(LocalPlayer player) {
@@ -429,7 +430,7 @@ public class MineraculousClientEvents {
             poseStack.pushPose();
             Vec3 cameraPos = renderDispatcher.camera.getPosition();
             poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-            MineraculousClientUtils.renderCatStaffsInWorldSpace(poseStack, bufferSource, light);
+            MineraculousClientUtils.renderCatStaffsInWorldSpace(poseStack, bufferSource, light, partialTick);
             poseStack.popPose();
         }
     }

@@ -594,7 +594,16 @@ public class MineraculousClientUtils {
                                     (float) perchingData.staffOrigin().y,
                                     (float) perchingData.staffOrigin().z);
                         }
-                        CatStaffRenderer.renderStaffInWorldSpace(poseStack, bufferSource, light, interpolatedOrigin, interpolatedTip);
+
+                        int pawDirection = switch (perchingData.pawDirection()) {
+                            case NORTH -> 1;
+                            case EAST -> 2;
+                            case SOUTH -> 3;
+                            case WEST -> 4;
+                            default -> 0;
+                        };
+
+                        CatStaffRenderer.renderStaffInWorldSpace(poseStack, bufferSource, light, interpolatedOrigin, interpolatedTip, entity.getBbHeight(), pawDirection);
                         if (leaning) {
                             poseStack.popPose();
                         }

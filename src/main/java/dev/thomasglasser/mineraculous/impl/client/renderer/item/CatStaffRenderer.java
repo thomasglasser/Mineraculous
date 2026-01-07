@@ -16,6 +16,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
@@ -50,7 +51,7 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
     private static final QuadUV EAST = new QuadUV(new IntPair(0, 4), new IntPair(4, 33));
     private static final QuadUV WEST = new QuadUV(new IntPair(0, 4), new IntPair(4, 33));
     private static final QuadUV SOUTH = new QuadUV(new IntPair(0, 4), new IntPair(4, 33));
-    private static final QuadUV PAW = new QuadUV(new IntPair(38, 41), new IntPair(63, 63));
+    private static final QuadUV PAW = new QuadUV(new IntPair(38, 41), new IntPair(64, 64));
     private static final QuadUV LINE = new QuadUV(new IntPair(16, 4), new IntPair(23, 4));
 
     private final GeoModel<T> model;
@@ -128,10 +129,11 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
                 tip.add(normal).add(halfWidth));
     }
 
-    public static void renderStaffInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light, Vec3 staffOrigin, Vec3 staffTip) {
+    public static void renderStaffInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light, Vec3 staffOrigin, Vec3 staffTip, double userHeight, int pawDirection) {
         Vec3 originToTip = staffTip.subtract(staffOrigin);
         double totalLength = originToTip.length();
         Vec3 direction = originToTip.normalize();
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(EXTENDED_LOCATION));
 
         double segmentLength = STAFF_SELECTED_UV_HEIGHT_WORLD_PIXELS * PIXEL;
         int segmentCount = (int) Math.floor(totalLength / segmentLength);
@@ -140,17 +142,53 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
         while (iteratedSegment < segmentCount) {
             Vec3 segmentTip = staffTip.subtract(direction.scale(iteratedSegment * segmentLength));
             Vec3 segmentOrigin = staffTip.subtract(direction.scale((iteratedSegment + 1) * segmentLength));
-            renderStaffSegment(poseStack, bufferSource, light, segmentOrigin, segmentTip, 1);
+            renderStaffSegment(poseStack, vertexConsumer, light, segmentOrigin, segmentTip, 1);
             iteratedSegment++;
         }
         Vec3 segmentTip = staffTip.subtract(direction.scale(iteratedSegment * segmentLength));
         float multiplier = (float) (segmentTip.subtract(staffOrigin).length() / segmentLength);
-        renderStaffSegment(poseStack, bufferSource, light, staffOrigin, segmentTip, multiplier);
+        renderStaffSegment(poseStack, vertexConsumer, light, staffOrigin, segmentTip, multiplier);
+
+        renderPaw(poseStack, vertexConsumer, staffTip, userHeight, pawDirection);
     }
 
-    private static void renderStaffSegment(PoseStack poseStack, MultiBufferSource bufferSource, int light, Vec3 segmentOrigin, Vec3 segmentTip, float heightMultiplier) {
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(EXTENDED_LOCATION));
+    private static void renderPaw(PoseStack poseStack, VertexConsumer vertexConsumer, Vec3 staffTip, double userHeight, int direction) {
+        Vec3 pawPosition = staffTip.subtract(0, STAFF_WIDTH_WORLD_PIXELS * PIXEL * 2.5, 0);
+        Vec3 pawOrigin = pawPosition.subtract(0, STAFF_WIDTH_WORLD_PIXELS * PIXEL / 2, 0);
+        Vec3 pawTip = pawPosition.add(0, STAFF_WIDTH_WORLD_PIXELS * PIXEL / 2, 0);
 
+        Vec3 axis = pawTip.subtract(pawOrigin).normalize();
+
+        Vec3 referenceUp = Math.abs(axis.dot(MineraculousMathUtils.UP)) > 0.99
+                ? MineraculousMathUtils.EAST
+                : MineraculousMathUtils.UP;
+
+        Vec3 localEast = axis.cross(referenceUp).normalize();
+        Vec3 localNorth = localEast.cross(axis).normalize();
+
+        double halfWidth = STAFF_WIDTH_WORLD_PIXELS * PIXEL / 2;
+        localEast = localEast.scale(halfWidth);
+        localNorth = localNorth.scale(halfWidth);
+
+        Vec3 localWest = localEast.scale(-1);
+        Vec3 localSouth = localNorth.scale(-1);
+
+        Vec3 primary = switch (direction) {
+            case 1 -> localSouth;
+            case 2 -> localNorth;
+            case 3 -> localSouth;
+            case 4 -> localWest;
+            default -> localNorth;
+        };
+
+        Vec3 secondary = primary == localNorth || primary == localSouth ? localEast : localNorth;
+
+        QuadCoords paw = buildSideQuad(pawOrigin, pawTip, primary, secondary);
+        PoseStack.Pose pose = poseStack.last();
+        quad(vertexConsumer, pose, LightTexture.FULL_BRIGHT, PAW, paw, 1);
+    }
+
+    private static void renderStaffSegment(PoseStack poseStack, VertexConsumer vertexConsumer, int light, Vec3 segmentOrigin, Vec3 segmentTip, float heightMultiplier) {
         Vec3 axis = segmentTip.subtract(segmentOrigin).normalize();
 
         Vec3 referenceUp = Math.abs(axis.dot(MineraculousMathUtils.UP)) > 0.99

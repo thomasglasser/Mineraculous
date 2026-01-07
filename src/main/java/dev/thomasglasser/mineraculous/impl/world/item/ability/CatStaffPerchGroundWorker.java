@@ -111,6 +111,11 @@ public class CatStaffPerchGroundWorker {
                         .withState(newPerchingCatStaffData.PerchingState.STAND)
                         .withGravity(false);
             }
+            boolean userGotTooFar = data.horizontalPosition().subtract(user.getX(), 0, user.getZ()).length() > USER_TOO_FAR_THRESHOLD;
+            if (userGotTooFar) {
+                return data.withEnabled(false);
+            }
+
         } else if (data.state() == newPerchingCatStaffData.PerchingState.RELEASE) {
             boolean userFellTooMuch = user.getY() - data.staffOrigin().y < USER_FELL_TOO_MUCH_THRESHOLD;
             boolean userGotTooFar = data.horizontalPosition().subtract(user.getX(), 0, user.getZ()).length() > USER_TOO_FAR_THRESHOLD;
@@ -152,12 +157,13 @@ public class CatStaffPerchGroundWorker {
         } else if (data.state() == newPerchingCatStaffData.PerchingState.LEAN) {
             Vec3 fromPlayerToOrigin = data.staffOrigin().subtract(user.position());
             double distance = fromPlayerToOrigin.length();
-            boolean shouldConstrain = Math.abs(distance - data.staffLength()) > POSITION_EPSILON &&
+            double length = data.staffLength() - user.getBbHeight() - CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
+            boolean shouldConstrain = Math.abs(distance - length) > POSITION_EPSILON &&
                     user.getY() > data.staffOrigin().y;
             if (shouldConstrain) {
                 Vec3 constrain = fromPlayerToOrigin
                         .normalize()
-                        .scale(distance - data.staffLength());
+                        .scale(distance - length);
                 user.move(MoverType.SELF, constrain);
                 user.hurtMarked = true;
             }
@@ -197,7 +203,7 @@ public class CatStaffPerchGroundWorker {
 
     private static Vec3 staffTipStartup(Entity user) {
         Vec3 userPosition = user.position();
-        Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user.getYRot());
+        Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user.getYRot()).scale(CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS);
         double userHeight = user.getBbHeight();
         return new Vec3(
                 userPosition.x + horizontalFacing.x,

@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
+import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
@@ -68,7 +70,6 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -163,6 +164,10 @@ public class MineraculousClientUtils {
         return Minecraft.getInstance().screen == null;
     }
 
+    private record EntityInInventoryQuaternions(Quaternionf horizontal, Quaternionf vertical) {}
+
+    private record EntityInInventoryRotations(float yBodyRot, float yRot, float xRot, float yHeadRotO, float yHeadRot) {}
+
     public static void renderEntityInInventory(
             GuiGraphics guiGraphics,
             int xStart,
@@ -170,34 +175,85 @@ public class MineraculousClientUtils {
             int xEnd,
             int yEnd,
             int scale,
-            float rotation,
+            float horizontalRotation,
+            float verticalRotation,
             LivingEntity entity) {
+        guiGraphics.enableScissor(xStart, yStart, xEnd, yEnd);
+        EntityInInventoryRotations originalRotation = new EntityInInventoryRotations(
+                entity.yBodyRot,
+                entity.getYRot(),
+                entity.getXRot(),
+                entity.yHeadRotO,
+                entity.yHeadRot);
+        EntityInInventoryRotations newRotation = new EntityInInventoryRotations(
+                180.0F + horizontalRotation * 2,
+                180.0F + horizontalRotation * 2,
+                -90 * 20.0F,
+                180.0F + horizontalRotation * 2,
+                180.0F + horizontalRotation * 2);
+
         float x = (float) (xStart + xEnd) / 2.0F;
         float y = (float) (yStart + yEnd) / 2.0F;
-        guiGraphics.enableScissor(xStart, yStart, xEnd, yEnd);
-        Quaternionf flipRot = new Quaternionf().rotateZ(Mth.PI);
-        Quaternionf forwardTilt = new Quaternionf().rotateX(90 * 20.0F * (Mth.PI / 180f));
-        flipRot.mul(forwardTilt);
-        float yBodyRot = entity.yBodyRot;
-        float yRot = entity.getYRot();
-        float xRot = entity.getXRot();
-        float yHeadRotO = entity.yHeadRotO;
-        float yHeadRot = entity.yHeadRot;
-        entity.yBodyRot = 180.0F + rotation * 2;
-        entity.setYRot(180.0F + rotation * 2);
-        entity.setXRot(-90 * 20.0F);
-        entity.yHeadRot = entity.getYRot();
-        entity.yHeadRotO = entity.getYRot();
-        float entityScale = entity.getScale();
-        Vector3f vector3f = new Vector3f(0.0F, entity.getBbHeight() / 2.0F + 0.0625F * entityScale, 0.0F);
-        float renderScale = (float) scale / entityScale;
-        InventoryScreen.renderEntityInInventory(guiGraphics, x, y, renderScale, vector3f, flipRot, forwardTilt, entity);
-        entity.yBodyRot = yBodyRot;
-        entity.setYRot(yRot);
-        entity.setXRot(xRot);
-        entity.yHeadRotO = yHeadRotO;
-        entity.yHeadRot = yHeadRot;
+        float renderScale = (float) scale / entity.getScale();
+        Vec3 translation = translatedEntityInInventory(entity);
+        EntityInInventoryQuaternions rotation = getRotations(verticalRotation);
+        setEntityInInventoryRotation(newRotation, entity);
+        renderEntityInInventory(guiGraphics, x, y, renderScale, translation.toVector3f(), translation.scale(-1).toVector3f(), rotation.horizontal(), rotation.vertical(), entity);
+        setEntityInInventoryRotation(originalRotation, entity);
         guiGraphics.disableScissor();
+    }
+
+    /**
+     * Translates to the half of the height.
+     */
+    private static Vec3 translatedEntityInInventory(LivingEntity entity) {
+        float entityScale = entity.getScale();
+        float halfHeight = -entity.getBbHeight() / 2.0F + 0.0625F * entityScale;
+        return new Vec3(0, halfHeight, 0);
+    }
+
+    private static EntityInInventoryQuaternions getRotations(float verticalRotation) {
+        Quaternionf flipRot = new Quaternionf().rotateZ(Mth.PI);
+        Quaternionf forwardTilt = new Quaternionf().rotateX(verticalRotation * (Mth.PI / 180f));
+        flipRot.mul(forwardTilt);
+        return new EntityInInventoryQuaternions(flipRot, forwardTilt);
+    }
+
+    private static void setEntityInInventoryRotation(EntityInInventoryRotations rotation, LivingEntity entity) {
+        entity.yBodyRot = rotation.yBodyRot;
+        entity.setYRot(rotation.yRot);
+        entity.setXRot(rotation.xRot);
+        entity.yHeadRotO = rotation.yHeadRotO;
+        entity.yHeadRot = rotation.yHeadRot;
+    }
+
+    private static void renderEntityInInventory(
+            GuiGraphics guiGraphics,
+            float x,
+            float y,
+            float scale,
+            Vector3f translate,
+            Vector3f pivot,
+            Quaternionf pose,
+            @org.jetbrains.annotations.Nullable Quaternionf cameraOrientation,
+            LivingEntity entity) {
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(x, y, 50.0);
+        guiGraphics.pose().scale(scale, scale, -scale);
+        guiGraphics.pose().translate(translate.x, translate.y, translate.z);
+        guiGraphics.pose().rotateAround(pose, pivot.x, pivot.y, pivot.z);
+        Lighting.setupForEntityInInventory();
+        EntityRenderDispatcher entityrenderdispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+        if (cameraOrientation != null) {
+            entityrenderdispatcher.overrideCameraOrientation(cameraOrientation.conjugate(new Quaternionf()).rotateY((float) Math.PI));
+        }
+
+        entityrenderdispatcher.setRenderShadow(false);
+        RenderSystem.runAsFancy(() -> entityrenderdispatcher.render(entity, 0.0, 0.0, 0.0, 0.0F, 1.0F, guiGraphics.pose(), guiGraphics.bufferSource(), 15728880));
+        guiGraphics.flush();
+        entityrenderdispatcher.setRenderShadow(true);
+        guiGraphics.pose().popPose();
+        Lighting.setupFor3DItems();
     }
 
     public static boolean tryOpenRadialMenuScreenFromProvider(InteractionHand hand, ItemStack stack, RadialMenuProvider<?> provider) {

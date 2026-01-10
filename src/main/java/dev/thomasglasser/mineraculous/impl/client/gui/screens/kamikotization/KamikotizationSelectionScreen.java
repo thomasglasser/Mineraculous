@@ -164,7 +164,7 @@ public class KamikotizationSelectionScreen extends Screen {
                     components.add(Component.translatable(MineraculousConstants.toLanguageKey(ability.getKey())).withStyle(ChatFormatting.GRAY));
                 }
             }
-            MineraculousClientUtils.renderEntityInInventory(guiGraphics, topLeftX + 15, topLeftY + 15, topLeftX + 113, topLeftY + 145, 60, (Minecraft.getInstance().player.tickCount % 360) * 2, targetPreview);
+            MineraculousClientUtils.renderEntityInInventory(guiGraphics, topLeftX + 15, topLeftY + 15, topLeftX + 113, topLeftY + 145, 60, (Minecraft.getInstance().player.tickCount % 360) * 2, 0, targetPreview);
             guiGraphics.drawString(this.font, Component.literal("---------------"), topLeftX + 131, topLeftY + 22, Optional.ofNullable(ChatFormatting.WHITE.getColor()).orElseThrow(), false);
             for (int i = 0; i < components.size(); i++) {
                 MutableComponent component = components.get(i);

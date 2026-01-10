@@ -85,9 +85,13 @@ public class LookCustomizationScreen<T> extends Screen {
 
     private boolean mouseDragging = false;
     private double oldMouseX = 0;
-    private double startRotation = 0;
-    private double selectedRotation = 0;
-    private double oldTickRotation = 0;
+    private double oldMouseY = 0;
+    private double startHorizontalRotation = 0;
+    private double startVerticalRotation = 0;
+    private double selectedHorizontalRotation = 0;
+    private double selectedVerticalRotation = 0;
+    private double oldTickHorizontalRotation = 0;
+    private double oldTickVerticalRotation = 0;
 
     public LookCustomizationScreen(ImmutableSet<Holder<LookContext>> contextSet, LookMetadataType<Set<ResourceKey<T>>> metadataType, Holder<T> selected, Function<Player, LookData> lookDataGetter, BiConsumer<Player, LookData> lookDataSetter, BiConsumer<Player, LookData> onApply) {
         super(Component.empty());
@@ -160,10 +164,12 @@ public class LookCustomizationScreen<T> extends Screen {
     @Override
     public void tick() {
         super.tick();
-        oldTickRotation = selectedRotation;
+        oldTickHorizontalRotation = selectedHorizontalRotation;
+        oldTickVerticalRotation = selectedVerticalRotation;
         if (!mouseDragging) {
-            selectedRotation -= ROTATION_SPEED;
-            startRotation = selectedRotation;
+            selectedHorizontalRotation -= ROTATION_SPEED;
+            startHorizontalRotation = selectedHorizontalRotation;
+            selectedVerticalRotation = selectedVerticalRotation;
         }
     }
 
@@ -174,17 +180,19 @@ public class LookCustomizationScreen<T> extends Screen {
         int width = this.width / 3;
         int bottom = this.height - this.layout.getFooterHeight();
 
-        float rotation = (float) Mth.lerp(partialTick, oldTickRotation, selectedRotation);
+        float horizontalRotation = (float) Mth.lerp(partialTick, oldTickHorizontalRotation, selectedHorizontalRotation);
+        float verticalRotation = (float) Mth.lerp(partialTick, oldTickVerticalRotation, selectedVerticalRotation);
 
-        MineraculousClientUtils.renderEntityInInventory(guiGraphics, 0, top, width, bottom, 80, 0, leftPreview);
-        MineraculousClientUtils.renderEntityInInventory(guiGraphics, width, top, 2 * width, bottom, 80, rotation, centerPreview);
-        MineraculousClientUtils.renderEntityInInventory(guiGraphics, 2 * width, top, 3 * width, bottom, 80, 0, rightPreview);
+        MineraculousClientUtils.renderEntityInInventory(guiGraphics, 0, top, width, bottom, 80, 0, 0, leftPreview);
+        MineraculousClientUtils.renderEntityInInventory(guiGraphics, width, top, 2 * width, bottom, 80, horizontalRotation, verticalRotation, centerPreview);
+        MineraculousClientUtils.renderEntityInInventory(guiGraphics, 2 * width, top, 3 * width, bottom, 80, 0, 0, rightPreview);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && !isMouseOverInteractive(mouseX, mouseY)) {
             oldMouseX = mouseX;
+            oldMouseY = mouseY;
             mouseDragging = true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -201,9 +209,13 @@ public class LookCustomizationScreen<T> extends Screen {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
         if (mouseDragging && button == 0) {
-            selectedRotation = oldMouseX - mouseX;
-            selectedRotation /= MOUSE_SENSITIVITY_ROTATION_FACTOR;
-            selectedRotation += startRotation;
+            selectedHorizontalRotation = oldMouseX - mouseX;
+            selectedHorizontalRotation /= MOUSE_SENSITIVITY_ROTATION_FACTOR;
+            selectedHorizontalRotation += startHorizontalRotation;
+
+            selectedVerticalRotation = oldMouseY - mouseY;
+            selectedVerticalRotation /= MOUSE_SENSITIVITY_ROTATION_FACTOR;
+            selectedVerticalRotation += startVerticalRotation;
         }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }

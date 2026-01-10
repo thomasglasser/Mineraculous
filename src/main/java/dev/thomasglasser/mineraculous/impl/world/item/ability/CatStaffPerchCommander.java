@@ -74,7 +74,7 @@ public class CatStaffPerchCommander {
 
     private static void cancelFallDamage(Entity user, newPerchingCatStaffData data) {
         boolean shouldCancelFallDamageWhileLeaning = data.state() == newPerchingCatStaffData.PerchingState.LEAN &&
-                user.getY() + USER_HEAD_CLEARANCE_BLOCKS > data.staffOrigin().y;;
+                user.getY() + USER_HEAD_CLEARANCE_BLOCKS > data.staffOrigin().y;
         if (data.shouldCancelFallDamage() || shouldCancelFallDamageWhileLeaning) {
             user.resetFallDistance();
         }

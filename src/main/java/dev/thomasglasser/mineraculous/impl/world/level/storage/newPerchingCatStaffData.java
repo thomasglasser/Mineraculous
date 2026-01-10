@@ -90,7 +90,6 @@ public record newPerchingCatStaffData(
 
     public newPerchingCatStaffData withStaffTip(Vec3 newStaffTip) {
         return new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeanOrRelease, staffOrigin, newStaffTip, isModeActive, onGround, userGravity);
-
     }
 
     public newPerchingCatStaffData withStaffOriginY(double y) {

@@ -310,8 +310,7 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
                 position.add(halfLength).subtract(halfWidth),
                 position.add(halfLength).add(halfWidth),
                 position.subtract(halfLength).add(halfWidth),
-                position.subtract(halfLength).subtract(halfWidth)
-        );
+                position.subtract(halfLength).subtract(halfWidth));
     }
 
     private static void quad(

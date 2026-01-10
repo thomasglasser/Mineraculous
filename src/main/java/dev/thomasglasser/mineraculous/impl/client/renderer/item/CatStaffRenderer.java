@@ -13,8 +13,8 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -56,6 +56,7 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
     private static final QuadUV SOUTH = new QuadUV(new IntPair(8, 4), new IntPair(12, 33));
     private static final QuadUV PAW = new QuadUV(new IntPair(38, 41), new IntPair(64, 64));
     private static final QuadUV LINE = new QuadUV(new IntPair(16, 4), new IntPair(23, 4));
+    private static final QuadUV CAP = new QuadUV(new IntPair(4, 3), new IntPair(8, 4));
 
     private final GeoModel<T> model;
 
@@ -97,8 +98,8 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
                 getTexture(animatable);
                 if (mode == CatStaffItem.Mode.PERCH || mode == CatStaffItem.Mode.TRAVEL) {
                     TravelingCatStaffData travelingCatStaffData = carrier.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
-                    PerchingCatStaffData perchingCatStaffData = carrier.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-                    if (travelingCatStaffData.traveling() || perchingCatStaffData.perching()) {
+                    newPerchingCatStaffData perchingCatStaffData = carrier.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
+                    if (travelingCatStaffData.traveling() || perchingCatStaffData.isModeActive()) {
                         boolean firstPersonHand = this.renderPerspective == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
                         boolean thirdPersonHand = this.renderPerspective == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
 
@@ -115,22 +116,6 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
             }
         }
         super.defaultRender(poseStack, animatable, bufferSource, renderType, buffer, yaw, partialTick, packedLight);
-    }
-
-    private record IntPair(int first, int second) {}
-
-    private record QuadUV(IntPair upLeftUV, IntPair downRightUV) {}
-
-    private record QuadCoords(Vec3 downLeft, Vec3 downRight, Vec3 upRight, Vec3 upLeft) {}
-
-    private record Vec3Directions(Vec3 north, Vec3 east) {}
-
-    public static void renderStaffInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light, Vec3 staffOrigin, Vec3 staffTip, Direction pawDirection) {
-        Vec3Directions directions = computeDirections(staffTip, staffOrigin);
-        VertexConsumer normalVertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(CAT_STAFF_TEXTURE));
-        PoseStack.Pose pose = poseStack.last();
-        renderBar(pose, normalVertexConsumer, light, staffOrigin, staffTip, directions);
-        renderPaw(pose, normalVertexConsumer, staffTip, directions, pawDirection);
     }
 
     private void getTexture(T animatable) {
@@ -157,9 +142,24 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
         }
     }
 
+    private record IntPair(int first, int second) {}
+
+    private record QuadUV(IntPair upLeftUV, IntPair downRightUV) {}
+
+    private record QuadCoords(Vec3 downLeft, Vec3 downRight, Vec3 upRight, Vec3 upLeft) {}
+
+    private record Vec3Directions(Vec3 north, Vec3 east) {}
+
+    public static void renderStaffInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light, Vec3 staffOrigin, Vec3 staffTip, Direction pawDirection) {
+        Vec3Directions directions = computeDirections(staffTip, staffOrigin);
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(CAT_STAFF_TEXTURE));
+        PoseStack.Pose pose = poseStack.last();
+        renderBar(pose, vertexConsumer, light, staffOrigin, staffTip, directions);
+        renderPaw(pose, vertexConsumer, staffTip, directions, pawDirection);
+        renderLines(pose, vertexConsumer, staffTip, directions);
+    }
+
     private static void renderBar(PoseStack.Pose pose, VertexConsumer vertexConsumer, int light, Vec3 staffOrigin, Vec3 staffTip, Vec3Directions directions) {
-        Vec3 localNorth = directions.north();
-        Vec3 localEast = directions.east();
         Vec3 originToTip = staffTip.subtract(staffOrigin);
         double totalLength = originToTip.length();
         Vec3 staffDirection = originToTip.normalize();
@@ -170,18 +170,20 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
         while (iteratedSegment < segmentCount) {
             Vec3 segmentTip = staffTip.subtract(staffDirection.scale(iteratedSegment * segmentLength));
             Vec3 segmentOrigin = staffTip.subtract(staffDirection.scale((iteratedSegment + 1) * segmentLength));
-            renderStaffSegment(pose, vertexConsumer, light, segmentOrigin, segmentTip, localNorth, localEast, 1);
+            renderStaffSegment(pose, vertexConsumer, light, segmentOrigin, segmentTip, directions, 1);
             iteratedSegment++;
         }
         Vec3 segmentTip = staffTip.subtract(staffDirection.scale(iteratedSegment * segmentLength));
         float multiplier = (float) (segmentTip.subtract(staffOrigin).length() / segmentLength);
-        renderStaffSegment(pose, vertexConsumer, light, staffOrigin, segmentTip, localNorth, localEast, multiplier);
+        renderStaffSegment(pose, vertexConsumer, light, staffOrigin, segmentTip, directions, multiplier);
+        renderCaps(pose, vertexConsumer, light, staffOrigin, staffTip, directions);
     }
 
     private static void renderPaw(PoseStack.Pose pose, VertexConsumer vertexConsumer, Vec3 staffTip, Vec3Directions directions, Direction pawDirection) {
-        Vec3 pawPosition = staffTip.subtract(0, STAFF_WIDTH_WORLD_PIXELS * PIXEL * 3, 0);
-        Vec3 pawOrigin = pawPosition.subtract(0, STAFF_WIDTH_WORLD_PIXELS * PIXEL / 2, 0);
-        Vec3 pawTip = pawPosition.add(0, STAFF_WIDTH_WORLD_PIXELS * PIXEL / 2, 0);
+        Vec3 pawPosition = getPawPosition(staffTip);
+        double halfPawHeight = STAFF_WIDTH_WORLD_PIXELS * PIXEL / 2;
+        Vec3 pawOrigin = pawPosition.subtract(0, halfPawHeight, 0);
+        Vec3 pawTip = pawPosition.add(0, halfPawHeight, 0);
 
         Vec3 localNorth = directions.north();
         Vec3 localEast = directions.east();
@@ -201,15 +203,53 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
         quad(vertexConsumer, pose, LightTexture.FULL_BRIGHT, PAW, paw);
     }
 
+    private static Vec3 getPawPosition(Vec3 staffTip) {
+        return staffTip.subtract(0, STAFF_WIDTH_WORLD_PIXELS * PIXEL * 4, 0);
+    }
+
+    private static void renderLines(PoseStack.Pose pose, VertexConsumer vertexConsumer, Vec3 staffTip, Vec3Directions directions) {
+        Vec3 pawPosition = getPawPosition(staffTip);
+        double offset = (STAFF_WIDTH_WORLD_PIXELS + 3.4) * PIXEL / 2.0;
+        double thirdLineOffset = 7 / 10.0;
+        Vec3 firstLine = pawPosition.add(0, offset, 0);
+        Vec3 secondLine = pawPosition.subtract(0, offset, 0);
+        Vec3 thirdLine = secondLine.add(secondLine.subtract(firstLine).scale(thirdLineOffset));
+
+        renderLine(pose, vertexConsumer, firstLine, directions);
+        renderLine(pose, vertexConsumer, secondLine, directions);
+        renderLine(pose, vertexConsumer, thirdLine, directions);
+    }
+
+    private static void renderLine(PoseStack.Pose pose, VertexConsumer vertexConsumer, Vec3 linePosition, Vec3Directions directions) {
+        Vec3 localNorth = directions.north();
+        Vec3 localEast = directions.east();
+        Vec3 localWest = localEast.scale(-1);
+        Vec3 localSouth = localNorth.scale(-1);
+
+        Vec3 lineTop = linePosition.add(0, STAFF_GLOWING_LINE_HEIGHT_PIXELS * PIXEL / 4.0, 0);
+        Vec3 lineBottom = linePosition.subtract(0, STAFF_GLOWING_LINE_HEIGHT_PIXELS * PIXEL / 4.0, 0);
+
+        QuadCoords northSide = buildSideQuad(lineBottom, lineTop, localNorth.scale(Z_OFFSET_MULTIPLIER), localEast);
+        QuadCoords southSide = buildSideQuad(lineBottom, lineTop, localSouth.scale(Z_OFFSET_MULTIPLIER), localWest);
+        QuadCoords eastSide = buildSideQuad(lineBottom, lineTop, localEast.scale(Z_OFFSET_MULTIPLIER), localNorth);
+        QuadCoords westSide = buildSideQuad(lineBottom, lineTop, localWest.scale(Z_OFFSET_MULTIPLIER), localSouth);
+
+        quad(vertexConsumer, pose, LightTexture.FULL_BRIGHT, LINE, northSide);
+        quad(vertexConsumer, pose, LightTexture.FULL_BRIGHT, LINE, southSide);
+        quad(vertexConsumer, pose, LightTexture.FULL_BRIGHT, LINE, eastSide);
+        quad(vertexConsumer, pose, LightTexture.FULL_BRIGHT, LINE, westSide);
+    }
+
     private static void renderStaffSegment(
             PoseStack.Pose pose,
             VertexConsumer vertexConsumer,
             int light,
             Vec3 segmentOrigin,
             Vec3 segmentTip,
-            Vec3 localNorth,
-            Vec3 localEast,
+            Vec3Directions directions,
             float heightMultiplier) {
+        Vec3 localNorth = directions.north();
+        Vec3 localEast = directions.east();
         Vec3 localWest = localEast.scale(-1);
         Vec3 localSouth = localNorth.scale(-1);
 
@@ -222,6 +262,15 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
         quad(vertexConsumer, pose, light, EAST, eastSide, heightMultiplier);
         quad(vertexConsumer, pose, light, SOUTH, southSide, heightMultiplier);
         quad(vertexConsumer, pose, light, WEST, westSide, heightMultiplier);
+    }
+
+    private static void renderCaps(PoseStack.Pose pose, VertexConsumer vertexConsumer, int light, Vec3 staffOrigin, Vec3 staffTip, Vec3Directions directions) {
+        Vec3 localNorth = directions.north();
+        Vec3 localEast = directions.east();
+        QuadCoords upSide = buildCapQuad(staffTip, localNorth, localEast);
+        QuadCoords downSide = buildCapQuad(staffOrigin, localNorth, localEast);
+        quad(vertexConsumer, pose, light, CAP, upSide);
+        quad(vertexConsumer, pose, light, CAP, downSide);
     }
 
     private static Vec3Directions computeDirections(Vec3 staffTip, Vec3 staffOrigin) {
@@ -251,6 +300,18 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
                 origin.add(normal).subtract(halfWidth),
                 tip.add(normal).subtract(halfWidth),
                 tip.add(normal).add(halfWidth));
+    }
+
+    private static QuadCoords buildCapQuad(
+            Vec3 position,
+            Vec3 halfLength,
+            Vec3 halfWidth) {
+        return new QuadCoords(
+                position.add(halfLength).subtract(halfWidth),
+                position.add(halfLength).add(halfWidth),
+                position.subtract(halfLength).add(halfWidth),
+                position.subtract(halfLength).subtract(halfWidth)
+        );
     }
 
     private static void quad(

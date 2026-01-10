@@ -8,8 +8,11 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatSta
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -32,11 +35,11 @@ public class CatStaffPerchGroundWorker {
         boolean movingTip = perchingData.state() == newPerchingCatStaffData.PerchingState.LAUNCH || perchingData.state() == newPerchingCatStaffData.PerchingState.STAND;
         if (movingTip) {
             Vec3 oldPos = new Vec3(user.xOld, user.yOld, user.zOld);
-            Vec3 from = oldPos.add(0, user.getBbHeight() + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET, 0);
-            Vec3 to = user.position().add(0, user.getBbHeight() + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET, 0);
+            Vec3 from = oldPos.add(0, user.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET, 0);
+            Vec3 to = user.position().add(0, user.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET, 0);
             return from.lerp(to, partialTick);
         } else {
-            return perchingData.userPositionBeforeLeanOrRelease().add(0, user.getBbHeight() + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET, 0);
+            return perchingData.userPositionBeforeLeanOrRelease().add(0, user.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET, 0);
         }
     }
 
@@ -72,7 +75,7 @@ public class CatStaffPerchGroundWorker {
     }
 
     protected static double expectedUserY(Entity user, newPerchingCatStaffData data) {
-        double userHeight = user.getBbHeight();
+        double userHeight = user.getEyeHeight(Pose.STANDING);
         return data.staffTip().y - (userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET);
     }
 
@@ -157,7 +160,7 @@ public class CatStaffPerchGroundWorker {
         } else if (data.state() == newPerchingCatStaffData.PerchingState.LEAN) {
             Vec3 fromPlayerToOrigin = data.staffOrigin().subtract(user.position());
             double distance = fromPlayerToOrigin.length();
-            double length = data.staffLength() - user.getBbHeight() - CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
+            double length = data.staffLength() - user.getEyeHeight(Pose.STANDING) - CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
             boolean shouldConstrain = Math.abs(distance - length) > POSITION_EPSILON &&
                     user.getY() > data.staffOrigin().y;
             if (shouldConstrain) {
@@ -203,12 +206,19 @@ public class CatStaffPerchGroundWorker {
 
     private static Vec3 staffTipStartup(Entity user) {
         Vec3 userPosition = user.position();
-        Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user.getYRot()).scale(CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS);
-        double userHeight = user.getBbHeight();
+        Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user.getYRot());
+        Vec3 front = new Vec3(horizontalFacing.x, 0, horizontalFacing.y);
+        Vec3 placement = user.onGround()
+                ? front
+                : MineraculousMathUtils.UP.cross(front)
+                        .scale((user instanceof Player player && player.getMainArm() == HumanoidArm.RIGHT) ? -1 : 1)
+                        .add(front.scale(CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS));
+        placement = placement.scale(CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS);
+        double userHeight = user.getEyeHeight(Pose.STANDING);
         return new Vec3(
-                userPosition.x + horizontalFacing.x,
+                userPosition.x + placement.x,
                 userPosition.y + userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET,
-                userPosition.z + horizontalFacing.y);
+                userPosition.z + placement.z);
     }
 
     private static Vec3 staffOriginStartup(Entity user, Vec3 staffTip) {
@@ -223,7 +233,7 @@ public class CatStaffPerchGroundWorker {
      * @return Returns the expected staff's tip Y coordinate.
      */
     private static double expectedStaffTipY(Entity entity) {
-        return entity.getY() + entity.getBbHeight() + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
+        return entity.getY() + entity.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
     }
 
     private static newPerchingCatStaffData extendDownward(Level level, double expectedStaffTipY, newPerchingCatStaffData data) {
@@ -253,7 +263,7 @@ public class CatStaffPerchGroundWorker {
         }
 
         double maxLength = MineraculousServerConfig.get().maxToolLength.get();
-        double minLength = user.getBbHeight() + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
+        double minLength = user.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
         double length = data.staffLength();
         length += (length + yMovement < maxLength) ? yMovement : (maxLength - length);
         length = Math.max(minLength, length);

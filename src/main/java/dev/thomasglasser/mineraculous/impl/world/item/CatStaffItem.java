@@ -91,7 +91,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     public static final String ANIMATION_CLOSE_AND_EXTEND = "close_and_extend";
 
     public static final float DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS = 0.5f;
-    public static final float STAFF_HEAD_ABOVE_USER_HEAD_OFFSET = 0.2f;
+    public static final float STAFF_HEAD_ABOVE_USER_HEAD_OFFSET = 0.4f;
     public static final float USER_VERTICAL_MOVEMENT_SPEED = 0.5f;
     public static final double HORIZONTAL_MOVEMENT_THRESHOLD = 0.15d;
     public static final double HORIZONTAL_MOVEMENT_SCALE = 0.1d;

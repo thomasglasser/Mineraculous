@@ -52,18 +52,17 @@ public record newPerchingCatStaffData(
 
     public newPerchingCatStaffData() {
         this(PerchingState.LAUNCH, VerticalMovement.NEUTRAL, Direction.NORTH, Vec3.ZERO, Vec3.ZERO, Vec3.ZERO, false, false, true);
-        this.validate();
     }
 
-    public double staffLength() {
-        return staffTip.subtract(staffOrigin).length();
-    }
-
-    private void validate() {
+    public newPerchingCatStaffData {
         if (staffTip.y < staffOrigin.y) {
             throw new IllegalStateException(
                     "Cat Staff has impossible geometry:\n" + this);
         }
+    }
+
+    public double staffLength() {
+        return staffTip.subtract(staffOrigin).length();
     }
 
     public newPerchingCatStaffData withStaffLength(double newLength, boolean tip) {
@@ -78,7 +77,6 @@ public record newPerchingCatStaffData(
             extendedExtremity = staffUnit.scale(newLength).add(staffTip);
             toReturn = withStaffOrigin(extendedExtremity);
         }
-        toReturn.validate();
         return toReturn;
     }
 
@@ -91,9 +89,8 @@ public record newPerchingCatStaffData(
     }
 
     public newPerchingCatStaffData withStaffTip(Vec3 newStaffTip) {
-        newPerchingCatStaffData toReturn = new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeanOrRelease, staffOrigin, newStaffTip, isModeActive, onGround, userGravity);
-        toReturn.validate();
-        return toReturn;
+        return new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeanOrRelease, staffOrigin, newStaffTip, isModeActive, onGround, userGravity);
+
     }
 
     public newPerchingCatStaffData withStaffOriginY(double y) {
@@ -101,9 +98,7 @@ public record newPerchingCatStaffData(
     }
 
     public newPerchingCatStaffData withStaffOrigin(Vec3 newStaffOrigin) {
-        newPerchingCatStaffData toReturn = new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeanOrRelease, newStaffOrigin, staffTip, isModeActive, onGround, userGravity);
-        toReturn.validate();
-        return toReturn;
+        return new newPerchingCatStaffData(state, verticalMovement, pawDirection, userPositionBeforeLeanOrRelease, newStaffOrigin, staffTip, isModeActive, onGround, userGravity);
     }
 
     public newPerchingCatStaffData withGravity(boolean newGravity) {
@@ -227,7 +222,7 @@ public record newPerchingCatStaffData(
                   onGround     = %s
                   gravity      = %s
                   origin       = %s
-                  tip         = %s
+                  tip          = %s
                 }
                 """.formatted(
                 state,

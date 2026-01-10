@@ -594,16 +594,7 @@ public class MineraculousClientUtils {
                                     (float) perchingData.staffOrigin().y,
                                     (float) perchingData.staffOrigin().z);
                         }
-
-                        int pawDirection = switch (perchingData.pawDirection()) {
-                            case NORTH -> 1;
-                            case EAST -> 2;
-                            case SOUTH -> 3;
-                            case WEST -> 4;
-                            default -> 0;
-                        };
-
-                        CatStaffRenderer.renderStaffInWorldSpace(poseStack, bufferSource, light, interpolatedOrigin, interpolatedTip, entity.getBbHeight(), pawDirection);
+                        CatStaffRenderer.renderStaffInWorldSpace(poseStack, bufferSource, light, interpolatedOrigin, interpolatedTip, perchingData.pawDirection());
                         if (leaning) {
                             poseStack.popPose();
                         }
@@ -672,5 +663,20 @@ public class MineraculousClientUtils {
     public static void vertex(VertexConsumer vertexConsumer, PoseStack.Pose pose, Vec3 position, float u, float v, int light) {
         Vector3f pos = position.toVector3f();
         vertex(vertexConsumer, pose, pos, u, v, light);
+    }
+
+    public static void vertex(
+            VertexConsumer vc,
+            PoseStack.Pose pose,
+            float x, float y, float z,
+            float u, float v,
+            int light,
+            float nx, float ny, float nz) {
+        vc.addVertex(pose, x, y, z)
+                .setColor(-1)
+                .setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(light)
+                .setNormal(pose, nx, ny, nz);
     }
 }

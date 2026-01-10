@@ -368,7 +368,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         LivingEntity owner = getOwner();
         if (owner != null) {
             if (getGlowingPower() < 400)
-                setGlowingPower(getGlowingPower() + 20);
+                setGlowingPower(getGlowingPower() + 100);
             if (getGlowingPower() > 300) {
                 Vec3 middlePos = this.getBoundingBox().getCenter();
                 Vec3 ownerMiddlePos = owner.getBoundingBox().getCenter();

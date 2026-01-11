@@ -40,7 +40,7 @@ public interface GeoRendererMixin {
         if (original) {
             return true;
         }
-        return false;
+        return original;
     }
 
     @ModifyReturnValue(method = "checkAndRefreshBuffer", at = @At("RETURN"))

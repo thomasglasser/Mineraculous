@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.authlib.GameProfile;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.components.tabs.ExtendedTabNavigationBar;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RegistryElementSelectionScreen;
@@ -47,6 +48,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import org.lwjgl.opengl.GL11;
 
 /**
  * Selects looks for a provided element and context set.
@@ -179,8 +181,9 @@ public class LookCustomizationScreen<T> extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+
         int top = this.tabNavigationBar.getRectangle().bottom();
         int width = this.width / 3;
         int bottom = this.height - this.layout.getFooterHeight();
@@ -191,7 +194,16 @@ public class LookCustomizationScreen<T> extends Screen {
         MineraculousClientUtils.renderEntityInInventory(guiGraphics, 0, top, width, bottom, 80, 0, 0, leftPreview);
         MineraculousClientUtils.renderEntityInInventory(guiGraphics, width, top, 2 * width, bottom, 80 + zoom, horizontalRotation, verticalRotation, centerPreview);
         MineraculousClientUtils.renderEntityInInventory(guiGraphics, 2 * width, top, 3 * width, bottom, 80, 0, 0, rightPreview);
+
+        RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false);
+        guiGraphics.flush();
+
         updateMouseAboveCenterPreview(mouseX, mouseY, width, top, 2 * width, bottom);
+    }
+
+    @Override
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     private void updateMouseAboveCenterPreview(int mouseX, int mouseY, int xStart, int yStart, int xEnd, int yEnd) {

@@ -62,6 +62,9 @@ public class LookCustomizationScreen<T> extends Screen {
 
     private static final double MOUSE_SENSITIVITY_ROTATION_FACTOR = 1.5;
     private static final double ROTATION_SPEED = 1.3;
+    private static final int MOUSE_SENSITIVITY_ZOOM_FACTOR = 5;
+    private static final int MAX_ZOOM_LIMIT = 130;
+    private static final int MIN_ZOOM_LIMIT = -40;
 
     private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
     private final TabManager tabManager = new TabManager(this::addRenderableWidget, this::removeWidget);
@@ -83,6 +86,7 @@ public class LookCustomizationScreen<T> extends Screen {
     private Button previousButton;
     private Button nextButton;
 
+    private boolean mouseAboveCenterPreview = false;
     private boolean mouseDragging = false;
     private double oldMouseX = 0;
     private double oldMouseY = 0;
@@ -92,6 +96,7 @@ public class LookCustomizationScreen<T> extends Screen {
     private double selectedVerticalRotation = 0;
     private double oldTickHorizontalRotation = 0;
     private double oldTickVerticalRotation = 0;
+    private int zoom = 0;
 
     public LookCustomizationScreen(ImmutableSet<Holder<LookContext>> contextSet, LookMetadataType<Set<ResourceKey<T>>> metadataType, Holder<T> selected, Function<Player, LookData> lookDataGetter, BiConsumer<Player, LookData> lookDataSetter, BiConsumer<Player, LookData> onApply) {
         super(Component.empty());
@@ -184,12 +189,10 @@ public class LookCustomizationScreen<T> extends Screen {
         float verticalRotation = (float) Mth.lerp(partialTick, oldTickVerticalRotation, selectedVerticalRotation);
 
         MineraculousClientUtils.renderEntityInInventory(guiGraphics, 0, top, width, bottom, 80, 0, 0, leftPreview);
-        MineraculousClientUtils.renderEntityInInventory(guiGraphics, width, top, 2 * width, bottom, 80, horizontalRotation, verticalRotation, centerPreview);
+        MineraculousClientUtils.renderEntityInInventory(guiGraphics, width, top, 2 * width, bottom, 80 + zoom, horizontalRotation, verticalRotation, centerPreview);
         MineraculousClientUtils.renderEntityInInventory(guiGraphics, 2 * width, top, 3 * width, bottom, 80, 0, 0, rightPreview);
         updateMouseAboveCenterPreview(mouseX, mouseY, width, top, 2 * width, bottom);
     }
-
-    private boolean mouseAboveCenterPreview = false;
 
     private void updateMouseAboveCenterPreview(int mouseX, int mouseY, int xStart, int yStart, int xEnd, int yEnd) {
         mouseAboveCenterPreview = mouseX < xEnd && mouseX > xStart && mouseY < yEnd && mouseY > yStart;
@@ -225,6 +228,16 @@ public class LookCustomizationScreen<T> extends Screen {
             selectedVerticalRotation += startVerticalRotation;
         }
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (!isMouseOverInteractive(mouseX, mouseY) && mouseAboveCenterPreview) {
+            zoom += (int) scrollY * MOUSE_SENSITIVITY_ZOOM_FACTOR;
+            zoom = Math.max(MIN_ZOOM_LIMIT, zoom);
+            zoom = Math.min(MAX_ZOOM_LIMIT, zoom);
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override
@@ -337,6 +350,13 @@ public class LookCustomizationScreen<T> extends Screen {
         refreshLooks();
         this.selectedLooks = new Object2ObjectOpenHashMap<>();
         refreshPreviews();
+        zoom = 0;
+        startHorizontalRotation = 0;
+        startVerticalRotation = 0;
+        selectedHorizontalRotation = 0;
+        selectedVerticalRotation = 0;
+        oldTickHorizontalRotation = 0;
+        oldTickVerticalRotation = 0;
     }
 
     protected ResourceLocation getPreviousLook(ResourceKey<LookContext> context) {

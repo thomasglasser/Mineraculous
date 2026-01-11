@@ -169,7 +169,7 @@ public class LookCustomizationScreen<T> extends Screen {
         if (!mouseDragging) {
             selectedHorizontalRotation -= ROTATION_SPEED;
             startHorizontalRotation = selectedHorizontalRotation;
-            selectedVerticalRotation = selectedVerticalRotation;
+            startVerticalRotation = selectedVerticalRotation;
         }
     }
 
@@ -186,11 +186,18 @@ public class LookCustomizationScreen<T> extends Screen {
         MineraculousClientUtils.renderEntityInInventory(guiGraphics, 0, top, width, bottom, 80, 0, 0, leftPreview);
         MineraculousClientUtils.renderEntityInInventory(guiGraphics, width, top, 2 * width, bottom, 80, horizontalRotation, verticalRotation, centerPreview);
         MineraculousClientUtils.renderEntityInInventory(guiGraphics, 2 * width, top, 3 * width, bottom, 80, 0, 0, rightPreview);
+        updateMouseAboveCenterPreview(mouseX, mouseY, width, top, 2 * width, bottom);
+    }
+
+    private boolean mouseAboveCenterPreview = false;
+
+    private void updateMouseAboveCenterPreview(int mouseX, int mouseY, int xStart, int yStart, int xEnd, int yEnd) {
+        mouseAboveCenterPreview = mouseX < xEnd && mouseX > xStart && mouseY < yEnd && mouseY > yStart;
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0 && !isMouseOverInteractive(mouseX, mouseY)) {
+        if (button == 0 && !isMouseOverInteractive(mouseX, mouseY) && mouseAboveCenterPreview) {
             oldMouseX = mouseX;
             oldMouseY = mouseY;
             mouseDragging = true;

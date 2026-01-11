@@ -208,7 +208,7 @@ public class MineraculousClientUtils {
      */
     private static Vec3 translatedEntityInInventory(LivingEntity entity) {
         float entityScale = entity.getScale();
-        float halfHeight = -entity.getBbHeight() / 2.0F + 0.0625F * entityScale;
+        float halfHeight = -(entity.getBbHeight() / 2.0F + 0.0625F * entityScale);
         return new Vec3(0, halfHeight, 0);
     }
 

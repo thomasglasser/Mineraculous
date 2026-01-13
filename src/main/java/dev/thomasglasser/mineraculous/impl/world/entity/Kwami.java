@@ -112,6 +112,11 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private static final double SUMMON_TRAIL_ANGLE_STEP = Math.toRadians(26);
     private static final double SUMMON_TRAIL_MAX_RADIUS = 0.4;
     private static final double OWNER_HEIGHT_ADJUSTMENT = 2.5d / 4d;
+    private static final float GLOWING_POWER_EXPONENT = 2.25f;
+    private static final double OWNER_HEIGHT_OFFSET_FACTOR = 3.0 / 4.0;
+    private static final double LOOK_DIRECTION_SCALE_MULTIPLIER = 1.3;
+    private static final double MIN_RADIUS_RATIO = 0.1;
+    private static final float ROTATION_YAW_OFFSET = 180.0f;
 
     private static final EntityDataAccessor<Integer> DATA_SUMMON_TICKS = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
@@ -299,7 +304,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         if (owner != null) {
             switch (appearance) {
                 case TRAIL: {
-                    setGlowingPower((float) Math.pow(getSummonTicks(), 2.25));
+                    setGlowingPower((float) Math.pow(getSummonTicks(), GLOWING_POWER_EXPONENT));
                     if (getSummonTicks() > 10) {
                         summonRadius += SUMMON_RADIUS_STEP;
                         summonAngle += SUMMON_TRAIL_ANGLE_STEP;
@@ -307,23 +312,23 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                             summonRadius = SUMMON_TRAIL_MAX_RADIUS;
                         }
 
-                        double baseYawRad = Math.toRadians(owner.getYRot() + 180);
+                        double baseYawRad = Math.toRadians(owner.getYRot() + ROTATION_YAW_OFFSET);
                         Vec3 lookingAngle = new Vec3(Math.sin(baseYawRad), 0, -Math.cos(baseYawRad)).normalize();
                         Vec3 vertical = new Vec3(0, 1, 0);
                         Vec3 xzPerpendicular = lookingAngle.cross(vertical).normalize();
 
-                        double t = Math.max(summonRadius / SUMMON_TRAIL_MAX_RADIUS, 0.1);
-                        double scale = 1.3d * t;
+                        double t = Math.max(summonRadius / SUMMON_TRAIL_MAX_RADIUS, MIN_RADIUS_RATIO);
+                        double scale = LOOK_DIRECTION_SCALE_MULTIPLIER * t;
                         double x = summonRadius * Math.cos(summonAngle);
                         double y = summonRadius * Math.sin(summonAngle);
 
                         lookingAngle = lookingAngle.scale(scale);
                         Vec3 rotation = vertical.scale(y).add(xzPerpendicular.scale(x));
-                        Vec3 position = lookingAngle.add(rotation).add(owner.getX(), owner.getY() + 3 * owner.getBbHeight() / 4d, owner.getZ());
+                        Vec3 position = lookingAngle.add(rotation).add(owner.getX(), owner.getY() + owner.getBbHeight() * OWNER_HEIGHT_OFFSET_FACTOR, owner.getZ());
 
                         this.moveTo(position);
-                        this.setYRot(owner.getYRot() + 180);
-                        this.setYHeadRot(owner.getYRot() + 180);
+                        this.setYRot(owner.getYRot() + ROTATION_YAW_OFFSET);
+                        this.setYHeadRot(owner.getYRot() + ROTATION_YAW_OFFSET);
                     }
                     break;
                 }
@@ -353,10 +358,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                     break;
                 }
                 default: {
-                    MineraculousConstants.LOGGER.error(
-                            "Kwami {} has invalid SummoningAppearance: {}",
-                            this.getUUID(),
-                            appearance);
+                    logInvalidAppearance(appearance, this);
                     break;
                 }
             }
@@ -699,6 +701,13 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         return this.owner;
     }
 
+    private static void logInvalidAppearance(SummoningAppearance appearance, Kwami kwami){
+        MineraculousConstants.LOGGER.error(
+                "Kwami {} has invalid SummoningAppearance: {}",
+                kwami.getUUID(),
+                appearance);
+    }
+
     public static void applySummoningAppearance(SummoningAppearance appearance, Kwami kwami, Entity owner) {
         switch (appearance) {
             case Kwami.SummoningAppearance.TRAIL:
@@ -721,10 +730,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                 break;
             default: {
                 kwami.moveTo(owner.getX(), owner.getEyeY(), owner.getZ());
-                MineraculousConstants.LOGGER.error(
-                        "Kwami {} has invalid SummoningAppearance: {}",
-                        kwami.getUUID(),
-                        appearance);
+                logInvalidAppearance(appearance, kwami);
                 break;
             }
         }

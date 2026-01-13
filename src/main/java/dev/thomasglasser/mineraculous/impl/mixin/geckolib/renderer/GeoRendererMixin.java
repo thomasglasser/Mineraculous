@@ -37,9 +37,6 @@ public interface GeoRendererMixin {
         if (buffer instanceof ColoredOutlineBufferSource.EntityOutlineGenerator kwamiGlows) {
             return bufferNeedsRefresh(kwamiGlows.delegate());
         }
-        if (original) {
-            return true;
-        }
         return original;
     }
 

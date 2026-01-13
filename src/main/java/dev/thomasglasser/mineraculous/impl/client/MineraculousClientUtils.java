@@ -206,7 +206,7 @@ public class MineraculousClientUtils {
     /**
      * Translates to the half of the height.
      */
-    private static Vec3 translatedEntityInInventory(LivingEntity entity) {
+    public static Vec3 translatedEntityInInventory(LivingEntity entity) {
         float entityScale = entity.getScale();
         float halfHeight = -(entity.getBbHeight() / 2.0F + 0.0625F * entityScale);
         return new Vec3(0, halfHeight, 0);
@@ -235,7 +235,7 @@ public class MineraculousClientUtils {
             Vector3f translate,
             Vector3f pivot,
             Quaternionf pose,
-            @org.jetbrains.annotations.Nullable Quaternionf cameraOrientation,
+            Quaternionf cameraOrientation,
             LivingEntity entity) {
         guiGraphics.pose().pushPose();
         guiGraphics.pose().translate(x, y, 50.0);

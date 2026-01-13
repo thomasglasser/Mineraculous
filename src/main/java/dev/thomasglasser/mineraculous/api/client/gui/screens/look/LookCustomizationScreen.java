@@ -201,18 +201,13 @@ public class LookCustomizationScreen<T> extends Screen {
         updateMouseAboveCenterPreview(mouseX, mouseY, width, top, 2 * width, bottom);
     }
 
-    @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
-    }
-
     private void updateMouseAboveCenterPreview(int mouseX, int mouseY, int xStart, int yStart, int xEnd, int yEnd) {
         mouseAboveCenterPreview = mouseX < xEnd && mouseX > xStart && mouseY < yEnd && mouseY > yStart;
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0 && !isMouseOverInteractive(mouseX, mouseY) && mouseAboveCenterPreview) {
+        if (button == 0 && !isMouseOverWidget(mouseX, mouseY) && mouseAboveCenterPreview) {
             oldMouseX = mouseX;
             oldMouseY = mouseY;
             mouseDragging = true;
@@ -244,7 +239,7 @@ public class LookCustomizationScreen<T> extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        if (!isMouseOverInteractive(mouseX, mouseY) && mouseAboveCenterPreview) {
+        if (!isMouseOverWidget(mouseX, mouseY) && mouseAboveCenterPreview) {
             zoom += (int) scrollY * MOUSE_SENSITIVITY_ZOOM_FACTOR;
             zoom = Math.max(MIN_ZOOM_LIMIT, zoom);
             zoom = Math.min(MAX_ZOOM_LIMIT, zoom);
@@ -259,7 +254,7 @@ public class LookCustomizationScreen<T> extends Screen {
         } else return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
-    private boolean isMouseOverInteractive(double mouseX, double mouseY) {
+    private boolean isMouseOverWidget(double mouseX, double mouseY) {
         for (var child : this.children()) {
             if (child instanceof AbstractWidget widget) {
                 if (widget.isMouseOver(mouseX, mouseY) && widget.active && widget.visible) {

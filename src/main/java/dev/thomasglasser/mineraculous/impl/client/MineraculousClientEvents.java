@@ -461,78 +461,7 @@ public class MineraculousClientEvents {
         float partialTick = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPartialTickTime();
 
         if (stage == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
-            boolean kwamiGlowFlag = false;
-            FloatArrayList glowingPowers = new FloatArrayList();
-            if (MineraculousClientUtils.shouldShowKwamiGlow()) {
-                MineraculousClientUtils.getKwamiTarget().clear(Minecraft.ON_OSX);
-                MineraculousClientUtils.getKwamiTarget().copyDepthFrom(Minecraft.getInstance().getMainRenderTarget()); // supposed to enable depth test
-                MineraculousClientUtils.getKwamiTarget().bindWrite(true);
-            }
-
-            MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
-            Camera camera = renderDispatcher.camera;
-            Vec3 cameraPos = camera.getPosition();
-            for (Entity entity : Minecraft.getInstance().level.entitiesForRendering()) {
-                if (renderDispatcher.shouldRender(entity, event.getFrustum(), cameraPos.x, cameraPos.y, cameraPos.z)) {
-                    if (MineraculousClientUtils.shouldShowKwamiGlow() && entity instanceof Kwami kwami && kwami.isKwamiGlowing() && !kwami.isInOrbForm()) {
-                        glowingPowers.add(kwami.getGlowingPower());
-                        kwamiGlowFlag = true;
-                        ColoredOutlineBufferSource coloredOutlineBufferSource = new ColoredOutlineBufferSource(multibuffersource$buffersource);
-                        coloredOutlineBufferSource.setColor(kwami.getMiraculous().value().color().getValue());
-
-                        float trailWeight = Mth.clamp(kwami.getGlowingPower() / 200f, 0f, 1f);
-
-                        Vec3[] positions = kwami.getTickPositionsCopy();
-                        Vec3 currentPoint = entity.getPosition(partialTick);
-
-                        double stepDist = 0.05;
-                        double totalTrailLength = kwami.isTransforming() ? 1.5 : 0.7 * trailWeight;
-                        double distanceTravelled = 0;
-
-                        kwami.setTrailSize(1.0f);
-                        renderDispatcher.render(entity, currentPoint.x - camera.getPosition().x, currentPoint.y - camera.getPosition().y, currentPoint.z - camera.getPosition().z, entity.getYRot(), partialTick, poseStack, coloredOutlineBufferSource, LightTexture.FULL_BRIGHT);
-
-                        if (totalTrailLength > 0.01) {
-                            int waypointIndex = 1;
-                            while (waypointIndex < positions.length && distanceTravelled < totalTrailLength) {
-                                Vec3 targetWaypoint = positions[waypointIndex];
-                                double distToNext = currentPoint.distanceTo(targetWaypoint);
-
-                                if (distToNext > stepDist) {
-                                    Vec3 dir = targetWaypoint.subtract(currentPoint).normalize();
-                                    currentPoint = currentPoint.add(dir.scale(stepDist));
-
-                                    float progress = (float) (distanceTravelled / totalTrailLength);
-                                    float exponentialScale = (float) Math.pow(1.0f - progress, 1.7);
-                                    kwami.setTrailSize(exponentialScale * trailWeight);
-
-                                    renderDispatcher.render(
-                                            entity, currentPoint.x - camera.getPosition().x,
-                                            currentPoint.y - camera.getPosition().y,
-                                            currentPoint.z - camera.getPosition().z,
-                                            entity.getYRot(), partialTick, poseStack, coloredOutlineBufferSource,
-                                            LightTexture.FULL_BRIGHT);
-
-                                    distanceTravelled += stepDist;
-                                } else {
-                                    currentPoint = targetWaypoint;
-                                    waypointIndex++;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            multibuffersource$buffersource.endBatch();
-
-            if (MineraculousClientUtils.shouldShowKwamiGlow()) {
-                MineraculousClientUtils.getKwamiTarget().unbindWrite();
-            }
-            if (kwamiGlowFlag) {
-                MineraculousClientUtils.updateKwamiGlowUniforms(glowingPowers);
-                MineraculousClientUtils.getKwamiEffect().process(partialTick);
-            }
-            Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
+            KwamiRenderer.renderGlowingForm(poseStack, event.getFrustum(), partialTick);
         }
 
         if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson()) {

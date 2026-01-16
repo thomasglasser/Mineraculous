@@ -119,6 +119,12 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private static final double LOOK_DIRECTION_SCALE_MULTIPLIER = 1.3;
     private static final double MIN_RADIUS_RATIO = 0.1;
     private static final float ROTATION_YAW_OFFSET = 180.0f;
+    private static final int TRANSFORMING_MAX_GLOW_POWER = 400;
+    private static final int TRANSFORMING_GLOW_POWER_INCREMENT = 100;
+    private static final int TRANSFORMING_MOVEMENT_GLOW_THRESHOLD = 300;
+    private static final double TRANSFORMING_BASE_SPEED = 0.4;
+    private static final double TRANSFORMING_SPRINT_SPEED_BONUS = 0.2;
+    private static final double SUMMON_TRAIL_START_ANGLE = -0.75;
 
     private static final EntityDataAccessor<Integer> DATA_SUMMON_TICKS = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
@@ -300,7 +306,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         SummoningAppearance appearance = getSummoningAppearance();
 
         if (summonAngle == 0 && appearance == SummoningAppearance.TRAIL) {
-            summonAngle = -0.75;
+            summonAngle = -SUMMON_TRAIL_START_ANGLE;
         }
         setSummonTicks(getSummonTicks() - 1);
         if (owner != null) {
@@ -371,12 +377,12 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private void tickTransforming() {
         LivingEntity owner = getOwner();
         if (owner != null) {
-            if (getGlowingPower() < 400)
-                setGlowingPower(getGlowingPower() + 100);
-            if (getGlowingPower() > 300) {
+            if (getGlowingPower() < TRANSFORMING_MAX_GLOW_POWER)
+                setGlowingPower(getGlowingPower() + TRANSFORMING_GLOW_POWER_INCREMENT);
+            if (getGlowingPower() > TRANSFORMING_MOVEMENT_GLOW_THRESHOLD) {
                 Vec3 middlePos = this.getBoundingBox().getCenter();
                 Vec3 ownerMiddlePos = owner.getBoundingBox().getCenter();
-                setDeltaMovement(ownerMiddlePos.subtract(middlePos).normalize().scale(0.4 + (owner.isSprinting() ? 0.2 : 0)));
+                setDeltaMovement(ownerMiddlePos.subtract(middlePos).normalize().scale(TRANSFORMING_BASE_SPEED + (owner.isSprinting() ? TRANSFORMING_SPRINT_SPEED_BONUS : 0)));
             }
         } else {
             setTransforming(false);
@@ -716,18 +722,18 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
 
     public static void applySummoningAppearance(SummoningAppearance appearance, Kwami kwami, Entity owner) {
         switch (appearance) {
-            case Kwami.SummoningAppearance.TRAIL:
+            case TRAIL:
                 kwami.moveTo(owner.position().add(new Vec3(0, owner.getBbHeight() * OWNER_HEIGHT_ADJUSTMENT, 0)));
                 kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * 3 / 2);
                 kwami.setSummoningAppearance(appearance);
                 break;
-            case Kwami.SummoningAppearance.ORB:
+            case ORB:
                 kwami.moveTo(owner.position());
                 kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt());
                 kwami.playSound(MineraculousSoundEvents.KWAMI_SUMMON.get());
                 kwami.setSummoningAppearance(appearance);
                 break;
-            case Kwami.SummoningAppearance.INSTANT:
+            case INSTANT:
                 Vec3 ownerPos = owner.position();
                 Vec3 lookDirection = owner.getLookAngle();
                 Vec3 kwamiPos = ownerPos.add(lookDirection.scale(1.5));

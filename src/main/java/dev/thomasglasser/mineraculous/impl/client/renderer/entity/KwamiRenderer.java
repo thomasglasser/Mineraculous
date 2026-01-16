@@ -166,7 +166,7 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
             MineraculousClientUtils.getKwamiTarget().bindWrite(true);
         }
 
-        MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
+        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         Camera camera = renderDispatcher.camera;
         Vec3 cameraPos = camera.getPosition();
         for (Entity entity : Minecraft.getInstance().level.entitiesForRendering()) {
@@ -174,7 +174,7 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
                 if (MineraculousClientUtils.shouldShowKwamiGlow() && entity instanceof Kwami kwami && kwami.isKwamiGlowing() && !kwami.isInOrbForm()) {
                     glowingPowers.add(kwami.getGlowingPower());
                     kwamiGlowFlag = true;
-                    ColoredOutlineBufferSource coloredOutlineBufferSource = new ColoredOutlineBufferSource(multibuffersource$buffersource);
+                    ColoredOutlineBufferSource coloredOutlineBufferSource = new ColoredOutlineBufferSource(bufferSource);
                     coloredOutlineBufferSource.setColor(kwami.getMiraculous().value().color().getValue());
 
                     float trailWeight = Mth.clamp(kwami.getGlowingPower() / GLOW_POWER_NORMALIZER, 0f, 1f);
@@ -220,7 +220,7 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
                 }
             }
         }
-        multibuffersource$buffersource.endBatch();
+        bufferSource.endBatch();
 
         if (MineraculousClientUtils.shouldShowKwamiGlow()) {
             MineraculousClientUtils.getKwamiTarget().unbindWrite();

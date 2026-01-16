@@ -1,5 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
+import com.google.gson.JsonSyntaxException;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -49,6 +52,7 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -115,7 +119,77 @@ public class MineraculousClientUtils {
 
     private static final Map<UUID, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Object2ReferenceOpenHashMap<>();
     private static final IntList CATACLYSM_PIXELS = new IntArrayList();
+    private static final ResourceLocation KWAMI_GLOW_SHADER = MineraculousConstants.modLoc("shaders/post/kwami_glow.json");
+    private static final String KWAMI_GLOW_SHADER_TARGET = "kwami";
+    private static final String KWAMI_GLOW_SHADER_STRENGTH_UNIFORM = "BlurSigma";
+
     private static boolean wasJumping = false;
+
+    private static PostChain kwamiEffect;
+    private static RenderTarget kwamiTarget;
+
+    public static PostChain getKwamiEffect() {
+        return kwamiEffect;
+    }
+
+    public static void setKwamiEffect(PostChain postChain) {
+        kwamiEffect = postChain;
+    }
+
+    public static RenderTarget getKwamiTarget() {
+        return kwamiTarget;
+    }
+
+    public static void setKwamiTarget(RenderTarget renderTarget) {
+        kwamiTarget = renderTarget;
+    }
+
+    public static void initKwami() {
+        if (getKwamiEffect() != null) {
+            getKwamiEffect().close();
+        }
+        try {
+            setKwamiEffect(new PostChain(
+                    Minecraft.getInstance().getTextureManager(),
+                    Minecraft.getInstance().getResourceManager(),
+                    Minecraft.getInstance().getMainRenderTarget(),
+                    KWAMI_GLOW_SHADER));
+            getKwamiEffect().resize(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            setKwamiTarget(getKwamiEffect().getTempTarget(KWAMI_GLOW_SHADER_TARGET));
+        } catch (IOException | JsonSyntaxException e) {
+            MineraculousConstants.LOGGER.warn("Failed to load or parse shader: {}", KWAMI_GLOW_SHADER, e);
+            setKwamiEffect(null);
+            setKwamiTarget(null);
+        }
+    }
+
+    public static void updateKwamiGlowUniforms(FloatArrayList values) {
+        float kwamiGlowPower = 0.0f;
+        for (Float value : values) {
+            kwamiGlowPower = Math.max(kwamiGlowPower, value);
+        }
+        if (getKwamiEffect() != null) {
+            getKwamiEffect().setUniform(KWAMI_GLOW_SHADER_STRENGTH_UNIFORM, kwamiGlowPower);
+        }
+    }
+
+    public static boolean shouldShowKwamiGlow() {
+        return !Minecraft.getInstance().gameRenderer.isPanoramicMode() && getKwamiTarget() != null && getKwamiEffect() != null && Minecraft.getInstance().player != null;
+    }
+
+    public static void blitKwamiGlow() {
+        if (shouldShowKwamiGlow()) {
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(
+                    GlStateManager.SourceFactor.SRC_ALPHA,
+                    GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                    GlStateManager.SourceFactor.ZERO,
+                    GlStateManager.DestFactor.ONE);
+            getKwamiTarget().blitToScreen(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight(), false);
+            RenderSystem.disableBlend();
+            RenderSystem.defaultBlendFunc();
+        }
+    }
 
     // Special Player Handling
     public static void setSpecialPlayerData(UUID id, SpecialPlayerData data) {

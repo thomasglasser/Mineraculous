@@ -121,6 +121,7 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(LuckyCharmEvents::onDetermineLuckyCharmSpawnPos);
         NeoForge.EVENT_BUS.addListener(LuckyCharmEvents::onDetermineLuckyCharms);
 
+        NeoForge.EVENT_BUS.addListener(MiraculousEvents::onTriggerTransformMiraculous);
         NeoForge.EVENT_BUS.addListener(MiraculousEvents::onPreTransformMiraculous);
         NeoForge.EVENT_BUS.addListener(MiraculousEvents::onPreDetransformMiraculous);
 

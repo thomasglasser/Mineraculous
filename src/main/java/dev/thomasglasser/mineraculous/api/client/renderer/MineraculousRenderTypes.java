@@ -3,6 +3,8 @@ package dev.thomasglasser.mineraculous.api.client.renderer;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import java.util.function.BiFunction;
+import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -25,6 +27,20 @@ public class MineraculousRenderTypes {
 
     private static final RenderType MIRACULOUS_LADYBUG_BODY = createMiraculousLadybugBody();
     private static final RenderType MIRACULOUS_LADYBUG_OUTLINE = createMiraculousLadybugOutline();
+
+    private static final BiFunction<ResourceLocation, RenderStateShard.CullStateShard, RenderType> KWAMI_GLOW = Util.memoize(
+            (textureLocation, cullState) -> RenderType.create(
+                    "kwami_glow",
+                    DefaultVertexFormat.POSITION_TEX_COLOR,
+                    VertexFormat.Mode.QUADS,
+                    1536,
+                    RenderType.CompositeState.builder()
+                            .setShaderState(RenderStateShard.RENDERTYPE_OUTLINE_SHADER)
+                            .setTextureState(new RenderStateShard.TextureStateShard(textureLocation, false, false))
+                            .setCullState(cullState)
+                            .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
+                            .setOutputState(MineraculousRenderStateShards.KWAMI_TARGET)
+                            .createCompositeState(RenderType.OutlineProperty.IS_OUTLINE)));
 
     public static RenderType itemLuckyCharm() {
         return ITEM_LUCKY_CHARM;
@@ -197,5 +213,9 @@ public class MineraculousRenderTypes {
                         .setWriteMaskState(RenderStateShard.COLOR_WRITE)
                         .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                         .createCompositeState(false));
+    }
+
+    public static RenderType kwamiGlow(ResourceLocation location) {
+        return KWAMI_GLOW.apply(location, RenderStateShard.NO_CULL);
     }
 }

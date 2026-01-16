@@ -69,6 +69,7 @@ public class LookCustomizationScreen<T> extends Screen {
     private static final int MOUSE_SENSITIVITY_ZOOM_FACTOR = 5;
     private static final int MAX_ZOOM_LIMIT = 130;
     private static final int MIN_ZOOM_LIMIT = -40;
+    private static final int DEFAULT_PREVIEW_SCALE = 80;
 
     protected final ImmutableSet<Holder<LookContext>> contextSet;
     protected final LookMetadataType<Set<ResourceKey<T>>> metadataType;
@@ -190,9 +191,9 @@ public class LookCustomizationScreen<T> extends Screen {
         float horizontalRotation = (float) Mth.lerp(partialTick, oldTickHorizontalRotation, selectedHorizontalRotation);
         float verticalRotation = (float) Mth.lerp(partialTick, oldTickVerticalRotation, selectedVerticalRotation);
 
-        MineraculousClientUtils.renderEntityInInventory(guiGraphics, 0, top, width, bottom, 80, 0, 0, leftPreview);
-        MineraculousClientUtils.renderEntityInInventory(guiGraphics, width, top, 2 * width, bottom, 80 + zoom, horizontalRotation, verticalRotation, centerPreview);
-        MineraculousClientUtils.renderEntityInInventory(guiGraphics, 2 * width, top, 3 * width, bottom, 80, 0, 0, rightPreview);
+        MineraculousClientUtils.renderEntityInInventory(guiGraphics, 0, top, width, bottom, DEFAULT_PREVIEW_SCALE, 0, 0, leftPreview);
+        MineraculousClientUtils.renderEntityInInventory(guiGraphics, width, top, 2 * width, bottom, DEFAULT_PREVIEW_SCALE + zoom, horizontalRotation, verticalRotation, centerPreview);
+        MineraculousClientUtils.renderEntityInInventory(guiGraphics, 2 * width, top, 3 * width, bottom, DEFAULT_PREVIEW_SCALE, 0, 0, rightPreview);
 
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false);
         guiGraphics.flush();

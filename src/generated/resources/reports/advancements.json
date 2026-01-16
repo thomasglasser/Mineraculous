@@ -1,18 +1,18 @@
 [
-  "mineraculous:miraculous/root",
-  "mineraculous:miraculous/transform_ladybug",
-  "mineraculous:miraculous/obtain_lucky_charm",
-  "mineraculous:miraculous/obtain_self_lucky_charm",
-  "mineraculous:miraculous/transform_cat",
+  "mineraculous:adventure/perch_at_world_height",
+  "mineraculous:adventure/release_purified_butterfly",
+  "mineraculous:husbandry/obtain_camembert",
   "mineraculous:miraculous/cataclysm_block",
-  "mineraculous:miraculous/cataclysm_living_entity",
   "mineraculous:miraculous/cataclysm_kill_living_entity",
-  "mineraculous:miraculous/transform_butterfly",
+  "mineraculous:miraculous/cataclysm_living_entity",
   "mineraculous:miraculous/kamikotize_butterfly",
   "mineraculous:miraculous/kamikotize_entity",
   "mineraculous:miraculous/kamikotize_self",
+  "mineraculous:miraculous/obtain_lucky_charm",
+  "mineraculous:miraculous/obtain_self_lucky_charm",
+  "mineraculous:miraculous/root",
+  "mineraculous:miraculous/transform_butterfly",
+  "mineraculous:miraculous/transform_cat",
   "mineraculous:miraculous/transform_kamikotization",
-  "mineraculous:adventure/release_purified_butterfly",
-  "mineraculous:adventure/perch_at_world_height",
-  "mineraculous:husbandry/obtain_camembert"
+  "mineraculous:miraculous/transform_ladybug"
 ]

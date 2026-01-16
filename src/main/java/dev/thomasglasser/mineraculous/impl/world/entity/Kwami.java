@@ -639,7 +639,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         compound.putUUID("MiraculousId", getMiraculousId());
         compound.putInt("EatTicks", eatTicks);
         compound.putFloat("GlowingPower", getGlowingPower());
-        compound.putString("SummoningAppearance", getSummoningAppearance().name());
+        compound.putString("SummoningAppearance", getSummoningAppearance().getSerializedName());
     }
 
     @Override
@@ -651,7 +651,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         setMiraculousId(compound.getUUID("MiraculousId"));
         eatTicks = compound.getInt("EatTicks");
         setGlowingPower(compound.getFloat("GlowingPower"));
-        setSummoningAppearance(SummoningAppearance.valueOf(compound.getString("SummoningAppearance")));
+        setSummoningAppearance(SummoningAppearance.of(compound.getString("SummoningAppearance")));
     }
 
     @Override
@@ -701,7 +701,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         return this.owner;
     }
 
-    private static void logInvalidAppearance(SummoningAppearance appearance, Kwami kwami){
+    private static void logInvalidAppearance(SummoningAppearance appearance, Kwami kwami) {
         MineraculousConstants.LOGGER.error(
                 "Kwami {} has invalid SummoningAppearance: {}",
                 kwami.getUUID(),

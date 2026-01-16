@@ -129,7 +129,6 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
         this(LookData.DEFAULT, Optional.empty(), false, Optional.empty(), Optional.empty(), 0, 0, false, false, ImmutableList.of(), false);
     }
 
-// TODO: Make sure these r properly fixed
     /**
      * Triggers transformation mode for the kwami for the provided entity.
      *
@@ -139,10 +138,9 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
      */
     public void triggerTransformation(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous) {
         curiosData.ifPresentOrElse(curiosData -> {
-            if (/*checkNoTransform(entity)*/false/*TODO:Event*/) {
-                MineraculousConstants.LOGGER.error("Tried to trigger transformation for currently powered entity {}", entity.getName().plainCopy().getString());
+            ItemStack miraculousStack = CuriosUtils.getStackInSlot(entity, curiosData);
+            if (NeoForge.EVENT_BUS.post(new MiraculousEvent.Transform.Trigger(entity, miraculous, this, miraculousStack)).isCanceled())
                 return;
-            }
 
             UUID kwamiId = CuriosUtils.getStackInSlot(entity, curiosData).get(MineraculousDataComponents.KWAMI_ID);
             if (kwamiId != null) {

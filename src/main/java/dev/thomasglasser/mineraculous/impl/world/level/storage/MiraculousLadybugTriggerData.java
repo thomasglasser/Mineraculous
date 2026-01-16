@@ -7,40 +7,26 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
+import dev.thomasglasser.mineraculous.api.event.CollectMiraculousLadybugTargetsEvent;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
-import dev.thomasglasser.mineraculous.api.world.ability.AbilityData;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
-import dev.thomasglasser.mineraculous.api.world.item.EffectRevertingItem;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.level.storage.BlockReversionData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.ItemReversionData;
-import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
-import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugBlockTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugClusterTarget;
-import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugEntityTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetCollector;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -49,11 +35,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.common.NeoForge;
 import org.joml.Vector2d;
 
 public record MiraculousLadybugTriggerData(UUID performerId, UUID targetId, Optional<Holder<SoundEvent>> revertSound, int tickCount) {
@@ -87,11 +72,6 @@ public record MiraculousLadybugTriggerData(UUID performerId, UUID targetId, Opti
         entity.removeData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TRIGGER);
     }
 
-    @Nullable
-    public LivingEntity getPerformer(ServerLevel level) {
-        return level.getEntity(performerId) instanceof LivingEntity performer ? performer : null;
-    }
-
     public void tick(Entity entity, ServerLevel level) {
         double y = entity.getDeltaMovement().y;
         if (entity.isNoGravity() || (!entity.isNoGravity() && y < 0.13)) {
@@ -100,7 +80,7 @@ public record MiraculousLadybugTriggerData(UUID performerId, UUID targetId, Opti
             entity.setDeltaMovement(0, 0, 0);
             entity.hurtMarked = true;
             if (tickCount == 1) {
-                LivingEntity performer = this.getPerformer(level);
+                LivingEntity performer = MineraculousEntityUtils.findLivingEntity(level, performerId);
                 if (performer != null)
                     Ability.playSound(level, performer, revertSound);
                 spawnSphereParticles(MineraculousParticleTypes.SUMMONING_LADYBUG.get(), level, entity.position(), 200);
@@ -137,7 +117,7 @@ public record MiraculousLadybugTriggerData(UUID performerId, UUID targetId, Opti
     }
 
     private void spawnMiraculousLadybugs(ServerLevel level, Entity entity) {
-        ArrayList<Vector2d> circle = MineraculousMathUtils.generateCirclePoints(50, MIRACULOUS_LADYBUGS_COUNT);
+        List<Vector2d> circle = MineraculousMathUtils.generateCirclePoints(50, MIRACULOUS_LADYBUGS_COUNT);
         Vec3 spawnPosition = entity.position();
         ArrayList<ArrayList<MiraculousLadybugTarget<?>>> targetDatas = assignTargets(level);
 
@@ -158,35 +138,10 @@ public record MiraculousLadybugTriggerData(UUID performerId, UUID targetId, Opti
     }
 
     private List<MiraculousLadybugTarget<?>> determineTargets(ServerLevel level) {
-        BlockReversionData blockData = BlockReversionData.get(level);
-        EntityReversionData entityData = EntityReversionData.get(level);
-        ItemReversionData itemData = ItemReversionData.get(level);
-
         Multimap<ResourceKey<Level>, MiraculousLadybugTarget<?>> nonClusterableTargets = HashMultimap.create();
         Multimap<ResourceKey<Level>, MiraculousLadybugTarget<?>> clusterableTargets = HashMultimap.create();
         MiraculousLadybugTargetCollector collector = MiraculousLadybugTargetCollector.of(nonClusterableTargets::put, clusterableTargets::put);
-        for (UUID relatedId : collectToRevert(targetId, entityData)) {
-            beginReversionAndGatherTargets(level, relatedId, collector, blockData, entityData, itemData);
-            if (level.getEntity(relatedId) instanceof LivingEntity related) {
-                related.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).or(() -> related.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION)).ifPresent(kamikotizationData -> {
-                    Kamikotization value = kamikotizationData.kamikotization().value();
-                    AbilityData abilityData = AbilityData.of(kamikotizationData);
-                    value.powerSource().ifLeft(tool -> {
-                        if (tool.getItem() instanceof EffectRevertingItem item) {
-                            item.revert(related, collector);
-                        }
-                    }).ifRight(ability -> ability.value().revert(abilityData, level, related, collector));
-                    value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related, collector));
-                });
-                MiraculousesData miraculousesData = related.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                for (Holder<Miraculous> miraculous : miraculousesData.keySet()) {
-                    Miraculous value = miraculous.value();
-                    AbilityData abilityData = AbilityData.of(miraculousesData.get(miraculous));
-                    value.activeAbility().value().revert(abilityData, level, related, collector);
-                    value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related, collector));
-                }
-            }
-        }
+        NeoForge.EVENT_BUS.post(new CollectMiraculousLadybugTargetsEvent(level, performerId, targetId, collector));
 
         ResourceKey<Level> currentDimension = level.dimension();
         boolean shouldCluster = MineraculousServerConfig.get().miraculousLadybugReversionMode.get() == MineraculousServerConfig.MiraculousLadybugReversionMode.CLUSTERED;
@@ -236,46 +191,5 @@ public record MiraculousLadybugTriggerData(UUID performerId, UUID targetId, Opti
                 MineraculousConstants.LOGGER.error("Could not revert ability effects in dimension {} as it does not exist", dimension);
             }
         });
-    }
-
-    // TODO: Move to event
-    private static void beginReversionAndGatherTargets(
-            ServerLevel level,
-            UUID relatedId,
-            MiraculousLadybugTargetCollector targetCollector,
-            BlockReversionData blockData,
-            EntityReversionData entityData,
-            ItemReversionData itemData) {
-        itemData.markReverted(relatedId);
-        entityData.revertRemovableAndCopied(relatedId, level);
-        for (Map.Entry<ResourceKey<Level>, BlockPos> location : blockData.getReversionPositions(relatedId).entries()) {
-            targetCollector.putClusterable(location.getKey(), new MiraculousLadybugBlockTarget(location.getValue(), relatedId));
-        }
-        for (Map.Entry<ResourceKey<Level>, Vec3> location : entityData.getReversionAndConversionPositions(relatedId).entries()) {
-            ResourceKey<Level> dimension = location.getKey();
-            Vec3 pos = location.getValue();
-            for (Map.Entry<UUID, CompoundTag> entry : entityData.getRevertibleAndConvertedAt(relatedId, dimension, pos).entrySet()) {
-                UUID entityId = entry.getKey();
-                Entity entity = MineraculousEntityUtils.findEntity(level, entityId);
-                if (entity != null) {
-                    targetCollector.put(dimension, new MiraculousLadybugEntityTarget(pos, relatedId, entity.getBbWidth(), entity.getBbHeight()));
-                } else {
-                    CompoundTag tag = entry.getValue();
-                    EntityType.by(tag).ifPresentOrElse(type -> targetCollector.put(dimension, new MiraculousLadybugEntityTarget(pos, relatedId, type.getWidth(), type.getHeight())), () -> MineraculousConstants.LOGGER.error("Invalid entity data passed to RevertLuckyCharmTargetsAbilityEffectsAbility: {}", tag));
-                }
-            }
-        }
-    }
-
-    private Set<UUID> collectToRevert(UUID uuid, EntityReversionData entityData) {
-        Set<UUID> toRevert = new ReferenceOpenHashSet<>();
-        toRevert.add(uuid);
-        for (UUID related : entityData.getAndClearTrackedAndRelatedEntities(uuid)) {
-            if (!toRevert.contains(related)) {
-                toRevert.add(related);
-                collectToRevert(related, entityData);
-            }
-        }
-        return toRevert;
     }
 }

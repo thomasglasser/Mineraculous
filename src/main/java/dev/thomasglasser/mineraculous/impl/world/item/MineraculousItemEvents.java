@@ -1,11 +1,19 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.event.ItemBreakEvent;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
+import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
+import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
+import net.minecraft.Util;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -42,5 +50,33 @@ public class MineraculousItemEvents {
             });
             event.setCanceled(true);
         }
+    }
+
+    public static void onPreItemBreak(ItemBreakEvent.Pre event) {
+        ItemStack stack = event.getStack();
+        LivingEntity breaker = event.getBreaker();
+        if (stack.has(MineraculousDataComponents.KAMIKOTIZING) || breaker != null && stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.getOrDefault(MineraculousDataComponents.OWNER, Util.NIL_UUID).equals(breaker.getUUID())) {
+            if (breaker instanceof Player player) {
+                player.displayClientMessage(MineraculousItemUtils.KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, true);
+            }
+            event.setCanceled(true);
+        }
+    }
+
+    public static void onDetermineItemBreakDamage(ItemBreakEvent.DetermineDamage event) {
+        LivingEntity breaker = event.getBreaker();
+        int damage = event.getDamage();
+        if (breaker != null) {
+            MiraculousesData miraculousesData = breaker.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+            if (miraculousesData.isTransformed()) {
+                damage += 100 * miraculousesData.getMaxTransformedPowerLevel();
+            } else {
+                Optional<KamikotizationData> kamikotizationData = breaker.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
+                if (kamikotizationData.isPresent()) {
+                    damage += 100 * kamikotizationData.get().kamikoData().powerLevel();
+                }
+            }
+        }
+        event.setDamage(damage);
     }
 }

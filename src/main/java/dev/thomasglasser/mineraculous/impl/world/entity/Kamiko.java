@@ -2,6 +2,8 @@ package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.LookData;
+import dev.thomasglasser.mineraculous.api.event.CanBeForceKamikotizedEvent;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousDamageTypeTags;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
@@ -66,6 +68,7 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.NeoForge;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
@@ -102,7 +105,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     private static final EntityDataAccessor<Optional<ResourceLocation>> DATA_FACE_MASK_TEXTURE = SynchedEntityData.defineId(Kamiko.class, MineraculousEntityDataSerializers.OPTIONAL_RESOURCE_LOCATION.get());
     private static final EntityDataAccessor<Optional<UUID>> DATA_REPLICA_SOURCE = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Optional<Holder<Kamikotization>>> DATA_KAMIKOTIZATION = SynchedEntityData.defineId(Kamiko.class, MineraculousEntityDataSerializers.OPTIONAL_KAMIKOTIZATION.get());
-    private static final EntityDataAccessor<String> DATA_REPLICA_NAME = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<LookData> DATA_REPLICA_LOOK_DATA = SynchedEntityData.defineId(Kamiko.class, MineraculousEntityDataSerializers.LOOK_DATA.get());
     private static final EntityDataAccessor<Integer> DATA_REPLICA_TOOL_COUNT = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_IS_REPLICA = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> DATA_IS_RESTING = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.BOOLEAN);
@@ -123,7 +126,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         builder.define(DATA_FACE_MASK_TEXTURE, Optional.empty());
         builder.define(DATA_REPLICA_SOURCE, Optional.empty());
         builder.define(DATA_KAMIKOTIZATION, Optional.empty());
-        builder.define(DATA_REPLICA_NAME, "");
+        builder.define(DATA_REPLICA_LOOK_DATA, LookData.DEFAULT);
         builder.define(DATA_REPLICA_TOOL_COUNT, 0);
         builder.define(DATA_IS_REPLICA, false);
         builder.define(DATA_IS_RESTING, false);
@@ -169,12 +172,12 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         entityData.set(DATA_KAMIKOTIZATION, kamikotization);
     }
 
-    public String getReplicaName() {
-        return entityData.get(DATA_REPLICA_NAME);
+    public LookData getReplicaLookData() {
+        return entityData.get(DATA_REPLICA_LOOK_DATA);
     }
 
-    public void setReplicaName(String name) {
-        entityData.set(DATA_REPLICA_NAME, name);
+    public void setReplicaLookData(LookData lookData) {
+        entityData.set(DATA_REPLICA_LOOK_DATA, lookData);
     }
 
     public int getReplicaToolCount() {
@@ -331,7 +334,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                 new InvalidateAttackTarget<Kamiko>() {
                     @Override
                     protected boolean canAttack(Kamiko kamiko, LivingEntity target) {
-                        return kamiko.canBeSeenByAnyone() && (!kamiko.isReplica() || kamiko.canForceKamikotize(target));
+                        return target.canBeSeenByAnyone() && (!kamiko.isReplica() || kamiko.canForceKamikotize(target));
                     }
                 }.invalidateIf((EntityUtils.TARGET_TOO_FAR_PREDICATE::test)),
                 new SetWalkTargetToAttackTarget<Kamiko>().startCondition(kamiko -> {
@@ -353,11 +356,8 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     public boolean canForceKamikotize(LivingEntity target) {
         UUID targetId = target.getUUID();
         if (targetId.equals(getOwnerUUID()) || getReplicaSource().map(targetId::equals).orElse(false)) return false;
-        if (target.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).spectatingId().isPresent()) return false;
-        // TODO: Convert to event
-        if (target instanceof Player player && player.getAbilities().instabuild && !MineraculousServerConfig.get().forceKamikotizeCreativePlayers.getAsBoolean())
-            return false;
-        return target.isAlive();
+        if (!target.canBeSeenByAnyone()) return false;
+        return NeoForge.EVENT_BUS.post(new CanBeForceKamikotizedEvent(target)).canBeKamikotized();
     }
 
     protected @Nullable LivingEntity findNearestForceKamikotizeTarget() {
@@ -442,7 +442,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         if (getTarget() == player && getOwner() instanceof ServerPlayer owner) {
             if (isReplica()) {
                 getKamikotization().ifPresentOrElse(kamikotization -> {
-                    KamikotizedMinion minion = new KamikotizedMinion((ServerPlayer) player, kamikotization, new KamikoData(this), getReplicaName(), getReplicaToolCount());
+                    KamikotizedMinion minion = new KamikotizedMinion((ServerPlayer) player, kamikotization, new KamikoData(this), getReplicaLookData(), getReplicaToolCount());
                     minion.setOwnerUUID(getReplicaSource().orElseThrow(() -> new IllegalStateException("Tried to summon Kamikotized Minion without replica source")));
                     level().addFreshEntity(minion);
                     EntityReversionData.get((ServerLevel) level()).putRemovable(getOwnerUUID(), minion);
@@ -501,7 +501,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         getReplicaSource().ifPresent(uuid -> compound.putUUID("ReplicaSource", uuid));
         RegistryOps<Tag> ops = level().registryAccess().createSerializationContext(NbtOps.INSTANCE);
         getKamikotization().ifPresent(kamikotization -> compound.put("Kamikotization", Kamikotization.CODEC.encodeStart(ops, kamikotization).getOrThrow()));
-        compound.putString("ReplicaName", getReplicaName());
+        compound.put("ReplicaLookData", LookData.CODEC.encodeStart(ops, getReplicaLookData()).getOrThrow());
         compound.putInt("ReplicaToolCount", getReplicaToolCount());
         compound.putBoolean("IsReplica", isReplica());
         compound.putBoolean("IsResting", isResting());
@@ -525,7 +525,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         setReplicaSource(compound.contains("ReplicaSource") ? Optional.of(compound.getUUID("ReplicaSource")) : Optional.empty());
         RegistryOps<Tag> ops = level().registryAccess().createSerializationContext(NbtOps.INSTANCE);
         setKamikotization(Kamikotization.CODEC.parse(ops, compound.get("Kamikotization")).result());
-        setReplicaName(compound.getString("ReplicaName"));
+        setReplicaLookData(LookData.CODEC.parse(ops, compound.get("ReplicaLookData")).getOrThrow());
         setReplicaToolCount(compound.getInt("ReplicaToolCount"));
         setReplica(compound.getBoolean("IsReplica"));
         setResting(compound.getBoolean("IsResting"));

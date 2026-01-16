@@ -89,7 +89,7 @@ public class Abilities {
                 Optional.empty(),
                 Optional.empty()));
         context.register(KAMIKOTIZED_COMMUNICATION, new SpectateEntityAbility(
-                Optional.of(EntityPredicate.Builder.entity().subPredicate(KamikotizationPredicate.ANY).build()),
+                Optional.of(EntityPredicate.Builder.entity().subPredicate(KamikotizationPredicate.any()).build()),
                 Optional.empty(),
                 true,
                 true,
@@ -135,7 +135,7 @@ public class Abilities {
         context.register(PASSIVE_UNLUCK, new PassiveEffectsAbility(HolderSet.direct(MobEffects.UNLUCK), 0));
 
         // Ladybug
-        context.register(LUCKY_CHARM, new SummonTargetDependentLuckyCharmAbility(true, Optional.of(MineraculousSoundEvents.LUCKY_CHARM_ACTIVATE)));
+        context.register(LUCKY_CHARM, new SummonTargetDependentLuckyCharmAbility(true, true, Optional.of(MineraculousSoundEvents.LUCKY_CHARM_ACTIVATE)));
         context.register(MIRACULOUS_LADYBUG, new RevertLuckyCharmTargetsAbilityEffectsAbility(Optional.of(MineraculousSoundEvents.MIRACULOUS_LADYBUG_ACTIVATE)));
         context.register(PASSIVE_LUCK, new PassiveEffectsAbility(HolderSet.direct(MobEffects.LUCK), 0));
     }

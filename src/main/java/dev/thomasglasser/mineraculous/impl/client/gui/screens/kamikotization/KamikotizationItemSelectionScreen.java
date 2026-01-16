@@ -18,7 +18,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
@@ -111,7 +111,7 @@ public class KamikotizationItemSelectionScreen extends ExternalCuriosInventorySc
             TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(minecraft.player.getUUID(), target.blockPosition().above()));
             AbilityEffectUtils.removeFaceMaskTexture(target, kamikoData.faceMaskTexture());
         } else if (slotInfo != null) {
-            Minecraft.getInstance().setScreen(new KamikotizationSelectionScreen(target, kamikoData, new ReferenceArrayList<>(kamikotizations.get(slotStack)), slotInfo));
+            Minecraft.getInstance().setScreen(new KamikotizationSelectionScreen(target, kamikoData, new ObjectArrayList<>(kamikotizations.get(slotStack)), slotInfo));
             TommyLibServices.NETWORK.sendToServer(new ServerboundSetItemKamikotizingPayload(Optional.of(target.getUUID()), true, slotInfo));
         }
         TommyLibServices.NETWORK.sendToServer(new ServerboundSetInventoryTrackedPayload(target.getUUID(), false));
@@ -120,7 +120,7 @@ public class KamikotizationItemSelectionScreen extends ExternalCuriosInventorySc
     @Override
     protected void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if (hoveredSlot != null && this.canPickUp(hoveredSlot, target, menu)) {
-            List<Component> components = new ReferenceArrayList<>();
+            List<Component> components = new ObjectArrayList<>();
             components.add(APPLIES_TO);
             for (Holder<Kamikotization> kamikotization : kamikotizations.get(hoveredSlot.getItem())) {
                 components.add(CommonComponents.space().append(Component.translatable(MineraculousConstants.toLanguageKey(kamikotization.getKey())).withColor(kamikoData.nameColor())));

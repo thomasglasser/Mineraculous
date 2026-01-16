@@ -2,44 +2,51 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.thomasglasser.mineraculous.api.client.look.Look;
+import dev.thomasglasser.mineraculous.api.client.look.LookManager;
+import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetTypes;
+import dev.thomasglasser.mineraculous.api.client.look.util.renderer.LookRenderer;
+import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.LookUtils;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import java.util.EnumMap;
-import java.util.Map;
-import net.minecraft.client.Minecraft;
+import java.util.UUID;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ItemTransform;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 
-public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoItemRenderer<T> {
-    private static final Map<Holder<Miraculous>, GeoModel<?>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
-    private static final Map<ResourceKey<Miraculous>, ModelResourceLocation> MODEL_LOCATIONS = new Reference2ReferenceOpenHashMap<>();
-    private static final Map<ResourceLocation, EnumMap<MiraculousItem.TextureState, ResourceLocation>> POWERED_FRAME_TEXTURES = new Object2ReferenceOpenHashMap<>();
-    private static final Map<ResourceLocation, ResourceLocation> POWERED_TEXTURES = new Object2ReferenceOpenHashMap<>();
-    private static final Map<ResourceLocation, ResourceLocation> HIDDEN_TEXTURES = new Object2ReferenceOpenHashMap<>();
+public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoItemRenderer<T> implements LookRenderer {
+    private final GeoModel<T> model;
 
     public MiraculousItemRenderer() {
         super((GeoModel<T>) null);
         addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
+
+        this.model = new LookGeoModel<>(this);
+    }
+
+    @Override
+    public GeoModel<T> getGeoModel() {
+        return model;
     }
 
     public static Holder<Miraculous> getMiraculousOrDefault(ItemStack stack) {
@@ -54,22 +61,50 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
         return miraculous;
     }
 
-    public static void clearAssets() {
-        DEFAULT_MODELS.clear();
-        MODEL_LOCATIONS.clear();
-        POWERED_FRAME_TEXTURES.clear();
-        POWERED_TEXTURES.clear();
-        HIDDEN_TEXTURES.clear();
+    public static ResourceLocation getDefaultLookId(ItemStack stack) {
+        return LookUtils.getDefaultLookId(getMiraculousOrDefault(stack).getKey());
+    }
+
+    public static Holder<LookContext> getContext(@Nullable MiraculousItem.PowerState powerState) {
+        return powerState == MiraculousItem.PowerState.HIDDEN ? LookContexts.HIDDEN_MIRACULOUS : LookContexts.POWERED_MIRACULOUS;
+    }
+
+    public static @Nullable Look<?> getLook(ItemStack stack, Holder<LookContext> context) {
+        UUID owner = stack.get(MineraculousDataComponents.OWNER);
+        Level level = ClientUtils.getLevel();
+        if (owner != null && level != null && level.getEntities().get(owner) instanceof Player player) {
+            return LookManager.getLook(player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(getMiraculousOrDefault(stack)).lookData(), context.getKey());
+        }
+        return null;
+    }
+
+    @Override
+    public ResourceLocation getDefaultLookId() {
+        return getDefaultLookId(getCurrentItemStack());
+    }
+
+    @Override
+    public Holder<LookContext> getContext() {
+        return getContext(getCurrentItemStack().get(MineraculousDataComponents.POWER_STATE));
+    }
+
+    @Override
+    public @Nullable Look getLook() {
+        return getLook(getCurrentItemStack(), getContext());
     }
 
     @Override
     public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
         if (!isReRender) {
-            BakedModel miraculousModel = Minecraft.getInstance().getModelManager().getModel(MODEL_LOCATIONS.computeIfAbsent(getMiraculousOrDefault(getCurrentItemStack()).getKey(), key -> ModelResourceLocation.standalone(key.location().withPrefix("item/miraculous/"))));
-            if (miraculousModel != Minecraft.getInstance().getModelManager().getMissingModel()) {
-                miraculousModel.applyTransform(renderPerspective, poseStack, false);
+            ItemTransform transform;
+            ItemTransforms transforms = getAsset(LookAssetTypes.ITEM_TRANSFORMS);
+            if (transforms != null && transforms.hasTransform(renderPerspective)) {
+                transform = transforms.getTransform(renderPerspective);
+            } else {
+                transform = getDefaultAsset(LookAssetTypes.ITEM_TRANSFORMS).getTransform(renderPerspective);
             }
+            transform.apply(false, poseStack);
         }
         // Special case for earrings
         model.getBone("left_earring").ifPresent(bone -> bone.setHidden(renderPerspective == MineraculousItemDisplayContexts.CURIOS_RIGHT_EARRING.getValue()));
@@ -78,33 +113,10 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
 
     @Override
     public ResourceLocation getTextureLocation(T animatable) {
-        MiraculousItem.TextureState state = getCurrentItemStack().get(MineraculousDataComponents.TEXTURE_STATE);
-        ResourceLocation base = super.getTextureLocation(animatable);
-        if (state == null || state == MiraculousItem.TextureState.POWERED) {
-            return POWERED_TEXTURES.computeIfAbsent(base, loc -> loc.withPath(path -> path.replace("active", "powered")));
-        }
-        if (state == MiraculousItem.TextureState.ACTIVE) {
-            return base;
-        }
-        if (state == MiraculousItem.TextureState.HIDDEN) {
-            return HIDDEN_TEXTURES.computeIfAbsent(base, loc -> loc.withPath(path -> path.replace("active", "hidden")));
-        }
-        return POWERED_FRAME_TEXTURES.computeIfAbsent(base, loc -> new EnumMap<>(MiraculousItem.TextureState.class)).computeIfAbsent(state, i -> base.withPath(path -> path.replace("active", "powered_" + i.frame())));
-    }
-
-    @Override
-    public GeoModel<T> getGeoModel() {
-        return (GeoModel<T>) DEFAULT_MODELS.computeIfAbsent(getMiraculousOrDefault(getCurrentItemStack()), this::createDefaultGeoModel);
-    }
-
-    private GeoModel<T> createDefaultGeoModel(Holder<Miraculous> miraculous) {
-        return new DefaultedItemGeoModel<>(miraculous.getKey().location().withPrefix("miraculous/")) {
-            private final ResourceLocation texture = miraculous.getKey().location().withPath(path -> "textures/item/miraculous/" + path + "/active.png");
-
-            @Override
-            public ResourceLocation getTextureResource(T animatable) {
-                return texture;
-            }
+        MiraculousItem.PowerState powerState = getCurrentItemStack().getOrDefault(MineraculousDataComponents.POWER_STATE, MiraculousItem.PowerState.POWERED);
+        return switch (powerState) {
+            case HIDDEN, POWERED -> getAssetOrDefault(LookAssetTypes.TEXTURE);
+            default -> getAssetOrDefault(LookAssetTypes.COUNTDOWN_TEXTURES).get(powerState.frame());
         };
     }
 }

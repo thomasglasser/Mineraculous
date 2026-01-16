@@ -55,6 +55,7 @@ public class BlockReversionData extends SavedData {
      * @param pos   The position to revert blocks at
      */
     public void revert(UUID cause, ServerLevel level, BlockPos pos) {
+        pos = pos.immutable();
         BlockLocation loc = new BlockLocation(level.dimension(), pos);
         BlockState state = revertibleBlocks.remove(cause, loc);
         if (state != null) {
@@ -72,6 +73,7 @@ public class BlockReversionData extends SavedData {
      * @param state     The state to revert the position to
      */
     public void putRevertible(UUID cause, ResourceKey<Level> dimension, BlockPos pos, BlockState state) {
+        pos = pos.immutable();
         BlockLocation location = new BlockLocation(dimension, pos);
         if (!revertibleBlocks.contains(cause, location)) {
             revertibleBlocks.put(cause, location, state);
@@ -87,6 +89,7 @@ public class BlockReversionData extends SavedData {
      * @return The cause of the provided block position if it's marked for reversion, or {@code null} if it's not marked for reversion
      */
     public @Nullable UUID getCause(ResourceKey<Level> dimension, BlockPos pos) {
+        pos = pos.immutable();
         BlockLocation location = new BlockLocation(dimension, pos);
         for (Table.Cell<UUID, BlockLocation, BlockState> cell : revertibleBlocks.cellSet()) {
             if (cell.getColumnKey().equals(location))

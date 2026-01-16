@@ -16,7 +16,7 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaff
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -38,7 +38,7 @@ public class MineraculousAttachmentTypes {
     /// Ability effects that are not synced but are persistent.
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<PersistentAbilityEffectData>> PERSISTENT_ABILITY_EFFECTS = ATTACHMENT_TYPES.register("persistent_ability_effects", () -> AttachmentType.builder(PersistentAbilityEffectData::new).serialize(PersistentAbilityEffectData.CODEC).build());
     /// Stores a list of client IDs to sync the entity's inventory to.
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<ReferenceArrayList<UUID>>> INVENTORY_TRACKERS = ATTACHMENT_TYPES.register("inventory_trackers", () -> AttachmentType.builder(() -> new ReferenceArrayList<UUID>()).build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<ObjectOpenHashSet<UUID>>> INVENTORY_TRACKERS = ATTACHMENT_TYPES.register("inventory_trackers", () -> AttachmentType.builder(() -> new ObjectOpenHashSet<UUID>()).build());
     /// Holds data related to a shot {@link dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo}.
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<ThrownLadybugYoyoData>> THROWN_LADYBUG_YOYO = ATTACHMENT_TYPES.register("thrown_ladybug_yoyo", () -> AttachmentType.builder(() -> new ThrownLadybugYoyoData()).sync(ThrownLadybugYoyoData.STREAM_CODEC).build());
     /// If true, overrides leash rendering and snapping.

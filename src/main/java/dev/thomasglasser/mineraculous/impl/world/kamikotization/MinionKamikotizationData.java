@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl.world.kamikotization;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.LookData;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
@@ -40,12 +41,12 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public record MinionKamikotizationData(Holder<Kamikotization> kamikotization, KamikoData kamikoData, String name, Optional<UUID> revertibleId, int toolCount, boolean powerActive, boolean buffsActive) {
+public record MinionKamikotizationData(Holder<Kamikotization> kamikotization, KamikoData kamikoData, LookData lookData, Optional<UUID> revertibleId, int toolCount, boolean powerActive, boolean buffsActive) {
 
     public static final Codec<MinionKamikotizationData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Kamikotization.CODEC.fieldOf("kamikotization").forGetter(MinionKamikotizationData::kamikotization),
             KamikoData.CODEC.fieldOf("kamiko_data").forGetter(MinionKamikotizationData::kamikoData),
-            Codec.STRING.fieldOf("name").forGetter(MinionKamikotizationData::name),
+            LookData.CODEC.fieldOf("look_data").forGetter(MinionKamikotizationData::lookData),
             UUIDUtil.CODEC.optionalFieldOf("revertible_id").forGetter(MinionKamikotizationData::revertibleId),
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("tool_count").forGetter(MinionKamikotizationData::toolCount),
             Codec.BOOL.fieldOf("power_active").forGetter(MinionKamikotizationData::powerActive),
@@ -53,14 +54,14 @@ public record MinionKamikotizationData(Holder<Kamikotization> kamikotization, Ka
     public static final StreamCodec<RegistryFriendlyByteBuf, MinionKamikotizationData> STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
             Kamikotization.STREAM_CODEC, MinionKamikotizationData::kamikotization,
             KamikoData.STREAM_CODEC, MinionKamikotizationData::kamikoData,
-            ByteBufCodecs.STRING_UTF8, MinionKamikotizationData::name,
+            LookData.STREAM_CODEC, MinionKamikotizationData::lookData,
             ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), MinionKamikotizationData::revertibleId,
             ByteBufCodecs.VAR_INT, MinionKamikotizationData::toolCount,
             ByteBufCodecs.BOOL, MinionKamikotizationData::powerActive,
             ByteBufCodecs.BOOL, MinionKamikotizationData::buffsActive,
             MinionKamikotizationData::new);
-    public MinionKamikotizationData(Holder<Kamikotization> kamikotization, KamikoData kamikoData, String name, int toolCount) {
-        this(kamikotization, kamikoData, name, Optional.empty(), toolCount, false, false);
+    public MinionKamikotizationData(Holder<Kamikotization> kamikotization, KamikoData kamikoData, LookData lookData, int toolCount) {
+        this(kamikotization, kamikoData, lookData, Optional.empty(), toolCount, false, false);
     }
 
     public void transform(KamikotizedMinion minion, ServerLevel level) {
@@ -144,15 +145,15 @@ public record MinionKamikotizationData(Holder<Kamikotization> kamikotization, Ka
     }
 
     private MinionKamikotizationData transform(@Nullable UUID revertibleId) {
-        return new MinionKamikotizationData(kamikotization, kamikoData, name, Optional.ofNullable(revertibleId), toolCount, false, MineraculousServerConfig.get().enableBuffsOnTransformation.get());
+        return new MinionKamikotizationData(kamikotization, kamikoData, lookData, Optional.ofNullable(revertibleId), toolCount, false, MineraculousServerConfig.get().enableBuffsOnTransformation.get());
     }
 
     public MinionKamikotizationData withPowerActive(boolean powerActive) {
-        return new MinionKamikotizationData(kamikotization, kamikoData, name, revertibleId, toolCount, powerActive, buffsActive);
+        return new MinionKamikotizationData(kamikotization, kamikoData, lookData, revertibleId, toolCount, powerActive, buffsActive);
     }
 
     public MinionKamikotizationData toggleBuffsActive() {
-        return new MinionKamikotizationData(kamikotization, kamikoData, name, revertibleId, toolCount, powerActive, !buffsActive);
+        return new MinionKamikotizationData(kamikotization, kamikoData, lookData, revertibleId, toolCount, powerActive, !buffsActive);
     }
 
     public void save(KamikotizedMinion minion) {

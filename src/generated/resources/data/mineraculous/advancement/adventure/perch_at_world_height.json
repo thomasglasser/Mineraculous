@@ -1,0 +1,55 @@
+{
+  "parent": "minecraft:adventure/root",
+  "criteria": {
+    "perch_at_world_height": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "position": {
+                  "y": {
+                    "min": 319.0
+                  }
+                }
+              },
+              "type_specific": {
+                "type": "mineraculous:cat_staff",
+                "perching": true
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:location"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.mineraculous.adventure.perch_at_world_height.desc"
+    },
+    "icon": {
+      "components": {
+        "mineraculous:active": {
+          "active": true
+        }
+      },
+      "count": 1,
+      "id": "mineraculous:cat_staff"
+    },
+    "title": {
+      "translate": "advancement.mineraculous.adventure.perch_at_world_height.title"
+    }
+  },
+  "requirements": [
+    [
+      "perch_at_world_height"
+    ]
+  ],
+  "rewards": {
+    "experience": 20
+  },
+  "sends_telemetry_event": true
+}

@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.core.look.LookData;
 import dev.thomasglasser.mineraculous.api.world.ability.context.EntityAbilityContext;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
@@ -105,10 +106,10 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         super(entityType, level);
     }
 
-    public KamikotizedMinion(ServerPlayer source, Holder<Kamikotization> kamikotization, KamikoData kamikoData, String name, int toolCount) {
+    public KamikotizedMinion(ServerPlayer source, Holder<Kamikotization> kamikotization, KamikoData kamikoData, LookData lookData, int toolCount) {
         this(MineraculousEntityTypes.KAMIKOTIZED_MINION.get(), source.level());
         setSourceId(source.getUUID());
-        MinionKamikotizationData data = new MinionKamikotizationData(kamikotization, kamikoData, name, toolCount);
+        MinionKamikotizationData data = new MinionKamikotizationData(kamikotization, kamikoData, lookData, toolCount);
         setKamikotizationData(data);
         moveTo(source.position(), source.getYRot(), source.getXRot());
         setYBodyRot(source.yBodyRot);
@@ -364,7 +365,7 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
     @Override
     public Component getName() {
         Component original = super.getName();
-        return getKamikotizationData().map(data -> Entity.removeAction(Component.literal(data.name()).setStyle(original.getStyle().withColor(data.kamikoData().nameColor()).withHoverEvent(null)))).orElse(original);
+        return getKamikotizationData().map(data -> Entity.removeAction(Component.literal(data.lookData().name().orElse("")).setStyle(original.getStyle().withColor(data.kamikoData().nameColor()).withHoverEvent(null)))).orElse(original);
     }
 
     @Override

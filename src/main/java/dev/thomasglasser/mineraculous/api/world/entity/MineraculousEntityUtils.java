@@ -1,6 +1,9 @@
 package dev.thomasglasser.mineraculous.api.world.entity;
 
+import com.mojang.datafixers.util.Either;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.event.MiraculousEvent;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
@@ -11,6 +14,8 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundRefreshDisplayNamePayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
+import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
+import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -31,6 +36,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.Nullable;
 
 public class MineraculousEntityUtils {
@@ -63,14 +69,13 @@ public class MineraculousEntityUtils {
                     Holder<Miraculous> miraculous = transformed.getFirst();
                     MiraculousData data = miraculousesData.get(miraculous);
                     Style newStyle = style.withColor(miraculous.value().color());
-                    // TODO: Fix name
-                    if (/*!data.name().isEmpty()*/false)
-                        return Component.literal(/*data.name()*/"").setStyle(newStyle);
+                    if (data.lookData().name().isPresent())
+                        return Component.literal(data.lookData().name().get()).setStyle(newStyle);
                     return Entity.removeAction(original.copy().setStyle(newStyle.withObfuscated(true).withHoverEvent(null)));
                 } else if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
                     KamikotizationData data = entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
                     Style newStyle = style.withColor(data.kamikoData().nameColor());
-                    return Entity.removeAction(Component.literal(data.name()).setStyle(newStyle.withHoverEvent(null)));
+                    return Entity.removeAction(Component.literal(data.lookData().name().orElse("")).setStyle(newStyle.withHoverEvent(null)));
                 }
             }
         }
@@ -136,10 +141,13 @@ public class MineraculousEntityUtils {
      * @param uuidOverride The {@link UUID} to use for the kwami, or null to use a random UUID
      * @return The summoned kwami
      */
-    public static Kwami summonKwami(Entity owner, boolean charged, UUID miraculousId, Holder<Miraculous> miraculous, Kwami.SummoningAppearance appearance, @Nullable UUID uuidOverride) {
+    public static Kwami summonKwami(LivingEntity owner, boolean charged, UUID miraculousId, Holder<Miraculous> miraculous, Kwami.SummoningAppearance appearance, @Nullable UUID uuidOverride) {
         ServerLevel level = (ServerLevel) owner.level();
-        if (uuidOverride != null && level.getEntity(uuidOverride) instanceof Kwami kwami) {
-            kwami.discard();
+        if (uuidOverride != null) {
+            KwamiLike existing = findKwami(owner, uuidOverride);
+            if (existing != null) {
+                existing.discard();
+            }
         }
         Kwami kwami = MineraculousEntityTypes.KWAMI.get().create(level);
         if (kwami != null) {
@@ -166,16 +174,35 @@ public class MineraculousEntityUtils {
     /**
      * Renounces a kwami from a provided {@link ItemStack} and discards it if in the same level.
      *
-     * @param kwamiId The {@link UUID} of the kwami to renounce
-     * @param stack   The {@link ItemStack} to renounce
-     * @param level   The level to renounce the kwami in
+     * @param requireKwami Whether the kwami is required to be found to renounce it
+     * @param stack        The {@link ItemStack} to renounce
+     * @param entity       The entity renouncing the kwami
      */
-    public static void renounceKwami(@Nullable UUID kwamiId, ItemStack stack, ServerLevel level) {
-        stack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
-        stack.remove(MineraculousDataComponents.REMAINING_TICKS);
-        stack.remove(MineraculousDataComponents.KWAMI_ID);
-        if (kwamiId != null && level.getEntity(kwamiId) instanceof Kwami kwami) {
-            kwami.discard();
+    public static void renounceKwami(boolean requireKwami, ItemStack stack, LivingEntity entity) {
+        UUID kwamiId = stack.get(MineraculousDataComponents.KWAMI_ID);
+        Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+        KwamiLike kwami = kwamiId != null ? findKwami(entity, kwamiId) : null;
+
+        var event = NeoForge.EVENT_BUS.post(new MiraculousEvent.Renounce.Pre(entity, miraculous, stack, kwami, requireKwami));
+        if (event.isCanceled())
+            return;
+        requireKwami = event.shouldRequireKwami();
+
+        if (!requireKwami || kwami != null) {
+            if (kwami != null)
+                kwami.discard();
+            stack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
+            stack.set(MineraculousDataComponents.POWER_STATE, MiraculousItem.PowerState.POWERED);
+            stack.remove(MineraculousDataComponents.REMAINING_TICKS);
+            stack.remove(MineraculousDataComponents.KWAMI_ID);
+
+            NeoForge.EVENT_BUS.post(new MiraculousEvent.Renounce.Post(entity, miraculous, stack, kwami));
+        } else if (miraculous != null && entity instanceof Player player) {
+            player.displayClientMessage(Component.translatable(MiraculousData.KWAMI_NOT_FOUND, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.getKey()))), true);
+        } else if (kwamiId != null) {
+            MineraculousConstants.LOGGER.warn("Unable to find kwami with ID {}", kwamiId);
+        } else {
+            MineraculousConstants.LOGGER.warn("Tried to renounce kwami with no kwami ID");
         }
     }
 
@@ -207,5 +234,43 @@ public class MineraculousEntityUtils {
                 return entity;
         }
         return null;
+    }
+
+    public static @Nullable LivingEntity findLivingEntity(ServerLevel level, UUID uuid) {
+        return findEntity(level, uuid) instanceof LivingEntity entity ? entity : null;
+    }
+
+    public static @Nullable KwamiLike findKwami(LivingEntity entity, UUID kwamiId) {
+        if (entity.level().getEntities().get(kwamiId) instanceof Kwami kwami) {
+            return new KwamiLike(Either.left(kwami));
+        } else {
+            for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
+                if (stack.getItem() instanceof KwamiItem && kwamiId.equals(stack.get(MineraculousDataComponents.KWAMI_ID))) {
+                    return new KwamiLike(Either.right(stack));
+                }
+            }
+        }
+        return null;
+    }
+
+    public static @Nullable KwamiLike findKwami(LivingEntity entity, MiraculousData data) {
+        UUID kwamiId = data.curiosData().map(curiosData -> CuriosUtils.getStackInSlot(entity, curiosData).get(MineraculousDataComponents.KWAMI_ID)).orElse(null);
+        if (kwamiId == null)
+            return null;
+        return findKwami(entity, kwamiId);
+    }
+
+    public record KwamiLike(Either<Kwami, ItemStack> kwami) {
+        public boolean isCharged() {
+            return kwami.map(Kwami::isCharged, stack -> stack.getOrDefault(MineraculousDataComponents.CHARGED, true));
+        }
+
+        public void setCharged(boolean charged) {
+            kwami.ifLeft(kwami -> kwami.setCharged(charged)).ifRight(stack -> stack.set(MineraculousDataComponents.CHARGED, charged));
+        }
+
+        public void discard() {
+            kwami.ifLeft(Kwami::discard).ifRight(stack -> stack.setCount(0));
+        }
     }
 }

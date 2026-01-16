@@ -35,7 +35,7 @@ public class LivingEntityRendererMixin {
     @ModifyExpressionValue(method = "getRenderType", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;getTextureLocation(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/resources/ResourceLocation;"))
     private ResourceLocation applyCataclysmPixels(ResourceLocation original, LivingEntity livingEntity) {
         if (livingEntity.hasEffect(MineraculousMobEffects.CATACLYSM)) {
-            ResourceLocation result = ResourceLocation.fromNamespaceAndPath(original.getNamespace(), original.getPath() + "_cataclysmed");
+            ResourceLocation result = original.withSuffix("_cataclysmed");
             if (mineraculous$lastEntityId != livingEntity.getId() || mineraculous$lastHealth != livingEntity.getHealth()) {
                 mineraculous$lastEntityId = livingEntity.getId();
                 mineraculous$lastHealth = livingEntity.getHealth();

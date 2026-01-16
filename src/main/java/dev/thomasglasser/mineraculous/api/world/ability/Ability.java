@@ -9,7 +9,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetCollector;
-import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.function.Function;
@@ -26,6 +26,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -43,6 +44,9 @@ public interface Ability {
 
     /**
      * Performs actions based on the given context.
+     * <p>
+     * Note that this method <b>should not be called directly.</b>
+     * Instead, use {@link AbilityUtils#performAbilityWithEvents(Holder, ServerLevel, LivingEntity, AbilityData, AbilityHandler, AbilityContext)} so the appropriate events are fired.
      *
      * @param data      The relevant {@link AbilityData} of the performer
      * @param level     The level the ability is being performed in
@@ -51,6 +55,7 @@ public interface Ability {
      * @param context   The context of the ability (null if passive)
      * @return Whether the ability should consume the active state (i.e., stop the ability and trigger completion)
      */
+    @ApiStatus.OverrideOnly
     State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context);
 
     /**
@@ -133,7 +138,7 @@ public interface Ability {
      * @return A sorted set with the passed ability and all contained sub abilities
      */
     static SortedSet<Ability> getAll(Ability ability) {
-        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
+        SortedSet<Ability> abilities = new ObjectLinkedOpenHashSet<>();
         abilities.add(ability);
         if (ability instanceof AbilityWithSubAbilities abilityWithSubAbilities) {
             abilities.addAll(abilityWithSubAbilities.getAll());
@@ -149,7 +154,7 @@ public interface Ability {
      * @return A sorted set with any matching of the passed ability and all contained sub abilities
      */
     static SortedSet<Ability> getMatching(Predicate<Ability> predicate, Ability ability) {
-        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
+        SortedSet<Ability> abilities = new ObjectLinkedOpenHashSet<>();
         if (predicate.test(ability))
             abilities.add(ability);
         if (ability instanceof AbilityWithSubAbilities abilityWithSubAbilities)
@@ -182,7 +187,7 @@ public interface Ability {
 
     // Overloads for active and passive abilities
     static SortedSet<Ability> getAll(Optional<Holder<Ability>> activeAbility, HolderSet<Ability> passiveAbilities) {
-        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
+        SortedSet<Ability> abilities = new ObjectLinkedOpenHashSet<>();
         activeAbility.ifPresent(ability -> abilities.addAll(getAll(ability.value())));
         for (Holder<Ability> ability : passiveAbilities) {
             abilities.addAll(getAll(ability.value()));
@@ -191,7 +196,7 @@ public interface Ability {
     }
 
     static SortedSet<Ability> getMatching(Predicate<Ability> predicate, Optional<Holder<Ability>> activeAbility, HolderSet<Ability> passiveAbilities) {
-        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
+        SortedSet<Ability> abilities = new ObjectLinkedOpenHashSet<>();
         activeAbility.ifPresent(ability -> abilities.addAll(getMatching(predicate, ability.value())));
         for (Holder<Ability> ability : passiveAbilities) {
             abilities.addAll(getMatching(predicate, ability.value()));

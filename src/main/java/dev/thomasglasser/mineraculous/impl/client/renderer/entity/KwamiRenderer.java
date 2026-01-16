@@ -13,8 +13,10 @@ import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Camera;
@@ -50,6 +52,7 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
     public static final String LEFT_HAND = "left_hand";
     public static final String RIGHT_HAND = "right_hand";
 
+    private static final Set<KwamiRenderer<?>> INSTANCES = new ReferenceOpenHashSet<>();
     private static final float GLOW_POWER_NORMALIZER = 200.0f;
     private static final double TRAIL_STEP_DISTANCE = 0.05;
     private static final double TRANSFORMING_TRAIL_LENGTH = 1.5;
@@ -65,7 +68,7 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
     };
     private static final Int2ObjectOpenHashMap<Color> COLORS = new Int2ObjectOpenHashMap<>();
 
-    private final Map<Holder<Miraculous>, GeoModel<T>> models = new Reference2ReferenceOpenHashMap<>();
+    private final Map<Holder<Miraculous>, GeoModel<T>> models = new Object2ObjectOpenHashMap<>();
 
     public KwamiRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new DefaultedEntityGeoModel<>(MineraculousConstants.modLoc("summoning_cube")) {
@@ -82,6 +85,14 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
             default -> null;
         }));
         addRenderLayer(new MiniHolidayHatGeoLayer<>(this, HEAD));
+
+        INSTANCES.add(this);
+    }
+
+    public static void clearAssets() {
+        COLORS.clear();
+        INSTANCES.forEach(renderer -> renderer.models.clear());
+        INSTANCES.clear();
     }
 
     @Override

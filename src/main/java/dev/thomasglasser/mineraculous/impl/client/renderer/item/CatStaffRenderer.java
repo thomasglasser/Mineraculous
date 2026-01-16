@@ -3,23 +3,31 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.client.look.util.renderer.MiraculousToolLookRenderer;
+import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
+import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import dev.thomasglasser.tommylib.api.client.renderer.item.GlowingDefaultedGeoItemRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -27,29 +35,42 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.renderer.GeoItemRenderer;
 
-public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffItem> {
+public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRenderer<T> implements MiraculousToolLookRenderer {
     public static final ResourceLocation EXTENDED_LOCATION = MineraculousConstants.modLoc("textures/misc/cat_staff.png");
-    public static final ResourceLocation SPYGLASS_SCOPE_LOCATION = MineraculousConstants.modLoc("textures/misc/cat_staff_spyglass_scope.png");
-    public static final ResourceLocation PHONE_LOCATION = makeTextureLocation(MineraculousConstants.modLoc("cat_staff_phone"));
-
     private static final float PIXEL = 1 / 16f;
 
+    private final GeoModel<T> model;
+
     public CatStaffRenderer() {
-        super(MineraculousItems.CAT_STAFF.getId());
+        super((GeoModel<T>) null);
+        addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
+
+        this.model = new LookGeoModel<>(this);
     }
 
     @Override
-    public ResourceLocation getTextureLocation(CatStaffItem animatable) {
-        CatStaffItem.Mode mode = getCurrentItemStack().get(MineraculousDataComponents.CAT_STAFF_MODE);
-        if (mode == CatStaffItem.Mode.PHONE) {
-            return PHONE_LOCATION;
-        }
-        return super.getTextureLocation(animatable);
+    public GeoModel<T> getGeoModel() {
+        return model;
     }
 
     @Override
-    public void defaultRender(PoseStack poseStack, CatStaffItem animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
+    public Holder<LookContext> getContext() {
+        ItemStack stack = getCurrentItemStack();
+        if (stack.has(MineraculousDataComponents.BLOCKING))
+            return LookContexts.BLOCKING_MIRACULOUS_TOOL;
+        return switch (stack.get(MineraculousDataComponents.CAT_STAFF_MODE)) {
+            case PHONE -> LookContexts.PHONE_MIRACULOUS_TOOL;
+            case SPYGLASS -> LookContexts.SPYGLASS_MIRACULOUS_TOOL;
+            case null, default -> LookContexts.MIRACULOUS_TOOL;
+        };
+    }
+
+    @Override
+    public void defaultRender(PoseStack poseStack, T animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
         ItemStack stack = getCurrentItemStack();
         Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
         Level level = ClientUtils.getLevel();
@@ -93,8 +114,8 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
             ItemStack offhandItem = player.getOffhandItem();
             ItemStack mainHandItem = player.getMainHandItem();
 
-            boolean lHCatStaffPerch = offhandItem.is(MineraculousItems.CAT_STAFF) && offhandItem.has(MineraculousDataComponents.ACTIVE) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.PERCH;
-            boolean rHCatStaffPerch = mainHandItem.is(MineraculousItems.CAT_STAFF) && mainHandItem.has(MineraculousDataComponents.ACTIVE) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.PERCH;
+            boolean lHCatStaffPerch = offhandItem.is(MineraculousItems.CAT_STAFF) && Active.isActive(offhandItem, false) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.PERCH;
+            boolean rHCatStaffPerch = mainHandItem.is(MineraculousItems.CAT_STAFF) && Active.isActive(mainHandItem, false) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.PERCH;
 
             if (lHCatStaffPerch || rHCatStaffPerch) {
                 PerchingCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
@@ -142,8 +163,8 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         ItemStack offhandItem = player.getOffhandItem();
         ItemStack mainHandItem = player.getMainHandItem();
 
-        boolean lHCatStaffTravel = offhandItem.is(MineraculousItems.CAT_STAFF) && offhandItem.has(MineraculousDataComponents.ACTIVE) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.TRAVEL;
-        boolean rHCatStaffTravel = mainHandItem.is(MineraculousItems.CAT_STAFF) && mainHandItem.has(MineraculousDataComponents.ACTIVE) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.TRAVEL;
+        boolean lHCatStaffTravel = offhandItem.is(MineraculousItems.CAT_STAFF) && Active.isActive(offhandItem, false) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.TRAVEL;
+        boolean rHCatStaffTravel = mainHandItem.is(MineraculousItems.CAT_STAFF) && Active.isActive(mainHandItem, false) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.TRAVEL;
 
         if (lHCatStaffTravel || rHCatStaffTravel) {
             TravelingCatStaffData travelingCatStaffData = player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
@@ -209,7 +230,7 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         float x2 = o[1] + bodyDirectionF.x();
         float z1 = o[2] + bodyDirectionF.z();
         float z2 = o[3] + bodyDirectionF.z();
-        int light = 15728880;
+        int light = LightTexture.FULL_BRIGHT;
         float uMin = 4 / 16f, uMax = 31 / 32f;
         float vMin = 0f, vMax = 11 / 16f;
         MineraculousClientUtils.vertex(vertexConsumer, pose, x1, pawTop, z1, uMin, vMin, light);
@@ -219,7 +240,7 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         //LINES:
         float y1 = eyeY - PIXEL * 4f;
         float y2 = eyeY - PIXEL * 4.5f;
-        float offset = 0.0001f;
+        float offset = 0.0005f;
         float v = PIXEL * 11.5f;
         float u1 = PIXEL * 12;
         float u2 = 1;

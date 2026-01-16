@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.api.core.component;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.world.item.component.ActiveSettings;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
@@ -33,8 +32,6 @@ public class MineraculousDataComponents {
     // Shared
     /// If present, allows toggling {@link Active#active()} via {@link dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings#TOGGLE_ITEM_ACTIVE}.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Active>> ACTIVE = DATA_COMPONENTS.register("active", Active.STREAM_CODEC, Active.CODEC, true);
-    /// Settings to use when toggling the {@link MineraculousDataComponents#ACTIVE} component.
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ActiveSettings>> ACTIVE_SETTINGS = DATA_COMPONENTS.register("active_settings", ActiveSettings.STREAM_CODEC, ActiveSettings.CODEC, false);
     /// Automatically applied to {@link net.minecraft.world.entity.LivingEntity#getUseItem()} while {@link net.minecraft.world.entity.LivingEntity#isBlocking()} is true (i.e. the item is being used to block).
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> BLOCKING = DATA_COMPONENTS.registerUnit("blocking", false, true);
     /// If present, {@link net.minecraft.core.component.DataComponents#ENCHANTMENTS} is excluded from the item tooltip.
@@ -55,8 +52,8 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<MiraculousData.TransformationState>> TRANSFORMATION_STATE = DATA_COMPONENTS.register("transformation_state", MiraculousData.TransformationState.STREAM_CODEC, MiraculousData.TransformationState.CODEC, true);
     /// If present, the remaining ticks in an ongoing countdown.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> REMAINING_TICKS = DATA_COMPONENTS.register("remaining_ticks", ByteBufCodecs.VAR_INT, ExtraCodecs.NON_NEGATIVE_INT, true);
-    /// Determines the texture to use for a {@link MiraculousItem}.
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<MiraculousItem.TextureState>> TEXTURE_STATE = DATA_COMPONENTS.register("texture_state", MiraculousItem.TextureState.STREAM_CODEC, MiraculousItem.TextureState.CODEC, true);
+    /// Determines the state of the power of a {@link MiraculousItem}.
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<MiraculousItem.PowerState>> POWER_STATE = DATA_COMPONENTS.register("power_state", MiraculousItem.PowerState.STREAM_CODEC, MiraculousItem.PowerState.CODEC, true);
 
     // Kwami Item
     /// The food data of the {@link dev.thomasglasser.mineraculous.impl.world.entity.Kwami} of a {@link dev.thomasglasser.mineraculous.impl.world.item.KwamiItem}.

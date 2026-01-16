@@ -6,7 +6,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.context.BlockAbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.context.EntityAbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
-import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.function.Predicate;
@@ -32,15 +32,15 @@ public record ContextDependentAbility(Optional<Holder<Ability>> blockAbility, Op
     @Override
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         switch (context) {
-            case BlockAbilityContext blockAbilityContext when blockAbility.isPresent() -> {
-                return blockAbility.get().value().perform(data, level, performer, handler, blockAbilityContext);
+            case BlockAbilityContext blockContext when blockAbility.isPresent() -> {
+                return AbilityUtils.performAbilityWithEvents(blockAbility.get(), level, performer, data, handler, blockContext);
             }
-            case EntityAbilityContext entityAbilityContext when entityAbility.isPresent() -> {
-                return entityAbility.get().value().perform(data, level, performer, handler, entityAbilityContext);
+            case EntityAbilityContext entityContext when entityAbility.isPresent() -> {
+                return AbilityUtils.performAbilityWithEvents(entityAbility.get(), level, performer, data, handler, entityContext);
             }
             case null -> {
                 for (Holder<Ability> holder : passiveAbilities) {
-                    State state = holder.value().perform(data, level, performer, handler, null);
+                    State state = AbilityUtils.performAbilityWithEvents(holder, level, performer, data, handler, null);
                     if (state.shouldStop()) {
                         return state;
                     }
@@ -53,7 +53,7 @@ public record ContextDependentAbility(Optional<Holder<Ability>> blockAbility, Op
 
     @Override
     public SortedSet<Ability> getAll() {
-        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
+        SortedSet<Ability> abilities = new ObjectLinkedOpenHashSet<>();
         abilities.add(this);
         blockAbility.ifPresent(ability -> abilities.add(ability.value()));
         entityAbility.ifPresent(ability -> abilities.add(ability.value()));
@@ -65,7 +65,7 @@ public record ContextDependentAbility(Optional<Holder<Ability>> blockAbility, Op
 
     @Override
     public SortedSet<Ability> getMatching(Predicate<Ability> predicate) {
-        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
+        SortedSet<Ability> abilities = new ObjectLinkedOpenHashSet<>();
         blockAbility.ifPresent(ability -> abilities.addAll(Ability.getMatching(predicate, ability.value())));
         entityAbility.ifPresent(ability -> abilities.addAll(Ability.getMatching(predicate, ability.value())));
         for (Holder<Ability> ability : passiveAbilities) {

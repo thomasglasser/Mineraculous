@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.EntitySubPredicate;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.server.level.ServerLevel;
@@ -16,15 +17,51 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Predicate for current entity {@link Kamikotization} according to their {@link KamikotizationData}.
+ * Predicate for entity {@link Kamikotization} according to their {@link KamikotizationData}.
  * 
  * @param kamikotizations Matching {@link Kamikotization}s
  */
-public record KamikotizationPredicate(HolderSet<Kamikotization> kamikotizations) implements EntitySubPredicate {
-    public static final KamikotizationPredicate ANY = new KamikotizationPredicate(HolderSet.empty());
-
+public record KamikotizationPredicate(Optional<HolderSet<Kamikotization>> kamikotizations) implements EntitySubPredicate {
     public static final MapCodec<KamikotizationPredicate> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            RegistryCodecs.homogeneousList(MineraculousRegistries.KAMIKOTIZATION).optionalFieldOf("kamikotizations", HolderSet.empty()).forGetter(KamikotizationPredicate::kamikotizations)).apply(instance, KamikotizationPredicate::new));
+            RegistryCodecs.homogeneousList(MineraculousRegistries.KAMIKOTIZATION).optionalFieldOf("kamikotizations").forGetter(KamikotizationPredicate::kamikotizations)).apply(instance, KamikotizationPredicate::new));
+
+    /**
+     * Creates a kamikotization predicate for any kamikotization.
+     * 
+     * @return The kamikotization predicate
+     */
+    public static KamikotizationPredicate any() {
+        return new KamikotizationPredicate(Optional.empty());
+    }
+
+    /**
+     * Creates a kamikotization predicate for no kamikotization.
+     * 
+     * @return The kamikotization predicate
+     */
+    public static KamikotizationPredicate none() {
+        return new KamikotizationPredicate(Optional.of(HolderSet.empty()));
+    }
+
+    /**
+     * Creates a kamikotization predicate for the provided kamikotization set.
+     * 
+     * @param kamikotizations Matching {@link Kamikotization}s
+     * @return The kamikotization predicate
+     */
+    public static KamikotizationPredicate kamikotizations(HolderSet<Kamikotization> kamikotizations) {
+        return new KamikotizationPredicate(Optional.of(kamikotizations));
+    }
+
+    /**
+     * Creates a kamikotization predicate for the provided kamikotization.
+     * 
+     * @param kamikotization Matching {@link Kamikotization}
+     * @return The kamikotization predicate
+     */
+    public static KamikotizationPredicate kamikotization(Holder<Kamikotization> kamikotization) {
+        return kamikotizations(HolderSet.direct(kamikotization));
+    }
 
     @Override
     public MapCodec<? extends EntitySubPredicate> codec() {
@@ -33,14 +70,13 @@ public record KamikotizationPredicate(HolderSet<Kamikotization> kamikotizations)
 
     @Override
     public boolean matches(Entity entity, ServerLevel level, @Nullable Vec3 pos) {
-        Optional<KamikotizationData> kamikotizationData = entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
-        if (kamikotizationData.isPresent()) {
-            if (kamikotizations == HolderSet.<Kamikotization>empty()) {
-                return true;
-            } else {
-                return kamikotizations.contains(kamikotizationData.get().kamikotization());
-            }
+        Optional<Holder<Kamikotization>> kamikotization = entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization);
+        if (this.kamikotizations.isPresent()) {
+            HolderSet<Kamikotization> kamikotizations = this.kamikotizations.get();
+            if (kamikotizations.size() == 0)
+                return kamikotization.isEmpty();
+            return kamikotization.map(kamikotizations::contains).orElse(false);
         }
-        return false;
+        return kamikotization.isPresent();
     }
 }

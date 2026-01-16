@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.impl.network;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.SpecialPlayerData;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.UUID;
 import net.minecraft.core.UUIDUtil;
@@ -23,7 +22,7 @@ public record ClientboundUpdateSpecialPlayerDataPayload(UUID uuid, SpecialPlayer
     // ON CLIENT
     @Override
     public void handle(@Nullable Player player) {
-        MineraculousClientUtils.setSpecialPlayerData(ClientUtils.getPlayerByUUID(uuid), specialPlayerData);
+        MineraculousClientUtils.setSpecialPlayerData(uuid, specialPlayerData);
     }
 
     @Override

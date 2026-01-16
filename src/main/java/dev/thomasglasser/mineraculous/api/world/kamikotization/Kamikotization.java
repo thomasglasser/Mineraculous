@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.kamikotization;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.EitherCodec;
@@ -10,7 +11,6 @@ import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -70,7 +70,7 @@ public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Ei
      * @return The compiled list of valid Kamikotizations
      */
     public static List<Holder<Kamikotization>> getFor(Entity entity) {
-        List<Holder<Kamikotization>> kamikotizations = new ReferenceArrayList<>();
+        ImmutableList.Builder<Holder<Kamikotization>> kamikotizations = new ImmutableList.Builder<>();
         entity.level().registryAccess().lookupOrThrow(MineraculousRegistries.KAMIKOTIZATION).listElements().forEach(kamikotization -> {
             for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
                 if (!stack.isEmpty() && !stack.has(MineraculousDataComponents.KAMIKOTIZATION) && kamikotization.value().itemPredicate().test(stack)) {
@@ -79,7 +79,7 @@ public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Ei
                 }
             }
         });
-        return kamikotizations;
+        return kamikotizations.build();
     }
 
     /**

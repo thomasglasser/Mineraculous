@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.impl.client.gui.screens;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundTransferMiraculousPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -85,7 +85,7 @@ public class MiraculousEligiblePlayerEntry extends ContainerObjectSelectionList.
             this.transferButton.setTooltip(Tooltip.create(TRANSFER));
         }
         this.transferButton.setTooltipDelay(PlayerEntry.TOOLTIP_DELAY);
-        this.children = new ReferenceArrayList<>();
+        this.children = new ObjectArrayList<>();
         this.children.add(this.transferButton);
     }
 

@@ -12,6 +12,7 @@
     "description": {
       "translate": "advancement.mineraculous.miraculous.kamikotize_self.desc"
     },
+    "hidden": true,
     "icon": {
       "components": {
         "mineraculous:miraculous": "mineraculous:butterfly"
@@ -29,7 +30,7 @@
     ]
   ],
   "rewards": {
-    "experience": 5
+    "experience": 20
   },
   "sends_telemetry_event": true
 }

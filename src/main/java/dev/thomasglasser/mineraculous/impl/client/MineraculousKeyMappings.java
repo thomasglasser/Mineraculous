@@ -1,10 +1,12 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.event.StealEvent;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
@@ -21,31 +23,30 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundToggleBuffsPayload
 import dev.thomasglasser.mineraculous.impl.network.ServerboundToggleNightVisionPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoLengthPayload;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.ExtendedKeyMapping;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.common.NeoForge;
 
 public class MineraculousKeyMappings {
     public static final String MIRACULOUS_CATEGORY = "key.categories.mineraculous";
 
     public static final ExtendedKeyMapping TRANSFORM = register("transform", InputConstants.KEY_U, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleTransform);
+    public static final ExtendedKeyMapping QUICK_TRANSFORM = register("quick_transform", InputConstants.KEY_I, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleQuickTransform);
     public static final ExtendedKeyMapping ACTIVATE_POWER = register("activate_power", InputConstants.KEY_Y, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleActivatePower);
     public static final ExtendedKeyMapping REVOKE_KAMIKOTIZATION = register("revoke_kamikotization", InputConstants.KEY_K, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleRevokeKamikotization);
     public static final ExtendedKeyMapping RENOUNCE_MIRACULOUS = register("renounce_miraculous", InputConstants.KEY_N, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleRenounceMiraculous);
@@ -74,43 +75,65 @@ public class MineraculousKeyMappings {
                 Holder<Miraculous> miraculous = transformed.getFirst();
                 TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), false));
             } else {
-                List<RadialMenuOption> options = new ReferenceArrayList<>();
-                Map<RadialMenuOption, Holder<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();
-                for (ItemStack stack : CuriosUtils.getAllItems(player).values()) {
-                    Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-                    if (miraculous != null) {
-                        ResourceKey<Miraculous> key = miraculous.getKey();
-                        if (key != null) {
-                            RadialMenuOption option = new RadialMenuOption() {
-                                private Integer color;
+                selectMiraculous(miraculousesData, TRANSFORM);
+            }
+        }
+    }
 
-                                @Override
-                                public Component displayName() {
-                                    return Component.translatable(MineraculousConstants.toLanguageKey(key));
-                                }
+    private static void handleQuickTransform() {
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+            List<Holder<Miraculous>> transformed = miraculousesData.getTransformed();
+            if (!transformed.isEmpty()) {
+                Holder<Miraculous> miraculous = transformed.getFirst();
+                TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), false));
+            } else if (miraculousesData.getLastUsed().isPresent()) {
+                Holder<Miraculous> lastTransformed = miraculousesData.getLastUsed().get();
+                TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(lastTransformed, miraculousesData.get(lastTransformed), true));
+            } else {
+                selectMiraculous(miraculousesData, QUICK_TRANSFORM);
+            }
+        }
+    }
 
-                                @Override
-                                public Integer colorOverride() {
-                                    if (color == null)
-                                        color = miraculous.value().color().getValue();
-                                    return color;
-                                }
-                            };
-                            options.add(option);
-                            miraculousOptions.put(option, miraculous);
+    private static void selectMiraculous(MiraculousesData data, ExtendedKeyMapping keyMapping) {
+        ImmutableList.Builder<RadialMenuOption> optionsBuilder = new ImmutableList.Builder<>();
+        Map<RadialMenuOption, Holder<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();
+        for (ItemStack stack : CuriosUtils.getAllItems(ClientUtils.getLocalPlayer()).values()) {
+            Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+            if (miraculous != null) {
+                ResourceKey<Miraculous> key = miraculous.getKey();
+                if (key != null) {
+                    RadialMenuOption option = new RadialMenuOption() {
+                        private Integer color;
+
+                        @Override
+                        public Component displayName() {
+                            return Component.translatable(MineraculousConstants.toLanguageKey(key));
                         }
-                    }
-                }
-                if (options.size() > 1) {
-                    Minecraft.getInstance().setScreen(new RadialMenuScreen<>(TRANSFORM.getKey().getValue(), options, -1, (selected, i) -> {
-                        Holder<Miraculous> miraculous = miraculousOptions.get(selected);
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), true));
-                    }));
-                } else if (options.size() == 1) {
-                    Holder<Miraculous> miraculous = miraculousOptions.get(options.getFirst());
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), true));
+
+                        @Override
+                        public Integer colorOverride() {
+                            if (color == null)
+                                color = miraculous.value().color().getValue();
+                            return color;
+                        }
+                    };
+                    optionsBuilder.add(option);
+                    miraculousOptions.put(option, miraculous);
                 }
             }
+        }
+        ImmutableList<RadialMenuOption> options = optionsBuilder.build();
+        if (options.size() > 1) {
+            Minecraft.getInstance().setScreen(new RadialMenuScreen<>(keyMapping.getKey().getValue(), options, -1, (selected, i) -> {
+                Holder<Miraculous> miraculous = miraculousOptions.get(selected);
+                TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, data.get(miraculous), true));
+            }));
+        } else if (options.size() == 1) {
+            Holder<Miraculous> miraculous = miraculousOptions.get(options.getFirst());
+            TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, data.get(miraculous), true));
         }
     }
 
@@ -120,10 +143,7 @@ public class MineraculousKeyMappings {
 
     private static void handleRevokeKamikotization() {
         if (MineraculousGuis.checkRevokeButtonActive()) {
-            Button revokeButton = MineraculousGuis.getRevokeButton();
-            if (revokeButton.active) {
-                revokeButton.onPress();
-            }
+            MineraculousClientUtils.revokeCameraEntity();
         } else {
             Player player = ClientUtils.getLocalPlayer();
             if (player != null && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION.get()).isPresent() && MineraculousServerConfig.get().enableKamikotizationRejection.get()) {
@@ -187,14 +207,27 @@ public class MineraculousKeyMappings {
         if (player != null) {
             ItemStack mainHandItem = player.getMainHandItem();
             if (mainHandItem.isEmpty()) {
-                if (MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.get().enableUniversalStealing.get() || player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUSES.get()).isTransformed()) && (MineraculousServerConfig.get().enableSleepStealing.get() || !target.isSleeping())) {
-                    takeTicks++;
-                    if (target.isSleeping() && MineraculousServerConfig.get().wakeUpChance.get() > 0 && (MineraculousServerConfig.get().wakeUpChance.get() >= 100 || player.getRandom().nextFloat() < MineraculousServerConfig.get().wakeUpChance.get() / (SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().stealingDuration.getAsInt() * 100F))) {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundWakeUpPayload(target.getUUID(), true));
+                if (MineraculousClientUtils.getLookEntity() instanceof Player target) {
+                    int maxTakeTicks = SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().stealingDuration.get();
+                    StealEvent.Start event;
+                    if (takeTicks == 0) {
+                        event = NeoForge.EVENT_BUS.post(new StealEvent.Start.Pre(player, target, 0, maxTakeTicks));
+                    } else {
+                        event = NeoForge.EVENT_BUS.post(new StealEvent.Start.Tick(player, target, takeTicks, maxTakeTicks));
                     }
-                    if (takeTicks > (SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().stealingDuration.get())) {
-                        MineraculousClientUtils.openExternalCuriosInventoryScreenForStealing(target);
-                        takeTicks = 0;
+                    if (!event.isCanceled()) {
+                        takeTicks = event.getTakeTicks();
+                        maxTakeTicks = event.getMaxTakeTicks();
+                        if (takeTicks > maxTakeTicks) {
+                            event = NeoForge.EVENT_BUS.post(new StealEvent.Start.Post(player, target, takeTicks, maxTakeTicks));
+                            if (event.isCanceled()) {
+                                takeTicks = event.getTakeTicks();
+                            } else {
+                                MineraculousClientUtils.openExternalCuriosInventoryScreenForStealing(target);
+                                takeTicks = 0;
+                            }
+                        }
+                        takeTicks++;
                     }
                 } else if (takeTicks > 0) {
                     takeTicks = 0;

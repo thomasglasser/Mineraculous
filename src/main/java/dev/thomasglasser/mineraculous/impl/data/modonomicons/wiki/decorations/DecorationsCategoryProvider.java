@@ -16,7 +16,7 @@ public class DecorationsCategoryProvider extends IndexModeCategoryProvider {
     protected void generateEntries() {
         add(new PaintingsEntryProvider(this).generate());
         add(new SherdsEntryProvider(this).generate());
-        add(new TrimsEntryProvider(this).generate());
+        add(new ArmorTrimsEntryProvider(this).generate());
     }
 
     @Override

@@ -1,0 +1,59 @@
+{
+  "background_u_index": 0,
+  "background_v_index": 0,
+  "category": "decorations",
+  "description": "book.mineraculous.wiki.decorations.armor_trims.description",
+  "hide_while_locked": false,
+  "icon": {
+    "item": "mineraculous:cat_armor_trim_smithing_template"
+  },
+  "name": "book.mineraculous.wiki.decorations.armor_trims.name",
+  "pages": [
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/decorations/armor_trims/ladybug.png"
+      ],
+      "text": "book.mineraculous.wiki.decorations.armor_trims.ladybug.text",
+      "title": "book.mineraculous.wiki.decorations.armor_trims.ladybug.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/decorations/armor_trims/cat.png"
+      ],
+      "text": "book.mineraculous.wiki.decorations.armor_trims.cat.text",
+      "title": "book.mineraculous.wiki.decorations.armor_trims.cat.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/decorations/armor_trims/butterfly.png"
+      ],
+      "text": "book.mineraculous.wiki.decorations.armor_trims.butterfly.text",
+      "title": "book.mineraculous.wiki.decorations.armor_trims.butterfly.title",
+      "use_legacy_rendering": false
+    }
+  ],
+  "show_when_any_parent_unlocked": false,
+  "sort_number": 2,
+  "x": 0,
+  "y": 0
+}

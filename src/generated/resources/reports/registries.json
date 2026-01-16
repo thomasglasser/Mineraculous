@@ -66,7 +66,6 @@
   ],
   "minecraft:data_component_type": [
     "mineraculous:active",
-    "mineraculous:active_settings",
     "mineraculous:blocking",
     "mineraculous:butterfly_cane_mode",
     "mineraculous:carrier",
@@ -84,14 +83,15 @@
     "mineraculous:miraculous",
     "mineraculous:miraculous_id",
     "mineraculous:owner",
+    "mineraculous:power_state",
     "mineraculous:powered",
     "mineraculous:remaining_ticks",
     "mineraculous:revertible_item_id",
-    "mineraculous:texture_state",
     "mineraculous:tool_id",
     "mineraculous:transformation_state"
   ],
   "minecraft:entity_sub_predicate_type": [
+    "mineraculous:cat_staff",
     "mineraculous:kamikotization"
   ],
   "minecraft:entity_type": [
@@ -170,6 +170,9 @@
     "mineraculous:waxed_time_honored_camembert_wedge",
     "mineraculous:waxed_time_honored_cheese_block",
     "mineraculous:waxed_time_honored_cheese_wedge"
+  ],
+  "minecraft:item_sub_predicate_type": [
+    "mineraculous:lucky_charm"
   ],
   "minecraft:loot_condition_type": [
     "mineraculous:has_item"
@@ -296,6 +299,22 @@
     "mineraculous:ladybug",
     "mineraculous:stormy"
   ],
+  "mineraculous:look_context": [
+    "mineraculous:blocking_miraculous_tool",
+    "mineraculous:hidden_miraculous",
+    "mineraculous:kamikotization_suit",
+    "mineraculous:kamikotization_tool",
+    "mineraculous:miraculous_suit",
+    "mineraculous:miraculous_tool",
+    "mineraculous:phone_miraculous_tool",
+    "mineraculous:powered_miraculous",
+    "mineraculous:spyglass_kamikotization_tool",
+    "mineraculous:spyglass_miraculous_tool"
+  ],
+  "mineraculous:look_metadata_type": [
+    "mineraculous:valid_kamikotizations",
+    "mineraculous:valid_miraculouses"
+  ],
   "mineraculous:miraculous": [
     "mineraculous:butterfly",
     "mineraculous:cat",
@@ -324,6 +343,7 @@
   ],
   "neoforge:entity_data_serializers": [
     "mineraculous:kwami_summoning_appearance",
+    "mineraculous:look_data",
     "mineraculous:minion_kamikotization_data",
     "mineraculous:miraculous",
     "mineraculous:miraculous_ladybug_target_data",

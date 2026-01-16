@@ -7,16 +7,13 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
-import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
-import java.util.UUID;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -95,18 +92,12 @@ public class MiraculousCommand {
             context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_TRANSFORMED, entity.getDisplayName()));
             return 0;
         } else if (entity instanceof LivingEntity livingEntity) {
-            UUID kwamiId = data.curiosData().map(curiosData -> CuriosUtils.getStackInSlot(livingEntity, curiosData).get(MineraculousDataComponents.KWAMI_ID)).orElse(null);
-            if (kwamiId != null) {
-                Kwami kwami = context.getSource().getLevel().getEntity(kwamiId) instanceof Kwami k ? k : null;
-                if (kwami != null) {
-                    context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_QUERY_SUCCESS_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), kwami.isCharged() ? KwamiItem.CHARGED : KwamiItem.NOT_CHARGED) : Component.translatable(CHARGED_QUERY_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), kwami.isCharged() ? KwamiItem.CHARGED : KwamiItem.NOT_CHARGED), true);
-                    return 1;
-                } else {
-                    context.getSource().sendFailure(self ? Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key()))) : Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_OTHER, entity.getDisplayName(), Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key()))));
-                    return 0;
-                }
+            MineraculousEntityUtils.KwamiLike kwami = MineraculousEntityUtils.findKwami(livingEntity, data);
+            if (kwami != null) {
+                context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_QUERY_SUCCESS_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), kwami.isCharged() ? KwamiItem.CHARGED : KwamiItem.NOT_CHARGED) : Component.translatable(CHARGED_QUERY_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), kwami.isCharged() ? KwamiItem.CHARGED : KwamiItem.NOT_CHARGED), true);
+                return 1;
             } else {
-                context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key()))));
+                context.getSource().sendFailure(self ? Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key()))) : Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_OTHER, entity.getDisplayName(), Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key()))));
                 return 0;
             }
         } else {
@@ -122,20 +113,14 @@ public class MiraculousCommand {
             context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_TRANSFORMED, entity.getDisplayName()));
             return 0;
         } else if (entity instanceof LivingEntity livingEntity) {
-            UUID kwamiId = data.curiosData().map(curiosData -> CuriosUtils.getStackInSlot(livingEntity, curiosData).get(MineraculousDataComponents.KWAMI_ID)).orElse(null);
-            if (kwamiId != null) {
+            MineraculousEntityUtils.KwamiLike kwami = MineraculousEntityUtils.findKwami(livingEntity, data);
+            if (kwami != null) {
                 boolean charged = BoolArgumentType.getBool(context, "charged");
-                Kwami kwami = context.getSource().getLevel().getEntity(kwamiId) instanceof Kwami k ? k : null;
-                if (kwami != null) {
-                    kwami.setCharged(charged);
-                    context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_SET_SUCCESS_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), charged ? KwamiItem.CHARGED : KwamiItem.NOT_CHARGED) : Component.translatable(CHARGED_SET_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), charged ? KwamiItem.CHARGED : KwamiItem.NOT_CHARGED), true);
-                    return 1;
-                } else {
-                    context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key()))));
-                    return 0;
-                }
+                kwami.setCharged(charged);
+                context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_SET_SUCCESS_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), charged ? KwamiItem.CHARGED : KwamiItem.NOT_CHARGED) : Component.translatable(CHARGED_SET_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), charged ? KwamiItem.CHARGED : KwamiItem.NOT_CHARGED), true);
+                return 1;
             } else {
-                context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key()))));
+                context.getSource().sendFailure(self ? Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key()))) : Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_OTHER, entity.getDisplayName(), Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key()))));
                 return 0;
             }
         } else {

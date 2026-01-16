@@ -1,8 +1,11 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.event.KwamiEvent;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
@@ -20,8 +23,6 @@ import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +71,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
@@ -399,10 +401,10 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         if (eatTicks > 0 && (isTreat(mainHandItem) || isPreferredFood(mainHandItem) || isFood(mainHandItem))) {
             eatTicks--;
             if (eatTicks <= 1) {
-                if (isTreat(mainHandItem) || (isPreferredFood(mainHandItem) && random.nextInt(3) == 0) || (isFood(mainHandItem) && random.nextInt(10) == 0)) {
-                    setCharged(true);
+                if (!NeoForge.EVENT_BUS.post(new KwamiEvent.Eat.Finish.Pre(this, mainHandItem)).isCanceled()) {
+                    setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                    setCharged(NeoForge.EVENT_BUS.post(new KwamiEvent.Eat.Finish.Post(this, mainHandItem, isTreat(mainHandItem) || (isPreferredFood(mainHandItem) && random.nextInt(3) == 0) || (isFood(mainHandItem) && random.nextInt(10) == 0))).isCharged());
                 }
-                setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             }
             if (!mainHandItem.has(DataComponents.FOOD) && shouldTriggerItemUseEffects(getDefaultEatTicks(), eatTicks)) {
                 this.playSound(
@@ -507,10 +509,14 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                         TommyLibServices.NETWORK.sendToClient(new ClientboundOpenMiraculousTransferScreenPayload(getId()), serverPlayer);
                     } else if (!isCharged() && getMainHandItem().isEmpty()) {
                         if (isTreat(stack) || isPreferredFood(stack) || isFood(stack)) {
-                            setItemInHand(InteractionHand.MAIN_HAND, stack.copyWithCount(1));
-                            eatTicks = getMaxEatTicks(stack);
+                            int eatTicks = getMaxEatTicks(stack);
                             if (eatTicks <= 0)
                                 eatTicks = getDefaultEatTicks();
+                            var event = NeoForge.EVENT_BUS.post(new KwamiEvent.Eat.Start(this, stack, eatTicks));
+                            if (event.isCanceled())
+                                return InteractionResult.FAIL;
+                            this.eatTicks = event.getEatTicks();
+                            setItemInHand(InteractionHand.MAIN_HAND, stack.copyWithCount(1));
                             ItemUtils.safeShrink(1, stack, player);
                             startUsingItem(InteractionHand.MAIN_HAND);
                         }
@@ -601,24 +607,24 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                 UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
                 return stackId != null && stackId.equals(getMiraculousId());
             };
-            List<ItemStack> inventoryMiraculouses = new ReferenceArrayList<>();
+            ImmutableSet.Builder<ItemStack> miraculouses = new ImmutableSet.Builder<>();
             for (ItemStack stack : EntityUtils.getInventory(owner)) {
                 if (isMyMiraculous.test(stack)) {
-                    inventoryMiraculouses.add(stack);
+                    miraculouses.add(stack);
                 }
             }
-            Map<CuriosData, ItemStack> curiosMiraculouses = new Reference2ReferenceOpenHashMap<>();
+            ImmutableMap.Builder<CuriosData, ItemStack> curiosMiraculousesBuilder = ImmutableMap.builder();
             for (Map.Entry<CuriosData, ItemStack> entry : CuriosUtils.getAllItems(owner).entrySet()) {
                 if (isMyMiraculous.test(entry.getValue())) {
-                    curiosMiraculouses.put(entry.getKey(), entry.getValue());
+                    curiosMiraculousesBuilder.put(entry.getKey(), entry.getValue());
                 }
             }
-            List<ItemStack> allMiraculouses = new ReferenceArrayList<>(inventoryMiraculouses);
-            allMiraculouses.addAll(curiosMiraculouses.values());
-            for (ItemStack stack : allMiraculouses) {
+            Map<CuriosData, ItemStack> curios = curiosMiraculousesBuilder.build();
+            miraculouses.addAll(curios.values());
+            for (ItemStack stack : miraculouses.build()) {
                 stack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
             }
-            curiosMiraculouses.forEach((data, stack) -> CuriosUtils.setStackInSlot(owner, data, stack));
+            curios.forEach((data, stack) -> CuriosUtils.setStackInSlot(owner, data, stack));
         }
         super.die(damageSource);
     }

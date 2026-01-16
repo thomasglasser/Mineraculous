@@ -11,15 +11,21 @@ import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.RegistryElementSelectionScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.InventorySyncListener;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.look.LookCustomizationScreen;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContextSets;
+import dev.thomasglasser.mineraculous.api.core.look.metadata.LookMetadataTypes;
+import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.MiraculousTransferScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.AbstractKamikotizationChatScreen;
@@ -28,13 +34,18 @@ import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.Per
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterCosmeticOptions;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.SpecialPlayerData;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundRevertConvertedEntityPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetInventoryTrackedPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundSetMiraculousLookDataPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundSetSpectationInterruptedPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundStartKamikotizationDetransformationPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealCurioPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateSpecialPlayerDataPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
+import dev.thomasglasser.mineraculous.impl.world.entity.KamikotizedMinion;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -43,7 +54,7 @@ import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -57,6 +68,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.gui.layouts.GridLayout;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -94,8 +110,14 @@ import top.theillusivec4.curios.common.inventory.CurioSlot;
 public class MineraculousClientUtils {
     public static final Component GUI_CHOOSE = Component.translatable("gui.choose");
     public static final Component GUI_NAME = Component.translatable("gui.name");
+    public static final Component STEALING_WARNING = Component.translatable("mineraculous.stealing_warning");
+    public static final Component MIRACULOUS_LOOKS_BUTTON_TOOLTIP = Component.translatable("gui.mineraculous.miraculous_looks.tooltip");
 
-    private static final Map<Player, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Reference2ReferenceOpenHashMap<>();
+    private static final WidgetSprites MIRACULOUS_LOOKS_BUTTON_SPRITES = new WidgetSprites(
+            MineraculousConstants.modLoc("miraculous_looks/button"),
+            MineraculousConstants.modLoc("miraculous_looks/button_highlighted"));
+
+    private static final Map<UUID, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Object2ReferenceOpenHashMap<>();
     private static final IntList CATACLYSM_PIXELS = new IntArrayList();
     private static final ResourceLocation KWAMI_GLOW_SHADER = MineraculousConstants.modLoc("shaders/post/kwami_glow.json");
     private static final String KWAMI_GLOW_SHADER_TARGET = "kwami";
@@ -170,30 +192,34 @@ public class MineraculousClientUtils {
     }
 
     // Special Player Handling
-    public static void setSpecialPlayerData(Player player, SpecialPlayerData data) {
-        SPECIAL_PLAYER_DATA.put(player, data);
+    public static void setSpecialPlayerData(UUID id, SpecialPlayerData data) {
+        SPECIAL_PLAYER_DATA.put(id, data);
     }
 
     public static boolean renderBetaTesterLayer(AbstractClientPlayer player) {
         if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersBetaTesterCosmetic.getAsBoolean())
             return false;
-        return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayBeta() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, betaChoice(player).slot());
+        SpecialPlayerData data = SPECIAL_PLAYER_DATA.get(player.getUUID());
+        return data != null && data.displayBeta() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, betaChoice(player.getUUID()).slot());
     }
 
-    public static BetaTesterCosmeticOptions betaChoice(AbstractClientPlayer player) {
-        return SPECIAL_PLAYER_DATA.get(player) != null ? SPECIAL_PLAYER_DATA.get(player).choice() : BetaTesterCosmeticOptions.DERBY_HAT;
+    public static BetaTesterCosmeticOptions betaChoice(UUID id) {
+        SpecialPlayerData data = SPECIAL_PLAYER_DATA.get(id);
+        return data != null ? data.choice() : BetaTesterCosmeticOptions.DERBY_HAT;
     }
 
     public static boolean renderDevLayer(AbstractClientPlayer player) {
         if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersDevTeamCosmetic.getAsBoolean())
             return false;
-        return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
+        SpecialPlayerData data = SPECIAL_PLAYER_DATA.get(player.getUUID());
+        return data != null && data.displayDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
     }
 
     public static boolean renderLegacyDevLayer(AbstractClientPlayer player) {
         if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersLegacyDevTeamCosmetic.getAsBoolean())
             return false;
-        return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayLegacyDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
+        SpecialPlayerData data = SPECIAL_PLAYER_DATA.get(player.getUUID());
+        return data != null && data.displayLegacyDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
     }
 
     public static void syncSpecialPlayerChoices() {
@@ -212,7 +238,7 @@ public class MineraculousClientUtils {
         return Minecraft.getInstance().screen == null;
     }
 
-    public static void renderEntityInInventorySpinning(
+    public static void renderEntityInInventory(
             GuiGraphics guiGraphics,
             int xStart,
             int yStart,
@@ -302,6 +328,31 @@ public class MineraculousClientUtils {
         }
     }
 
+    public static ImageButton createMiraculousLooksButton(Screen parent, GridLayout gridLayout) {
+        ImageButton button = new ImageButton(gridLayout.getX() - 15, gridLayout.getY() + (gridLayout.getHeight() / 2) + 15, 14, 14, MIRACULOUS_LOOKS_BUTTON_SPRITES, b -> parent.getMinecraft().setScreen(new RegistryElementSelectionScreen<>(parent, MineraculousRegistries.MIRACULOUS, selected -> parent.getMinecraft().setScreen(new LookCustomizationScreen<>(
+                LookContextSets.MIRACULOUS,
+                LookMetadataTypes.VALID_MIRACULOUSES,
+                selected,
+                player -> player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(selected).lookData(),
+                (player, lookData) -> player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(selected).withLookData(lookData).save(selected, player),
+                (player, lookData) -> TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousLookDataPayload(selected, lookData)))))));
+        button.setTooltip(Tooltip.create(MIRACULOUS_LOOKS_BUTTON_TOOLTIP));
+        return button;
+    }
+
+    public static void revokeCameraEntity() {
+        Entity cameraEntity = MineraculousClientUtils.getCameraEntity();
+        Player player = ClientUtils.getLocalPlayer();
+        if (cameraEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
+            KamikotizationData kamikotizationData = cameraEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
+            TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationDetransformationPayload(Optional.of(cameraEntity.getUUID()), true, false));
+            AbilityEffectUtils.removeFaceMaskTexture(cameraEntity, kamikotizationData.kamikoData().faceMaskTexture());
+        } else if (player != null) {
+            TommyLibServices.NETWORK.sendToServer(new ServerboundRevertConvertedEntityPayload(cameraEntity.getUUID()));
+        }
+        TommyLibServices.NETWORK.sendToServer(new ServerboundSetSpectationInterruptedPayload(Optional.empty()));
+    }
+
     // Camera
     public static boolean isFirstPerson() {
         return Minecraft.getInstance().options.getCameraType().isFirstPerson();
@@ -351,6 +402,12 @@ public class MineraculousClientUtils {
         else if (stack.has(MineraculousDataComponents.LUCKY_CHARM) && !stack.is(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE))
             return MineraculousRenderTypes.armorLuckyCharm();
         return null;
+    }
+
+    public static boolean shouldNotRenderCape(LivingEntity entity) {
+        if (entity instanceof KamikotizedMinion)
+            return true;
+        return entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent();
     }
 
     public static int getCataclysmPixel(RandomSource random) {

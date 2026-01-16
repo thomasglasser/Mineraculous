@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.api.world.level.storage;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Table;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
@@ -11,8 +12,6 @@ import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -118,7 +117,7 @@ public class ItemReversionData extends SavedData {
                     reverted = true;
                 }
             }
-            List<Map.Entry<CuriosData, ItemStack>> curios = new ReferenceArrayList<>(CuriosUtils.getAllItems(livingEntity).entrySet());
+            List<Map.Entry<CuriosData, ItemStack>> curios = ImmutableList.copyOf(CuriosUtils.getAllItems(livingEntity).entrySet());
             if (checkReverted(recoveredGetter, curios.size(), i -> curios.get(i).getValue(), (i, stack) -> {
                 CuriosData curiosData = curios.get(i).getKey();
                 CuriosUtils.setStackInSlot(livingEntity, curiosData, stack);
@@ -269,9 +268,9 @@ public class ItemReversionData extends SavedData {
         Function<Tag, ItemStack> itemDecoder = MineraculousNbtUtils.codecDecoder(ItemStack.OPTIONAL_CODEC, ops);
         ItemReversionData data = new ItemReversionData();
         data.revertibleItems.putAll(MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Revertible"), UUID::fromString, NbtUtils::loadUUID, itemDecoder));
-        data.revertMarkedItems.putAll(MineraculousNbtUtils.readStringKeyedMap(Reference2ReferenceOpenHashMap::new, tag.getCompound("RevertMarked"), UUID::fromString, itemDecoder));
+        data.revertMarkedItems.putAll(MineraculousNbtUtils.readStringKeyedMap(Object2ObjectOpenHashMap::new, tag.getCompound("RevertMarked"), UUID::fromString, itemDecoder));
         data.revertedItems.addAll(MineraculousNbtUtils.readCollection(ObjectOpenHashSet::new, tag.getList("Reverted", Tag.TAG_INT_ARRAY), NbtUtils::loadUUID));
-        data.kamikotizedItems.putAll(MineraculousNbtUtils.readStringKeyedMap(Reference2ReferenceOpenHashMap::new, tag.getCompound("Kamikotized"), UUID::fromString, itemDecoder));
+        data.kamikotizedItems.putAll(MineraculousNbtUtils.readStringKeyedMap(Object2ObjectOpenHashMap::new, tag.getCompound("Kamikotized"), UUID::fromString, itemDecoder));
         data.revertedKamikotizedItems.addAll(MineraculousNbtUtils.readCollection(ObjectOpenHashSet::new, tag.getList("RevertedKamikotized", Tag.TAG_INT_ARRAY), NbtUtils::loadUUID));
         return data;
     }

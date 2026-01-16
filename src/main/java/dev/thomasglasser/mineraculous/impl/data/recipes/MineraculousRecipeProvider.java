@@ -19,7 +19,7 @@ import dev.thomasglasser.mineraculous.impl.world.level.block.entity.OvenBlockEnt
 import dev.thomasglasser.tommylib.api.data.recipes.ExtendedRecipeProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
-import java.util.SortedMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -29,7 +29,6 @@ import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Items;
@@ -138,7 +137,7 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
         simpleTransmuteOvenCookingRecipe(recipeOutput, input, output, experience);
     }
 
-    protected static void cheeseWaxRecipes(RecipeOutput recipeOutput, SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> waxables, SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> waxedBlocks) {
+    protected static void cheeseWaxRecipes(RecipeOutput recipeOutput, Map<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> waxables, Map<AgeingCheese.Age, DeferredBlock<PieceBlock>> waxedBlocks) {
         waxables.forEach((age, block) -> {
             DeferredBlock<PieceBlock> waxed = waxedBlocks.get(age);
             if (waxed.get().requiredFeatures().isSubsetOf(FeatureFlags.DEFAULT_FLAGS)) {
@@ -147,7 +146,7 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
                         .requires(Items.HONEYCOMB)
                         .group(getItemName(waxed))
                         .unlockedBy(getHasName(block), has(block))
-                        .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(waxed.getId().getNamespace(), getConversionRecipeName(waxed, Items.HONEYCOMB)));
+                        .save(recipeOutput, waxed.getId().withPath(getConversionRecipeName(waxed, Items.HONEYCOMB)));
             }
         });
     }

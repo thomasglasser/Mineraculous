@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.api.client.renderer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import java.io.IOException;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -42,6 +43,11 @@ public class MineraculousRenderStateShards {
 
     public static final RenderStateShard.TexturingStateShard SHIELD_KAMIKOTIZING_TEXTURING = new RenderStateShard.TexturingStateShard(
             "shield_kamikotizing_texturing", () -> setupKamikotizingTexturing(16, Mth.PI / 18, 8), RenderSystem::resetTextureMatrix);
+
+    public static final RenderStateShard.OutputStateShard KWAMI_TARGET = new RenderStateShard.OutputStateShard(
+            "kwami_target",
+            () -> MineraculousClientUtils.getKwamiTarget().bindWrite(false),
+            () -> Minecraft.getInstance().getMainRenderTarget().bindWrite(false));
 
     @Nullable
     private static ShaderInstance rendertypeEntityTranslucentEmissiveNoLightmapShader;

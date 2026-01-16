@@ -2,10 +2,12 @@ package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.event.KwamiEvent;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.behavior.SetWalkTargetToLikedPlayer;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
@@ -13,12 +15,15 @@ import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundOpenMiraculousTransferScreenPayload;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
+import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +36,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -38,11 +45,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -100,14 +109,30 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     public static final BiPredicate<Kwami, Player> RENOUNCE_PREDICATE = (kwami, player) -> player != null && player.isAlive() && player != kwami.getOwner() && EntitySelector.NO_SPECTATORS.test(player) && !EntityUtils.TARGET_TOO_FAR_PREDICATE.test(kwami, player);
 
     private static final double SUMMON_RADIUS_STEP = 0.07;
-    private static final double SUMMON_ANGLE_STEP = 0.5;
-    private static final double SUMMON_MAX_RADIUS = 1.5;
+    private static final double SUMMON_ORB_ANGLE_STEP = 0.5;
+    private static final double SUMMON_ORB_MAX_RADIUS = 1.5;
+    private static final double SUMMON_TRAIL_ANGLE_STEP = Math.toRadians(26);
+    private static final double SUMMON_TRAIL_MAX_RADIUS = 0.4;
+    private static final double OWNER_HEIGHT_ADJUSTMENT = 2.5d / 4d;
+    private static final float GLOWING_POWER_EXPONENT = 2.25f;
+    private static final double OWNER_HEIGHT_OFFSET_FACTOR = 3.0 / 4.0;
+    private static final double LOOK_DIRECTION_SCALE_MULTIPLIER = 1.3;
+    private static final double MIN_RADIUS_RATIO = 0.1;
+    private static final float ROTATION_YAW_OFFSET = 180.0f;
+    private static final int TRANSFORMING_MAX_GLOW_POWER = 400;
+    private static final int TRANSFORMING_GLOW_POWER_INCREMENT = 100;
+    private static final int TRANSFORMING_MOVEMENT_GLOW_THRESHOLD = 300;
+    private static final double TRANSFORMING_BASE_SPEED = 0.4;
+    private static final double TRANSFORMING_SPRINT_SPEED_BONUS = 0.2;
+    private static final double SUMMON_TRAIL_START_ANGLE = -0.75;
 
     private static final EntityDataAccessor<Integer> DATA_SUMMON_TICKS = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Holder<Miraculous>> DATA_MIRACULOUS = SynchedEntityData.defineId(Kwami.class, MineraculousEntityDataSerializers.MIRACULOUS.get());
     private static final EntityDataAccessor<UUID> DATA_MIRACULOUS_ID = SynchedEntityData.defineId(Kwami.class, MineraculousEntityDataSerializers.UUID.get());
     private static final EntityDataAccessor<Boolean> DATA_TRANSFORMING = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Float> DATA_GLOWING_POWER = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<SummoningAppearance> DATA_SUMMONING_APPEARANCE = SynchedEntityData.defineId(Kwami.class, MineraculousEntityDataSerializers.KWAMI_SUMMONING_APPEARANCE.get());
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -118,9 +143,13 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private TagKey<Item> preferredFoodsTag;
     private TagKey<Item> treatsTag;
 
-    private double summonAngle;
-    private double summonRadius;
+    private double summonAngle = 0;
+    private double summonRadius = 0;
     private int eatTicks = 0;
+
+    private final Vec3[] tickPositions = new Vec3[8];
+    private boolean tickPositionsInitialized = false;
+    private double trailSize = 1;
 
     public Kwami(EntityType<? extends Kwami> entityType, Level level) {
         super(entityType, level);
@@ -147,10 +176,12 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         builder.define(DATA_MIRACULOUS, level().holderOrThrow(Miraculouses.LADYBUG));
         builder.define(DATA_MIRACULOUS_ID, Util.NIL_UUID);
         builder.define(DATA_TRANSFORMING, false);
+        builder.define(DATA_GLOWING_POWER, 0.0F);
+        builder.define(DATA_SUMMONING_APPEARANCE, SummoningAppearance.INSTANT);
     }
 
-    public boolean isInCubeForm() {
-        return isSummoning() || isTransforming();
+    public boolean isInOrbForm() {
+        return isSummoning() && getSummoningAppearance() == SummoningAppearance.ORB;
     }
 
     public boolean isSummoning() {
@@ -197,6 +228,38 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         entityData.set(DATA_TRANSFORMING, transforming);
     }
 
+    public float getGlowingPower() {
+        return entityData.get(DATA_GLOWING_POWER);
+    }
+
+    public void setGlowingPower(float sigma) {
+        entityData.set(DATA_GLOWING_POWER, sigma);
+    }
+
+    public boolean isKwamiGlowing() {
+        return getGlowingPower() > 0;
+    }
+
+    public SummoningAppearance getSummoningAppearance() {
+        return entityData.get(DATA_SUMMONING_APPEARANCE);
+    }
+
+    public void setSummoningAppearance(SummoningAppearance appearance) {
+        entityData.set(DATA_SUMMONING_APPEARANCE, appearance);
+    }
+
+    public Vec3[] getTickPositionsCopy() {
+        return tickPositions.clone();
+    }
+
+    public double getTrailSize() {
+        return trailSize;
+    }
+
+    public void setTrailSize(double scale) {
+        trailSize = scale;
+    }
+
     @Override
     protected PathNavigation createNavigation(Level level) {
         SmoothFlyingPathNavigation navigation = new SmoothFlyingPathNavigation(this, level);
@@ -222,41 +285,104 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         return new SmartBrainProvider<>(this);
     }
 
-    private void tickSummon() {
-        setSummonTicks(getSummonTicks() - 1);
-        LivingEntity owner = getOwner();
-        if (owner != null) {
-            if (this.getY() < owner.getEyeY() - this.getBbHeight() / 2) {
-                summonRadius += SUMMON_RADIUS_STEP;
-                summonAngle += SUMMON_ANGLE_STEP;
-                if (summonRadius > SUMMON_MAX_RADIUS) {
-                    summonRadius = SUMMON_MAX_RADIUS;
+    @Override
+    public void tick() {
+        if (level().isClientSide()) {
+            if (tickPositionsInitialized) {
+                for (int i = tickPositions.length - 1; i > 0; i--) {
+                    tickPositions[i] = tickPositions[i - 1];
                 }
-
-                Vec3 ownerPos = owner.position();
-                double startY = ownerPos.y + owner.getBbHeight() / 2;
-                double t = Math.min(summonRadius / SUMMON_MAX_RADIUS, 1.0);
-                double y = startY + (owner.getEyeY() - startY) * t - this.getBbHeight() / 2;
-
-                float baseYawRad = (float) Math.toRadians(180 + owner.getYRot());
-                double x = ownerPos.x + summonRadius * Math.cos(summonAngle + baseYawRad);
-                double z = ownerPos.z + summonRadius * Math.sin(summonAngle + baseYawRad);
-
-                this.moveTo(x, y, z);
-                this.setYRot(owner.getYRot() + 180);
-                this.setYHeadRot(owner.getYRot() + 180);
+                tickPositions[0] = position();
+            } else {
+                Arrays.fill(tickPositions, position());
+                tickPositionsInitialized = true;
             }
         }
+        super.tick();
+    }
+
+    private void tickSummon() {
+        LivingEntity owner = getOwner();
+        SummoningAppearance appearance = getSummoningAppearance();
+
+        if (summonAngle == 0 && appearance == SummoningAppearance.TRAIL) {
+            summonAngle = -SUMMON_TRAIL_START_ANGLE;
+        }
+        setSummonTicks(getSummonTicks() - 1);
+        if (owner != null) {
+            switch (appearance) {
+                case TRAIL: {
+                    setGlowingPower((float) Math.pow(getSummonTicks(), GLOWING_POWER_EXPONENT));
+                    if (getSummonTicks() > 10) {
+                        summonRadius += SUMMON_RADIUS_STEP;
+                        summonAngle += SUMMON_TRAIL_ANGLE_STEP;
+                        if (summonRadius > SUMMON_TRAIL_MAX_RADIUS) {
+                            summonRadius = SUMMON_TRAIL_MAX_RADIUS;
+                        }
+
+                        double baseYawRad = Math.toRadians(owner.getYRot() + ROTATION_YAW_OFFSET);
+                        Vec3 lookingAngle = new Vec3(Math.sin(baseYawRad), 0, -Math.cos(baseYawRad)).normalize();
+                        Vec3 vertical = new Vec3(0, 1, 0);
+                        Vec3 xzPerpendicular = lookingAngle.cross(vertical).normalize();
+
+                        double t = Math.max(summonRadius / SUMMON_TRAIL_MAX_RADIUS, MIN_RADIUS_RATIO);
+                        double scale = LOOK_DIRECTION_SCALE_MULTIPLIER * t;
+                        double x = summonRadius * Math.cos(summonAngle);
+                        double y = summonRadius * Math.sin(summonAngle);
+
+                        lookingAngle = lookingAngle.scale(scale);
+                        Vec3 rotation = vertical.scale(y).add(xzPerpendicular.scale(x));
+                        Vec3 position = lookingAngle.add(rotation).add(owner.getX(), owner.getY() + owner.getBbHeight() * OWNER_HEIGHT_OFFSET_FACTOR, owner.getZ());
+
+                        this.moveTo(position);
+                        this.setYRot(owner.getYRot() + ROTATION_YAW_OFFSET);
+                        this.setYHeadRot(owner.getYRot() + ROTATION_YAW_OFFSET);
+                    }
+                    break;
+                }
+                case ORB: {
+                    if (this.getY() < owner.getEyeY() - this.getBbHeight() / 2) {
+                        summonRadius += SUMMON_RADIUS_STEP;
+                        summonAngle += SUMMON_ORB_ANGLE_STEP;
+                        if (summonRadius > SUMMON_ORB_MAX_RADIUS) {
+                            summonRadius = SUMMON_ORB_MAX_RADIUS;
+                        }
+
+                        Vec3 ownerPos = owner.position();
+                        double startY = ownerPos.y + owner.getBbHeight() / 2;
+                        double t = Math.min(summonRadius / SUMMON_ORB_MAX_RADIUS, 1.0);
+                        double y = startY + (owner.getEyeY() - startY) * t - this.getBbHeight() / 2;
+                        float baseYawRad = (float) Math.toRadians(180 + owner.getYRot());
+                        double x = ownerPos.x + summonRadius * Math.cos(summonAngle + baseYawRad);
+                        double z = ownerPos.z + summonRadius * Math.sin(summonAngle + baseYawRad);
+
+                        this.moveTo(x, y, z);
+                        this.setYRot(owner.getYRot() + 180);
+                        this.setYHeadRot(owner.getYRot() + 180);
+                    }
+                    break;
+                }
+                case INSTANT: {
+                    break;
+                }
+                default: {
+                    logInvalidAppearance(appearance, this);
+                    break;
+                }
+            }
+        }
+        if (!isSummoning()) setSummoningAppearance(SummoningAppearance.INSTANT);
     }
 
     private void tickTransforming() {
         LivingEntity owner = getOwner();
         if (owner != null) {
-            Vec3 middlePos = this.getBoundingBox().getCenter();
-            Vec3 ownerMiddlePos = owner.getBoundingBox().getCenter();
-            setDeltaMovement(ownerMiddlePos.subtract(middlePos).normalize().scale(0.6 + (owner.isSprinting() ? 0.2 : 0)));
-            if (ownerMiddlePos.closerThan(middlePos, 0.3)) {
-                discard();
+            if (getGlowingPower() < TRANSFORMING_MAX_GLOW_POWER)
+                setGlowingPower(getGlowingPower() + TRANSFORMING_GLOW_POWER_INCREMENT);
+            if (getGlowingPower() > TRANSFORMING_MOVEMENT_GLOW_THRESHOLD) {
+                Vec3 middlePos = this.getBoundingBox().getCenter();
+                Vec3 ownerMiddlePos = owner.getBoundingBox().getCenter();
+                setDeltaMovement(ownerMiddlePos.subtract(middlePos).normalize().scale(TRANSFORMING_BASE_SPEED + (owner.isSprinting() ? TRANSFORMING_SPRINT_SPEED_BONUS : 0)));
             }
         } else {
             setTransforming(false);
@@ -377,7 +503,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (player.getUUID().equals(getOwnerUUID()) && !isInCubeForm()) {
+        if (player.getUUID().equals(getOwnerUUID()) && !isInOrbForm()) {
             if (player instanceof ServerPlayer serverPlayer) {
                 ItemStack stack = player.getItemInHand(hand);
                 if (stack.isEmpty()) {
@@ -524,6 +650,8 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         compound.put("Miraculous", Miraculous.CODEC.encodeStart(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), getMiraculous()).getOrThrow());
         compound.putUUID("MiraculousId", getMiraculousId());
         compound.putInt("EatTicks", eatTicks);
+        compound.putFloat("GlowingPower", getGlowingPower());
+        compound.putString("SummoningAppearance", getSummoningAppearance().getSerializedName());
     }
 
     @Override
@@ -534,6 +662,8 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         setMiraculous(Miraculous.CODEC.parse(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), compound.get("Miraculous")).getOrThrow());
         setMiraculousId(compound.getUUID("MiraculousId"));
         eatTicks = compound.getInt("EatTicks");
+        setGlowingPower(compound.getFloat("GlowingPower"));
+        setSummoningAppearance(SummoningAppearance.of(compound.getString("SummoningAppearance")));
     }
 
     @Override
@@ -544,12 +674,21 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     @Override
     public void playerTouch(Player player) {
         super.playerTouch(player);
-        if (player.getUUID().equals(BrainUtils.getMemory(this, MemoryModuleType.LIKED_PLAYER)) && getOwner() == null) {
-            BrainUtils.setMemory(this, MemoryModuleType.LIKED_PLAYER, null);
-            setOwnerUUID(player.getUUID());
-            getMainHandItem().remove(MineraculousDataComponents.POWERED);
-            player.addItem(getMainHandItem());
-            setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        if (level() instanceof ServerLevel level) {
+            if (isTransforming() && player.getUUID().equals(getOwnerUUID())) {
+                Vec3 middlePos = this.getBoundingBox().getCenter();
+                Vec3 ownerMiddlePos = owner.position().add(0, owner.getBbHeight() * OWNER_HEIGHT_ADJUSTMENT, 0);
+                if (middlePos.distanceTo(ownerMiddlePos) < 0.3) {
+                    player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(getMiraculous()).transform(player, level, getMiraculous());
+                    discard();
+                }
+            } else if (player.getUUID().equals(BrainUtils.getMemory(this, MemoryModuleType.LIKED_PLAYER)) && getOwner() == null) {
+                BrainUtils.setMemory(this, MemoryModuleType.LIKED_PLAYER, null);
+                setOwnerUUID(player.getUUID());
+                getMainHandItem().remove(MineraculousDataComponents.POWERED);
+                player.addItem(getMainHandItem());
+                setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            }
         }
     }
 
@@ -572,5 +711,64 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
             this.owner = super.getOwner();
 
         return this.owner;
+    }
+
+    private static void logInvalidAppearance(SummoningAppearance appearance, Kwami kwami) {
+        MineraculousConstants.LOGGER.error(
+                "Kwami {} has invalid SummoningAppearance: {}",
+                kwami.getUUID(),
+                appearance);
+    }
+
+    public static void applySummoningAppearance(SummoningAppearance appearance, Kwami kwami, Entity owner) {
+        switch (appearance) {
+            case TRAIL:
+                kwami.moveTo(owner.position().add(new Vec3(0, owner.getBbHeight() * OWNER_HEIGHT_ADJUSTMENT, 0)));
+                kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * 3 / 2);
+                kwami.setSummoningAppearance(appearance);
+                break;
+            case ORB:
+                kwami.moveTo(owner.position());
+                kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt());
+                kwami.playSound(MineraculousSoundEvents.KWAMI_SUMMON.get());
+                kwami.setSummoningAppearance(appearance);
+                break;
+            case INSTANT:
+                Vec3 ownerPos = owner.position();
+                Vec3 lookDirection = owner.getLookAngle();
+                Vec3 kwamiPos = ownerPos.add(lookDirection.scale(1.5));
+                kwami.moveTo(kwamiPos.x, owner.getEyeY(), kwamiPos.z);
+                kwami.setSummoningAppearance(appearance);
+                break;
+            default: {
+                kwami.moveTo(owner.getX(), owner.getEyeY(), owner.getZ());
+                logInvalidAppearance(appearance, kwami);
+                break;
+            }
+        }
+    }
+
+    public enum SummoningAppearance implements StringRepresentable {
+        INSTANT,
+        ORB,
+        TRAIL;
+
+        public static final StreamCodec<ByteBuf, SummoningAppearance> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(SummoningAppearance::of, Kwami.SummoningAppearance::getSerializedName);
+        public static final Codec<SummoningAppearance> CODEC = StringRepresentable.fromEnum(SummoningAppearance::values);
+
+        public static SummoningAppearance of(String name) {
+            if (name == null || name.isEmpty()) return INSTANT;
+            try {
+                return valueOf(name.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                MineraculousConstants.LOGGER.warn("Invalid SummoningAppearance name '{}', defaulting to INSTANT.", name);
+                return INSTANT;
+            }
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name().toLowerCase();
+        }
     }
 }

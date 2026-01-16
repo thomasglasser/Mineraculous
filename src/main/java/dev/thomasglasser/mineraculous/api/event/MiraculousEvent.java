@@ -78,6 +78,24 @@ public abstract class MiraculousEvent extends LivingEvent {
         }
 
         /**
+         * Fired <b>before</b> the entity triggers transformation.
+         * This can be used for performing additional effects or suppressing transformation triggering.
+         *
+         * <p>This event is {@linkplain ICancellableEvent cancellable}.
+         * If this event is cancelled, then transformation will not be triggered and the corresponding
+         * events will not be fired.</p>
+         *
+         * <p>This event is fired on the {@linkplain NeoForge#EVENT_BUS main NeoForge event bus},
+         * only on the {@linkplain LogicalSide#SERVER logical server}.</p>
+         */
+        public static class Trigger extends Transform implements ICancellableEvent {
+            @ApiStatus.Internal
+            public Trigger(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack) {
+                super(entity, miraculous, miraculousData, stack);
+            }
+        }
+
+        /**
          * Fired <b>before</b> the entity begins transformation.
          * This can be used for performing additional effects or suppressing transformation.
          *

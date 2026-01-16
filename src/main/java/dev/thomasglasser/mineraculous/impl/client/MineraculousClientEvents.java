@@ -441,9 +441,13 @@ public class MineraculousClientEvents {
         PoseStack poseStack = event.getPoseStack();
         MultiBufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         float partialTick = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPartialTickTime();
-        int light = renderDispatcher.getPackedLightCoords(player, partialTick);
+
+        if (stage == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
+            KwamiRenderer.renderGlowingForm(poseStack, event.getFrustum(), partialTick);
+        }
 
         if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson()) {
+            int light = renderDispatcher.getPackedLightCoords(player, partialTick);
             poseStack.pushPose();
             poseStack.translate(0, -1.6d, 0);
             if (playerPerchRendererMap.containsKey(player.getUUID()))

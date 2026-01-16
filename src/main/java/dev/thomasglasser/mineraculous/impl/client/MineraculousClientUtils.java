@@ -184,7 +184,7 @@ public class MineraculousClientUtils {
         EntityInInventoryRotations newRotation = new EntityInInventoryRotations(
                 180.0F + horizontalRotation * 2,
                 180.0F + horizontalRotation * 2,
-                -90 * 20.0F,
+                0,
                 180.0F + horizontalRotation * 2,
                 180.0F + horizontalRotation * 2);
 

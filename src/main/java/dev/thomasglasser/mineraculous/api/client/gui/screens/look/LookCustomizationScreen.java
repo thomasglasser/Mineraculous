@@ -240,8 +240,7 @@ public class LookCustomizationScreen<T> extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
         if (!isMouseOverWidget(mouseX, mouseY) && mouseAboveCenterPreview) {
             zoom += (int) scrollY * MOUSE_SENSITIVITY_ZOOM_FACTOR;
-            zoom = Math.max(MIN_ZOOM_LIMIT, zoom);
-            zoom = Math.min(MAX_ZOOM_LIMIT, zoom);
+            zoom = Mth.clamp(zoom, MIN_ZOOM_LIMIT, MAX_ZOOM_LIMIT);
         }
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }

@@ -158,24 +158,6 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         MineraculousConstants.LOGGER.error("Tried to trigger transformation for entity {} with invalid kwami id {}", entity.getName().plainCopy().getString(), kwamiId);
                     }
                 }
-//                for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
-//                    if (stack.getItem() instanceof KwamiItem && kwamiId.equals(stack.get(MineraculousDataComponents.KWAMI_ID))) {
-//                        KwamiItem.summonKwami(stack, entity);
-//                    }
-//                    if (level.getEntity(kwamiId) instanceof Kwami kwami) {
-//                        if (kwami.isCharged() && kwami.getMainHandItem().isEmpty() && !kwami.isInOrbForm()) {
-//                            kwami.setTransforming(true);
-//                        } else {
-//                            kwami.playHurtSound(level.damageSources().starve());
-//                        }
-//                    } else {
-//                        if (entity instanceof Player player) {
-//                            player.displayClientMessage(Component.translatable(KWAMI_NOT_FOUND, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.getKey()))), true);
-//                        } else {
-//                            MineraculousConstants.LOGGER.error("Tried to trigger transformation for entity {} with invalid kwami id {}", entity.getName().plainCopy().getString(), kwamiId);
-//                        }
-//                    }
-//                }
             } else {
                 MineraculousConstants.LOGGER.error("Tried to trigger transformation for entity {} with no Kwami Data", entity.getName().plainCopy().getString());
             }

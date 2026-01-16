@@ -164,10 +164,6 @@ public class MineraculousClientUtils {
         return Minecraft.getInstance().screen == null;
     }
 
-    private record EntityInInventoryQuaternions(Quaternionf horizontal, Quaternionf vertical) {}
-
-    private record EntityInInventoryRotations(float yBodyRot, float yRot, float xRot, float yHeadRotO, float yHeadRot) {}
-
     public static void renderEntityInInventory(
             GuiGraphics guiGraphics,
             int xStart,
@@ -649,4 +645,8 @@ public class MineraculousClientUtils {
         Vector3f pos = position.toVector3f();
         vertex(vertexConsumer, pose, pos, u, v, light);
     }
+
+    private record EntityInInventoryQuaternions(Quaternionf horizontal, Quaternionf vertical) {}
+
+    private record EntityInInventoryRotations(float yBodyRot, float yRot, float xRot, float yHeadRotO, float yHeadRot) {}
 }

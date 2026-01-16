@@ -745,7 +745,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         public static final Codec<SummoningAppearance> CODEC = StringRepresentable.fromEnum(SummoningAppearance::values);
 
         public static SummoningAppearance of(String name) {
-            if (name == null) return INSTANT;
+            if (name == null || name.isEmpty()) return INSTANT;
             try {
                 return valueOf(name.toUpperCase());
             } catch (IllegalArgumentException e) {

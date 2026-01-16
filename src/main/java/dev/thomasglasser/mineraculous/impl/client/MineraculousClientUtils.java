@@ -144,9 +144,7 @@ public class MineraculousClientUtils {
     public static void updateKwamiGlowUniforms(FloatArrayList values) {
         float kwamiGlowPower = 0.0f;
         for (Float value : values) {
-            if (value > kwamiGlowPower) {
-                kwamiGlowPower = value;
-            }
+            kwamiGlowPower = Math.max(kwamiGlowPower, value);
         }
         if (getKwamiEffect() != null) {
             getKwamiEffect().setUniform(KWAMI_GLOW_SHADER_STRENGTH_UNIFORM, kwamiGlowPower);

@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
@@ -65,10 +66,15 @@ public record ServerboundUpdateStaffInputPayload(int input) implements ExtendedP
                 player.hurtMarked = true;
             } else if (leaning && jump()) {
                 Vec2 horizontal = MineraculousMathUtils.getHorizontalFacingVector(player.getYRot());
+
+                // TODO fix magic numbers and find a way to get 32 from server config
+                double lengthFactor = Math.min(perchingData.staffLength() / 32.0, 1.0);
+                double jumpFactor = 0.5 + 0.5 * lengthFactor;
+
                 Vec3 movement = new Vec3(
-                        horizontal.x * LEAN_JUMP_HORIZONTAL_MULTIPLIER,
-                        LEAN_JUMP_VERTICAL_MULTIPLIER,
-                        horizontal.y * LEAN_JUMP_HORIZONTAL_MULTIPLIER);
+                        horizontal.x * LEAN_JUMP_HORIZONTAL_MULTIPLIER * jumpFactor,
+                        LEAN_JUMP_VERTICAL_MULTIPLIER * jumpFactor,
+                        horizontal.y * LEAN_JUMP_HORIZONTAL_MULTIPLIER * jumpFactor);
                 player.setDeltaMovement(movement);
                 player.hurtMarked = true;
                 perchingData.withEnabled(false).save(player);

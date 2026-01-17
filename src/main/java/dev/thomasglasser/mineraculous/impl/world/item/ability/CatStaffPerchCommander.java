@@ -35,8 +35,12 @@ public class CatStaffPerchCommander {
     public static void onLeftClick(Level level, LivingEntity user) {
         if (!level.isClientSide()) {
             newPerchingCatStaffData data = user.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
-            if (data.isModeActive() && data.onGround() && data.state() == newPerchingCatStaffData.PerchingState.STAND) {
-                CatStaffPerchGroundWorker.startLeaning(user, data);
+            newPerchingCatStaffData.PerchingState state = data.state();
+            boolean canTransitionToLean = state == newPerchingCatStaffData.PerchingState.STAND || state == newPerchingCatStaffData.PerchingState.LAUNCH;
+            if (data.isModeActive()) {
+                if (data.onGround() && canTransitionToLean) {
+                    CatStaffPerchGroundWorker.startLeaning(user, data);
+                }
             }
         }
     }

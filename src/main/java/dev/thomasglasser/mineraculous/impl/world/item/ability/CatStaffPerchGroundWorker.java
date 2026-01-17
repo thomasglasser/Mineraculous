@@ -253,7 +253,7 @@ public class CatStaffPerchGroundWorker {
         double maxLength = MineraculousServerConfig.get().maxToolLength.get();
         BlockPos targetPosition = BlockPos.containing(data.staffOrigin());
         int analyzedBlocks = 0;
-        while (level.getBlockState(targetPosition.below()).isAir() && analyzedBlocks <= CatStaffItem.STAFF_GROWTH_SPEED) {
+        while (!level.getBlockState(targetPosition.below()).isSolid() && analyzedBlocks <= CatStaffItem.STAFF_GROWTH_SPEED) {
             analyzedBlocks++;
             targetPosition = targetPosition.below();
         }
@@ -284,7 +284,8 @@ public class CatStaffPerchGroundWorker {
         double distance = fromPlayerToOrigin.length();
         double length = data.staffLength() - user.getEyeHeight(Pose.STANDING) - CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
         boolean shouldConstrain = Math.abs(distance - length) > POSITION_EPSILON && user.getY() > data.staffOrigin().y;
-        if (shouldConstrain) {
+        boolean inAir = user.level().getBlockState(BlockPos.containing(user.position())).isAir();
+        if (shouldConstrain && inAir) {
             Vec3 constrain = fromPlayerToOrigin
                     .normalize()
                     .scale(distance - length);

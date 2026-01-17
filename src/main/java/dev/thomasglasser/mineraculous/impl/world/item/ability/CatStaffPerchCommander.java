@@ -11,12 +11,13 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 
 /**
  * This class makes decisions regarding what should happen based on the
  * game context (level, user) when using the perch mode for cat staff tool.
  *
- * The perch mode allows the user to extend its staff until it anchors on
+ * The perch mode allows the user to extend its staff when it anchors on
  * the ground. This mode has 3 behavior states : LAUNCH, STAND, RELEASE, LEAN.
  */
 public class CatStaffPerchCommander {
@@ -27,7 +28,7 @@ public class CatStaffPerchCommander {
                 CatStaffPerchGroundWorker.makeUserReleaseStaff(user, data);
             }
         } else {
-            CatStaffPerchGroundWorker.activateMode(level, user);
+            CatStaffPerchGroundWorker.activateModeAndLaunch(level, user);
         }
     }
 
@@ -37,6 +38,16 @@ public class CatStaffPerchCommander {
             if (data.isModeActive() && data.onGround() && data.state() == newPerchingCatStaffData.PerchingState.STAND) {
                 CatStaffPerchGroundWorker.startLeaning(user, data);
             }
+        }
+    }
+
+    public static void entityFall(LivingFallEvent event) {
+        Entity entity = event.getEntity();
+        newPerchingCatStaffData data = entity.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
+        newPerchingCatStaffData.PerchingState state = data.state();
+        if (state == newPerchingCatStaffData.PerchingState.LEAN || state == newPerchingCatStaffData.PerchingState.RELEASE) {
+            event.setDamageMultiplier(0);
+            newPerchingCatStaffData.remove(entity);
         }
     }
 
@@ -57,7 +68,7 @@ public class CatStaffPerchCommander {
 
         data = CatStaffPerchGroundWorker.applyGravity(user, data);
         if (data.isModeActive()) {
-            cancelFallDamage(user, data);
+            CatStaffPerchGroundWorker.cancelUserFallDamage(user, data);
             CatStaffPerchGroundWorker.alignUserVerticalPosition(user, data);
             CatStaffPerchGroundWorker.constrainUserPosition(user, data);
             if (level.isClientSide()) {
@@ -68,16 +79,6 @@ public class CatStaffPerchCommander {
             }
         }
         originalData.update(user, data);
-    }
-
-    private static final double USER_HEAD_CLEARANCE_BLOCKS = 1.0;
-
-    private static void cancelFallDamage(Entity user, newPerchingCatStaffData data) {
-        boolean shouldCancelFallDamageWhileLeaning = data.state() == newPerchingCatStaffData.PerchingState.LEAN &&
-                user.getY() + USER_HEAD_CLEARANCE_BLOCKS > data.staffOrigin().y;
-        if (data.shouldCancelFallDamage() || shouldCancelFallDamageWhileLeaning) {
-            user.resetFallDistance();
-        }
     }
 
     private static void signalMovementInputToServer(newPerchingCatStaffData data) {

@@ -10,9 +10,9 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.Tra
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTriggerData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import io.netty.buffer.ByteBuf;
@@ -46,7 +46,7 @@ public class MineraculousAttachmentTypes {
     /// If present, holds data for a held ladybug yoyo leash.
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<LeashingLadybugYoyoData>>> LEASHING_LADYBUG_YOYO = ATTACHMENT_TYPES.register("leashing_ladybug_yoyo", () -> AttachmentType.builder(Optional::<LeashingLadybugYoyoData>empty).sync(optionalStreamCodec(LeashingLadybugYoyoData.STREAM_CODEC)).build());
     /// Holds data for perching with a {@link dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem}.
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<newPerchingCatStaffData>> newPERCHING_CAT_STAFF = ATTACHMENT_TYPES.register("newperching_cat_staff", () -> AttachmentType.builder(newPerchingCatStaffData::new).sync(newPerchingCatStaffData.STREAM_CODEC).build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<PerchingCatStaffData>> PERCHING_CAT_STAFF = ATTACHMENT_TYPES.register("perching_cat_staff", () -> AttachmentType.builder(PerchingCatStaffData::new).sync(PerchingCatStaffData.STREAM_CODEC).build());
     /// Holds data for traveling with a {@link dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem}.
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<TravelingCatStaffData>> TRAVELING_CAT_STAFF = ATTACHMENT_TYPES.register("traveling_cat_staff", () -> AttachmentType.builder(TravelingCatStaffData::new).sync(TravelingCatStaffData.STREAM_CODEC).build());
     /// Holds data for triggering a {@link dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug}.

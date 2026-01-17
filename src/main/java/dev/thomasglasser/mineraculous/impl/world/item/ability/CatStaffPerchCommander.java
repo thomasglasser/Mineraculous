@@ -6,7 +6,7 @@ import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundPerchVerticalInputPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateStaffInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,7 +22,7 @@ import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
  */
 public class CatStaffPerchCommander {
     public static void itemUsed(Level level, LivingEntity user) {
-        newPerchingCatStaffData data = user.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
+        PerchingCatStaffData data = user.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
         if (data.isModeActive()) {
             if (!level.isClientSide() && data.isStaffReleaseable()) {
                 CatStaffPerchGroundWorker.makeUserReleaseStaff(user, data);
@@ -34,9 +34,9 @@ public class CatStaffPerchCommander {
 
     public static void onLeftClick(Level level, LivingEntity user) {
         if (!level.isClientSide()) {
-            newPerchingCatStaffData data = user.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
-            newPerchingCatStaffData.PerchingState state = data.state();
-            boolean canTransitionToLean = state == newPerchingCatStaffData.PerchingState.STAND || state == newPerchingCatStaffData.PerchingState.LAUNCH;
+            PerchingCatStaffData data = user.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+            PerchingCatStaffData.PerchingState state = data.state();
+            boolean canTransitionToLean = state == PerchingCatStaffData.PerchingState.STAND || state == PerchingCatStaffData.PerchingState.LAUNCH;
             if (data.isModeActive()) {
                 if (data.onGround() && canTransitionToLean) {
                     CatStaffPerchGroundWorker.startLeaning(user, data);
@@ -47,11 +47,11 @@ public class CatStaffPerchCommander {
 
     public static void entityFall(LivingFallEvent event) {
         Entity entity = event.getEntity();
-        newPerchingCatStaffData data = entity.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
-        newPerchingCatStaffData.PerchingState state = data.state();
-        if (state == newPerchingCatStaffData.PerchingState.LEAN || state == newPerchingCatStaffData.PerchingState.RELEASE) {
+        PerchingCatStaffData data = entity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+        PerchingCatStaffData.PerchingState state = data.state();
+        if (state == PerchingCatStaffData.PerchingState.LEAN || state == PerchingCatStaffData.PerchingState.RELEASE) {
             event.setDamageMultiplier(0);
-            newPerchingCatStaffData.remove(entity);
+            PerchingCatStaffData.remove(entity);
         }
     }
 
@@ -63,12 +63,12 @@ public class CatStaffPerchCommander {
      * @param user  The entity using the tool.
      */
     public static void tick(Level level, Entity user, CatStaffItem.Mode mode) {
-        if (mode != CatStaffItem.Mode.PERCH && user.hasData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF)) {
-            newPerchingCatStaffData.remove(user);
+        if (mode != CatStaffItem.Mode.PERCH && user.hasData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF)) {
+            PerchingCatStaffData.remove(user);
         }
 
-        newPerchingCatStaffData originalData = user.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
-        newPerchingCatStaffData data = originalData;
+        PerchingCatStaffData originalData = user.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+        PerchingCatStaffData data = originalData;
 
         data = CatStaffPerchGroundWorker.applyGravity(user, data);
         if (data.isModeActive()) {
@@ -85,7 +85,7 @@ public class CatStaffPerchCommander {
         originalData.update(user, data);
     }
 
-    private static void signalMovementInputToServer(newPerchingCatStaffData data) {
+    private static void signalMovementInputToServer(PerchingCatStaffData data) {
         sendVerticalInput(data);
         sendWASDJumpInput();
     }
@@ -98,11 +98,11 @@ public class CatStaffPerchCommander {
         }
     }
 
-    private static void sendVerticalInput(newPerchingCatStaffData data) {
-        if (data.state() == newPerchingCatStaffData.PerchingState.STAND) {
+    private static void sendVerticalInput(PerchingCatStaffData data) {
+        if (data.state() == PerchingCatStaffData.PerchingState.STAND) {
             boolean ascend = MineraculousKeyMappings.ASCEND_TOOL.isDown();
             boolean descend = MineraculousKeyMappings.DESCEND_TOOL.isDown();
-            newPerchingCatStaffData.VerticalMovement suggestedMovement = newPerchingCatStaffData.getVerticalMovement(ascend, descend);
+            PerchingCatStaffData.VerticalMovement suggestedMovement = PerchingCatStaffData.getVerticalMovement(ascend, descend);
             if (suggestedMovement != data.verticalMovement()) {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundPerchVerticalInputPayload(suggestedMovement));
             }

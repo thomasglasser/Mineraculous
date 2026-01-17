@@ -20,7 +20,7 @@ import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaf
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchCommander;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelHandler;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
@@ -167,7 +167,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
             boolean inHand = livingEntity.getMainHandItem() == stack || livingEntity.getOffhandItem() == stack;
             CatStaffPerchCommander.tick(level, entity, mode);
             if (!inHand || !Active.isActive(stack)) {
-                newPerchingCatStaffData.remove(entity);
+                PerchingCatStaffData.remove(entity);
             }
         }
         MineraculousItemUtils.checkHelicopterSlowFall(stack, entity);

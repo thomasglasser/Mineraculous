@@ -4,7 +4,7 @@ import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -49,10 +49,10 @@ public record ServerboundUpdateStaffInputPayload(int input) implements ExtendedP
 
     @Override
     public void handle(Player player) {
-        newPerchingCatStaffData perchingData = player.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
+        PerchingCatStaffData perchingData = player.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
         if (perchingData.isModeActive() && hasInput()) {
-            boolean standing = perchingData.state() == newPerchingCatStaffData.PerchingState.STAND;
-            boolean leaning = perchingData.state() == newPerchingCatStaffData.PerchingState.LEAN;
+            boolean standing = perchingData.state() == PerchingCatStaffData.PerchingState.STAND;
+            boolean leaning = perchingData.state() == PerchingCatStaffData.PerchingState.LEAN;
             if (standing) {
                 Vec3 playerToStaffHorizontal = new Vec3(perchingData.staffOrigin().x - player.getX(), 0, perchingData.staffOrigin().z - player.getZ());
                 Vec3 movement = MineraculousMathUtils.getMovementVector(player.getYRot(), up(), down(), left(), right());

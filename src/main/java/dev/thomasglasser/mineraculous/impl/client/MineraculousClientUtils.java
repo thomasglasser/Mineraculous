@@ -50,8 +50,8 @@ import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.KamikotizedMinion;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchGroundWorker;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
@@ -676,7 +676,7 @@ public class MineraculousClientUtils {
         if (level != null) {
             Set<Integer> seenThisTick = new HashSet<>();
             for (Entity entity : level.entitiesForRendering()) {
-                newPerchingCatStaffData data = entity.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
+                PerchingCatStaffData data = entity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
                 if (!data.isModeActive()) continue;
                 seenThisTick.add(entity.getId());
                 catStaffPastTickExtremitiesEntityMap.compute(entity.getId(), (id, old) -> {
@@ -698,7 +698,7 @@ public class MineraculousClientUtils {
         ClientLevel level = Minecraft.getInstance().level;
         if (level != null) {
             for (Entity entity : level.entitiesForRendering()) {
-                newPerchingCatStaffData perchingData = entity.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
+                PerchingCatStaffData perchingData = entity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
                 boolean renderPerch = perchingData.isModeActive();
                 if (renderPerch) {
                     CatStaffTickData extremities = catStaffPastTickExtremitiesEntityMap.get(entity.getId());
@@ -707,7 +707,7 @@ public class MineraculousClientUtils {
                         double y = CatStaffPerchGroundWorker.expectedStaffTip(entity, partialTick).y;
                         Vec3 interpolatedTip = perchingData.withStaffTipY(y).staffTip();
 
-                        boolean leaning = perchingData.state() == newPerchingCatStaffData.PerchingState.LEAN;
+                        boolean leaning = perchingData.state() == PerchingCatStaffData.PerchingState.LEAN;
                         if (leaning) {
                             Vec3 userGroundProjected = perchingData.userPositionBeforeLeanOrRelease().multiply(1, 0, 1).add(0, perchingData.staffOrigin().y, 0);
                             Vec3 oldUserPosition = new Vec3(entity.xOld, entity.yOld, entity.zOld);

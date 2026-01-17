@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.authlib.GameProfile;
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.components.tabs.ExtendedTabNavigationBar;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RegistryElementSelectionScreen;
@@ -27,6 +28,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.tabs.GridLayoutTab;
@@ -44,7 +46,9 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import org.lwjgl.opengl.GL11;
 
 /**
  * Selects looks for a provided element and context set.
@@ -58,25 +62,43 @@ public class LookCustomizationScreen<T> extends Screen {
     public static final Component UNDO = Component.translatable("gui.mineraculous.look_customization.undo");
     public static final Component RESET = Component.translatable("gui.mineraculous.look_customization.reset");
 
-    private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
-    private final TabManager tabManager = new TabManager(this::addRenderableWidget, this::removeWidget);
+    protected final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
+    protected final TabManager tabManager = new TabManager(this::addRenderableWidget, this::removeWidget);
+    private static final double MOUSE_SENSITIVITY_ROTATION_FACTOR = 1.5;
+    private static final double ROTATION_SPEED = 1.3;
+    private static final int MOUSE_SENSITIVITY_ZOOM_FACTOR = 5;
+    private static final int MAX_ZOOM_LIMIT = 130;
+    private static final int MIN_ZOOM_LIMIT = -40;
+    private static final int DEFAULT_PREVIEW_SCALE = 80;
 
-    private final ImmutableSet<Holder<LookContext>> contextSet;
-    private final LookMetadataType<Set<ResourceKey<T>>> metadataType;
-    private final Holder<T> selected;
-    private final Function<Player, LookData> lookDataGetter;
-    private final BiConsumer<Player, LookData> lookDataSetter;
-    private final BiConsumer<Player, LookData> onApply;
+    protected final ImmutableSet<Holder<LookContext>> contextSet;
+    protected final LookMetadataType<Set<ResourceKey<T>>> metadataType;
+    protected final Holder<T> selected;
+    protected final Function<Player, LookData> lookDataGetter;
+    protected final BiConsumer<Player, LookData> lookDataSetter;
+    protected final BiConsumer<Player, LookData> onApply;
 
-    private ImmutableMultimap<ResourceKey<LookContext>, ResourceLocation> looks;
-    private Map<ResourceKey<LookContext>, ResourceLocation> selectedLooks;
-    private PlayerPreview leftPreview;
-    private PlayerPreview centerPreview;
-    private PlayerPreview rightPreview;
-    private ExtendedTabNavigationBar tabNavigationBar;
-    private EditBox nameEdit;
-    private Button previousButton;
-    private Button nextButton;
+    protected ImmutableMultimap<ResourceKey<LookContext>, ResourceLocation> looks;
+    protected Map<ResourceKey<LookContext>, ResourceLocation> selectedLooks;
+    protected PlayerPreview leftPreview;
+    protected PlayerPreview centerPreview;
+    protected PlayerPreview rightPreview;
+    protected ExtendedTabNavigationBar tabNavigationBar;
+    protected EditBox nameEdit;
+    protected Button previousButton;
+    protected Button nextButton;
+
+    private boolean mouseAboveCenterPreview = false;
+    private boolean mouseDragging = false;
+    private double oldMouseX = 0;
+    private double oldMouseY = 0;
+    private double startHorizontalRotation = 0;
+    private double startVerticalRotation = 0;
+    private double selectedHorizontalRotation = 0;
+    private double selectedVerticalRotation = 0;
+    private double oldTickHorizontalRotation = 0;
+    private double oldTickVerticalRotation = 0;
+    private int zoom = 0;
 
     public LookCustomizationScreen(ImmutableSet<Holder<LookContext>> contextSet, LookMetadataType<Set<ResourceKey<T>>> metadataType, Holder<T> selected, Function<Player, LookData> lookDataGetter, BiConsumer<Player, LookData> lookDataSetter, BiConsumer<Player, LookData> onApply) {
         super(Component.empty());
@@ -147,14 +169,81 @@ public class LookCustomizationScreen<T> extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    public void tick() {
+        super.tick();
+        oldTickHorizontalRotation = selectedHorizontalRotation;
+        oldTickVerticalRotation = selectedVerticalRotation;
+        if (!mouseDragging) {
+            selectedHorizontalRotation -= ROTATION_SPEED;
+            startHorizontalRotation = selectedHorizontalRotation;
+            startVerticalRotation = selectedVerticalRotation;
+        }
+    }
+
+    @Override
+    public void renderBackground(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
+
         int top = this.tabNavigationBar.getRectangle().bottom();
         int width = this.width / 3;
         int bottom = this.height - this.layout.getFooterHeight();
-        MineraculousClientUtils.renderEntityInInventory(guiGraphics, 0, top, width, bottom, 80, 0, leftPreview);
-        MineraculousClientUtils.renderEntityInInventory(guiGraphics, width, top, 2 * width, bottom, 80, 0, centerPreview);
-        MineraculousClientUtils.renderEntityInInventory(guiGraphics, 2 * width, top, 3 * width, bottom, 80, 0, rightPreview);
+
+        float horizontalRotation = (float) Mth.lerp(partialTick, oldTickHorizontalRotation, selectedHorizontalRotation);
+        float verticalRotation = (float) Mth.lerp(partialTick, oldTickVerticalRotation, selectedVerticalRotation);
+
+        MineraculousClientUtils.renderEntityInInventory(guiGraphics, 0, top, width, bottom, DEFAULT_PREVIEW_SCALE, 0, 0, leftPreview);
+        MineraculousClientUtils.renderEntityInInventory(guiGraphics, width, top, 2 * width, bottom, DEFAULT_PREVIEW_SCALE + zoom, horizontalRotation, verticalRotation, centerPreview);
+        MineraculousClientUtils.renderEntityInInventory(guiGraphics, 2 * width, top, 3 * width, bottom, DEFAULT_PREVIEW_SCALE, 0, 0, rightPreview);
+
+        RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, false);
+        guiGraphics.flush();
+
+        updateMouseAboveCenterPreview(mouseX, mouseY, width, top, 2 * width, bottom);
+    }
+
+    private void updateMouseAboveCenterPreview(int mouseX, int mouseY, int xStart, int yStart, int xEnd, int yEnd) {
+        mouseAboveCenterPreview = mouseX < xEnd && mouseX > xStart && mouseY < yEnd && mouseY > yStart;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0 && !isMouseOverWidget(mouseX, mouseY) && mouseAboveCenterPreview) {
+            oldMouseX = mouseX;
+            oldMouseY = mouseY;
+            mouseDragging = true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 0) {
+            mouseDragging = false;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (mouseDragging && button == 0) {
+            selectedHorizontalRotation = oldMouseX - mouseX;
+            selectedHorizontalRotation /= MOUSE_SENSITIVITY_ROTATION_FACTOR;
+            selectedHorizontalRotation += startHorizontalRotation;
+
+            selectedVerticalRotation = oldMouseY - mouseY;
+            selectedVerticalRotation /= MOUSE_SENSITIVITY_ROTATION_FACTOR;
+            selectedVerticalRotation += startVerticalRotation;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (!isMouseOverWidget(mouseX, mouseY) && mouseAboveCenterPreview) {
+            zoom += (int) scrollY * MOUSE_SENSITIVITY_ZOOM_FACTOR;
+            zoom = Mth.clamp(zoom, MIN_ZOOM_LIMIT, MAX_ZOOM_LIMIT);
+        }
+        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
     }
 
     @Override
@@ -162,6 +251,17 @@ public class LookCustomizationScreen<T> extends Screen {
         if (this.tabNavigationBar.keyPressed(keyCode)) {
             return true;
         } else return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    private boolean isMouseOverWidget(double mouseX, double mouseY) {
+        for (var child : this.children()) {
+            if (child instanceof AbstractWidget widget) {
+                if (widget.isMouseOver(mouseX, mouseY) && widget.active && widget.visible) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     protected void refreshLooks() {
@@ -256,6 +356,13 @@ public class LookCustomizationScreen<T> extends Screen {
         refreshLooks();
         this.selectedLooks = new Object2ObjectOpenHashMap<>();
         refreshPreviews();
+        zoom = 0;
+        startHorizontalRotation = 0;
+        startVerticalRotation = 0;
+        selectedHorizontalRotation = 0;
+        selectedVerticalRotation = 0;
+        oldTickHorizontalRotation = 0;
+        oldTickVerticalRotation = 0;
     }
 
     protected ResourceLocation getPreviousLook(ResourceKey<LookContext> context) {

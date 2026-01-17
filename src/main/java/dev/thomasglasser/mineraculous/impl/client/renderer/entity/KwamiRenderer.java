@@ -3,11 +3,15 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.client.renderer.ColoredOutlineBufferSource;
+import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.KwamiBlockAndItemGeoLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.MiniHolidayHatGeoLayer;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -15,17 +19,23 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EnderDragonRenderer;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -43,6 +53,16 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
     public static final String RIGHT_HAND = "right_hand";
 
     private static final Set<KwamiRenderer<?>> INSTANCES = new ReferenceOpenHashSet<>();
+    private static final float GLOW_POWER_NORMALIZER = 200.0f;
+    private static final double TRAIL_STEP_DISTANCE = 0.05;
+    private static final double TRANSFORMING_TRAIL_LENGTH = 1.5;
+    private static final double BASE_TRAIL_LENGTH = 0.7;
+    private static final double MIN_VISIBLE_TRAIL_LENGTH = 0.01;
+    private static final float TRAIL_FALLOFF_EXPONENT = 1.7f;
+    private static final float MIN_GLOW_SCALE = 0.2f;
+    private static final float BASE_GLOW_SCALE = 1.001f;
+    private static final float GLOW_SQRT_DIVISOR = 30.0f;
+
     private static final ResourceLocation[] KWAMI_FALLBACK = new ResourceLocation[] {
             MineraculousConstants.modLoc("animations/entity/kwami.animation.json")
     };
@@ -77,12 +97,17 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
 
     @Override
     public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
-        if (animatable.isInCubeForm()) {
+        if (animatable.isInOrbForm()) {
             int summonTicks = animatable.getSummonTicks();
             float progress = summonTicks > 0 ? (float) summonTicks / (SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt()) : 0.5F;
             int color = animatable.getMiraculous().value().color().getValue();
             renderRays(poseStack, progress, bufferSource.getBuffer(RenderType.lightning()), color);
             renderRays(poseStack, progress, bufferSource.getBuffer(RenderType.dragonRays()), color);
+        }
+        if (animatable.isKwamiGlowing()) {
+            float scale = Math.max(MIN_GLOW_SCALE, BASE_GLOW_SCALE - Mth.sqrt(animatable.getGlowingPower()) / GLOW_SQRT_DIVISOR);
+            scale *= (float) animatable.getTrailSize();
+            poseStack.scale(scale, scale, scale);
         }
         super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, LightTexture.FULL_BRIGHT, packedOverlay, colour);
     }
@@ -131,10 +156,86 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
         poseStack.popPose();
     }
 
+    public static void renderGlowingForm(PoseStack poseStack, Frustum frustum, float partialTick) {
+        EntityRenderDispatcher renderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+        boolean kwamiGlowFlag = false;
+        FloatArrayList glowingPowers = new FloatArrayList();
+        if (MineraculousClientUtils.shouldShowKwamiGlow()) {
+            MineraculousClientUtils.getKwamiTarget().clear(Minecraft.ON_OSX);
+            MineraculousClientUtils.getKwamiTarget().copyDepthFrom(Minecraft.getInstance().getMainRenderTarget()); // supposed to enable depth test
+            MineraculousClientUtils.getKwamiTarget().bindWrite(true);
+        }
+
+        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+        Camera camera = renderDispatcher.camera;
+        Vec3 cameraPos = camera.getPosition();
+        for (Entity entity : Minecraft.getInstance().level.entitiesForRendering()) {
+            if (renderDispatcher.shouldRender(entity, frustum, cameraPos.x, cameraPos.y, cameraPos.z)) {
+                if (MineraculousClientUtils.shouldShowKwamiGlow() && entity instanceof Kwami kwami && kwami.isKwamiGlowing() && !kwami.isInOrbForm()) {
+                    glowingPowers.add(kwami.getGlowingPower());
+                    kwamiGlowFlag = true;
+                    ColoredOutlineBufferSource coloredOutlineBufferSource = new ColoredOutlineBufferSource(bufferSource);
+                    coloredOutlineBufferSource.setColor(kwami.getMiraculous().value().color().getValue());
+
+                    float trailWeight = Mth.clamp(kwami.getGlowingPower() / GLOW_POWER_NORMALIZER, 0f, 1f);
+
+                    Vec3[] positions = kwami.getTickPositionsCopy();
+                    Vec3 currentPoint = entity.getPosition(partialTick);
+
+                    double stepDist = TRAIL_STEP_DISTANCE;
+                    double totalTrailLength = kwami.isTransforming() ? TRANSFORMING_TRAIL_LENGTH : BASE_TRAIL_LENGTH * trailWeight;
+                    double distanceTravelled = 0;
+
+                    kwami.setTrailSize(1.0f);
+                    renderDispatcher.render(entity, currentPoint.x - camera.getPosition().x, currentPoint.y - camera.getPosition().y, currentPoint.z - camera.getPosition().z, entity.getYRot(), partialTick, poseStack, coloredOutlineBufferSource, LightTexture.FULL_BRIGHT);
+
+                    if (totalTrailLength > MIN_VISIBLE_TRAIL_LENGTH) {
+                        int waypointIndex = 1;
+                        while (waypointIndex < positions.length && distanceTravelled < totalTrailLength) {
+                            Vec3 targetWaypoint = positions[waypointIndex];
+                            double distToNext = currentPoint.distanceTo(targetWaypoint);
+
+                            if (distToNext > stepDist) {
+                                Vec3 dir = targetWaypoint.subtract(currentPoint).normalize();
+                                currentPoint = currentPoint.add(dir.scale(stepDist));
+
+                                float progress = (float) (distanceTravelled / totalTrailLength);
+                                float exponentialScale = (float) Math.pow(1.0f - progress, TRAIL_FALLOFF_EXPONENT);
+                                kwami.setTrailSize(exponentialScale * trailWeight);
+
+                                renderDispatcher.render(
+                                        entity, currentPoint.x - camera.getPosition().x,
+                                        currentPoint.y - camera.getPosition().y,
+                                        currentPoint.z - camera.getPosition().z,
+                                        entity.getYRot(), partialTick, poseStack, coloredOutlineBufferSource,
+                                        LightTexture.FULL_BRIGHT);
+
+                                distanceTravelled += stepDist;
+                            } else {
+                                currentPoint = targetWaypoint;
+                                waypointIndex++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        bufferSource.endBatch();
+
+        if (MineraculousClientUtils.shouldShowKwamiGlow()) {
+            MineraculousClientUtils.getKwamiTarget().unbindWrite();
+        }
+        if (kwamiGlowFlag) {
+            MineraculousClientUtils.updateKwamiGlowUniforms(glowingPowers);
+            MineraculousClientUtils.getKwamiEffect().process(partialTick);
+        }
+        Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
+    }
+
     @Override
     public GeoModel<T> getGeoModel() {
         T animatable = getAnimatable();
-        if (animatable != null && !animatable.isInCubeForm()) {
+        if (animatable != null && !animatable.isInOrbForm()) {
             Holder<Miraculous> miraculous = animatable.getMiraculous();
             if (miraculous != null) {
                 if (!models.containsKey(miraculous))
@@ -168,9 +269,18 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
 
     @Override
     public Color getRenderColor(T animatable, float partialTick, int packedLight) {
-        if (animatable.isInCubeForm()) {
+        if (animatable.isInOrbForm()) {
             return COLORS.computeIfAbsent(animatable.getMiraculous().value().color().getValue(), Color::new);
         }
         return super.getRenderColor(animatable, partialTick, packedLight);
+    }
+
+    @Override
+    public RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+        if (animatable.isKwamiGlowing()) {
+            return MineraculousRenderTypes.kwamiGlow(texture);
+        } else {
+            return super.getRenderType(animatable, texture, bufferSource, partialTick);
+        }
     }
 }

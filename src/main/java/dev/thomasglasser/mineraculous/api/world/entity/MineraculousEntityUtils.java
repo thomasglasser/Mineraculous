@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.event.MiraculousEvent;
-import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
@@ -14,7 +13,6 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundRefreshDisplayNamePayload;
-import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
@@ -24,7 +22,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import net.minecraft.SharedConstants;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -136,15 +133,15 @@ public class MineraculousEntityUtils {
      * Summons a {@link Kwami} with the provided charge, miraculous ID, miraculous, and UUID for the provided owner,
      * optionally playing a summoning animation.
      *
-     * @param owner         The owner of the kwami
-     * @param charged       Whether the kwami is charged
-     * @param miraculousId  The related miraculous item {@link UUID}
-     * @param miraculous    The miraculous of the kwami
-     * @param playAnimation Whether to play the kwami summon animation
-     * @param uuidOverride  The {@link UUID} to use for the kwami, or null to use a random UUID
+     * @param owner        The owner of the kwami
+     * @param charged      Whether the kwami is charged
+     * @param miraculousId The related miraculous item {@link UUID}
+     * @param miraculous   The miraculous of the kwami
+     * @param appearance   What summon animation to play
+     * @param uuidOverride The {@link UUID} to use for the kwami, or null to use a random UUID
      * @return The summoned kwami
      */
-    public static Kwami summonKwami(LivingEntity owner, boolean charged, UUID miraculousId, Holder<Miraculous> miraculous, boolean playAnimation, @Nullable UUID uuidOverride) {
+    public static Kwami summonKwami(LivingEntity owner, boolean charged, UUID miraculousId, Holder<Miraculous> miraculous, Kwami.SummoningAppearance appearance, @Nullable UUID uuidOverride) {
         ServerLevel level = (ServerLevel) owner.level();
         if (uuidOverride != null) {
             KwamiLike existing = findKwami(owner, uuidOverride);
@@ -165,16 +162,7 @@ public class MineraculousEntityUtils {
             }
             kwami.setYRot(owner.getYRot() + 180);
             kwami.setYHeadRot(owner.getYRot() + 180);
-            if (playAnimation) {
-                kwami.moveTo(owner.position());
-                kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt());
-                kwami.playSound(MineraculousSoundEvents.KWAMI_SUMMON.get());
-            } else {
-                Vec3 ownerPos = owner.position();
-                Vec3 lookDirection = owner.getLookAngle();
-                Vec3 kwamiPos = ownerPos.add(lookDirection.scale(1.5));
-                kwami.moveTo(kwamiPos.x, owner.getEyeY(), kwamiPos.z);
-            }
+            Kwami.applySummoningAppearance(appearance, kwami, owner);
             if (uuidOverride != null)
                 kwami.setUUID(uuidOverride);
             level.addFreshEntity(kwami);

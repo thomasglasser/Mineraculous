@@ -70,7 +70,7 @@ public class KwamiItem extends Item implements GeoItem {
             Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
             if (miraculousId != null && miraculous != null) {
                 if (!level.isClientSide()) {
-                    Kwami kwami = MineraculousEntityUtils.summonKwami(summoner, charged, miraculousId, miraculous, false, stack.get(MineraculousDataComponents.KWAMI_ID));
+                    Kwami kwami = MineraculousEntityUtils.summonKwami(summoner, charged, miraculousId, miraculous, Kwami.SummoningAppearance.INSTANT, stack.get(MineraculousDataComponents.KWAMI_ID));
                     if (kwami != null) {
                         stack.setCount(0);
                     } else {

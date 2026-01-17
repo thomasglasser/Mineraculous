@@ -417,7 +417,10 @@ public class MineraculousClientEvents {
         PoseStack poseStack = event.getPoseStack();
         MultiBufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         float partialTick = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPartialTickTime();
-        int light = renderDispatcher.getPackedLightCoords(player, partialTick);
+
+        if (stage == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
+            KwamiRenderer.renderGlowingForm(poseStack, event.getFrustum(), partialTick);
+        }
 
         boolean isFirstPerson = renderDispatcher.options.getCameraType().isFirstPerson();
 
@@ -427,6 +430,7 @@ public class MineraculousClientEvents {
             }
         }
         if (stage == RenderLevelStageEvent.Stage.AFTER_SKY) {
+            int light = renderDispatcher.getPackedLightCoords(player, partialTick);
             poseStack.pushPose();
             Vec3 cameraPos = renderDispatcher.camera.getPosition();
             poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);

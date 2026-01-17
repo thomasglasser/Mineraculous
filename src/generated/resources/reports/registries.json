@@ -342,6 +342,7 @@
     "mineraculous:yoyo_leash_override"
   ],
   "neoforge:entity_data_serializers": [
+    "mineraculous:kwami_summoning_appearance",
     "mineraculous:look_data",
     "mineraculous:minion_kamikotization_data",
     "mineraculous:miraculous",

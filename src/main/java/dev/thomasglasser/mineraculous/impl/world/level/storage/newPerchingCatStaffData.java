@@ -19,7 +19,7 @@ import net.minecraft.world.phys.Vec3;
  * @param state                           The current state of the mode, see CatStaffPerchCommander for more details
  * @param verticalMovement                The movement of the player during STAND state.
  * @param pawDirection                    The direction the user was facing when perch mode became active.
- * @param userPositionBeforeLeanOrRelease The coordinates of the player before transitioning to LEAN state
+ * @param userPositionBeforeLeanOrRelease The coordinates of the player before transitioning to LEAN/RELEASE state
  * @param staffOrigin                     The lower extremity's coordinates of the staff.
  * @param staffTip                        The upper extremity's coordinates of the staff.
  * @param isModeActive                    Weather or not the perch mode is active.

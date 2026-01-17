@@ -31,15 +31,18 @@ public class CatStaffPerchGroundWorker {
      * @return
      */
     public static Vec3 expectedStaffTip(Entity user, float partialTick) {
+        Vec3 delta = new Vec3(0, user.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET, 0);
         newPerchingCatStaffData perchingData = user.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
-        boolean movingTip = perchingData.state() == newPerchingCatStaffData.PerchingState.LAUNCH || perchingData.state() == newPerchingCatStaffData.PerchingState.STAND;
+        newPerchingCatStaffData.PerchingState state = perchingData.state();
+        boolean releasing = state == newPerchingCatStaffData.PerchingState.RELEASE;
+        boolean movingTip = state == newPerchingCatStaffData.PerchingState.LAUNCH || state == newPerchingCatStaffData.PerchingState.STAND || releasing;
         if (movingTip) {
             Vec3 oldPos = new Vec3(user.xOld, user.yOld, user.zOld);
-            Vec3 from = oldPos.add(0, user.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET, 0);
-            Vec3 to = user.position().add(0, user.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET, 0);
+            Vec3 from = oldPos.add(delta);
+            Vec3 to = user.position().add(delta);
             return from.lerp(to, partialTick);
         } else {
-            return perchingData.userPositionBeforeLeanOrRelease().add(0, user.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET, 0);
+            return perchingData.userPositionBeforeLeanOrRelease().add(delta);
         }
     }
 

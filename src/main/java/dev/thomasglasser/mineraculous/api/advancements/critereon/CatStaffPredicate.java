@@ -59,6 +59,6 @@ public record CatStaffPredicate(Optional<Boolean> traveling, Optional<Boolean> p
     @Override
     public boolean matches(Entity entity, ServerLevel level, @Nullable Vec3 position) {
         return traveling.map(traveling -> traveling == entity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling()).orElse(true) &&
-                perching.map(perching -> perching == entity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF).perching()).orElse(true);
+                perching.map(perching -> perching == entity.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF).isModeActive()).orElse(true);
     }
 }

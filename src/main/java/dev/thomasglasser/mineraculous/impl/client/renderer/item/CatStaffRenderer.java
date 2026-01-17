@@ -99,7 +99,8 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
                 if (mode == CatStaffItem.Mode.PERCH || mode == CatStaffItem.Mode.TRAVEL) {
                     TravelingCatStaffData travelingCatStaffData = carrier.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
                     newPerchingCatStaffData perchingCatStaffData = carrier.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
-                    if (travelingCatStaffData.traveling() || perchingCatStaffData.isModeActive()) {
+                    // TODO fix for travel
+                    if (perchingCatStaffData.isModeActive()) {
                         boolean firstPersonHand = this.renderPerspective == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
                         boolean thirdPersonHand = this.renderPerspective == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
 

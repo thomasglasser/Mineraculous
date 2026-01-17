@@ -49,7 +49,6 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundRequestLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRequestLookPayload.CODEC),
             new PayloadInfo<>(ServerboundSendLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSendLookPayload.CODEC),
             new PayloadInfo<>(ServerboundUpdateYoyoInputPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateYoyoInputPayload.CODEC),
-            new PayloadInfo<>(ServerboundUpdateStaffPerchLength.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateStaffPerchLength.CODEC),
             new PayloadInfo<>(ServerboundUpdateStaffInputPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateStaffInputPayload.CODEC),
             new PayloadInfo<>(ServerboundPerchVerticalInputPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundPerchVerticalInputPayload.CODEC),
 

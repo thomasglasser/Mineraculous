@@ -432,14 +432,6 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                 BrainUtils.setMemory(this, MemoryModuleType.LIKED_PLAYER, null);
             }
         }
-
-        LivingEntity owner = getOwner();
-        if (owner != null && tickCount % 10 == 0 && !BrainUtils.hasMemory(this, MemoryModuleType.WALK_TARGET) && !level().getBlockState(blockPosition()).isAir()) {
-            // Move towards owner if staying in the ground
-            Vec3 middlePos = this.getBoundingBox().getCenter();
-            Vec3 ownerMiddlePos = owner.getBoundingBox().getCenter();
-            setDeltaMovement(ownerMiddlePos.subtract(middlePos).normalize().scale(0.1));
-        }
     }
 
     private boolean shouldTriggerItemUseEffects(int max, int remaining) {
@@ -507,7 +499,9 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
             if (player instanceof ServerPlayer serverPlayer) {
                 ItemStack stack = player.getItemInHand(hand);
                 if (stack.isEmpty()) {
-                    player.setItemInHand(hand, KwamiItem.create(this));
+                    ItemStack kwamiStack = KwamiItem.create(this);
+                    player.setItemInHand(hand, kwamiStack);
+                    player.getCooldowns().addCooldown(kwamiStack.getItem(), 5);
                     discard();
                 } else {
                     UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);

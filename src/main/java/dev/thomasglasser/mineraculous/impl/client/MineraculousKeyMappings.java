@@ -102,7 +102,7 @@ public class MineraculousKeyMappings {
         Map<RadialMenuOption, Holder<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();
         for (ItemStack stack : CuriosUtils.getAllItems(ClientUtils.getLocalPlayer()).values()) {
             Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-            if (miraculous != null) {
+            if (miraculous != null && !miraculousOptions.containsValue(miraculous)) {
                 ResourceKey<Miraculous> key = miraculous.getKey();
                 if (key != null) {
                     RadialMenuOption option = new RadialMenuOption() {

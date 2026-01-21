@@ -15,10 +15,14 @@ public class MiraculousEvents {
         if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).flatMap(KamikotizationData::transformationState).isPresent())
             return true;
         for (MiraculousData data : entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).values()) {
-            if (data.transformationState().isPresent())
+            if (hasTransformationFrames(data))
                 return true;
         }
         return false;
+    }
+
+    public static boolean hasTransformationFrames(MiraculousData data) {
+        return data.transformationState().isPresent();
     }
 
     public static void onTriggerTransformMiraculous(MiraculousEvent.Transform.Trigger event) {
@@ -30,7 +34,7 @@ public class MiraculousEvents {
 
     public static void onPreTransformMiraculous(MiraculousEvent.Transform.Pre event) {
         LivingEntity entity = event.getEntity();
-        if (isPowered(entity) || hasTransformationFrames(entity)) {
+        if (isPowered(entity) || (!hasTransformationFrames(event.getMiraculousData()) && hasTransformationFrames(entity))) {
             event.setCanceled(true);
         }
     }

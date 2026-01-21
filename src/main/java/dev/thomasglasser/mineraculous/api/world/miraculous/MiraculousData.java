@@ -156,6 +156,7 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
                 if (level.getEntity(kwamiId) instanceof Kwami kwami) {
                     if (kwami.isCharged() && kwami.getMainHandItem().isEmpty() && !kwami.isInOrbForm()) {
                         kwami.setTransforming(true);
+                        withTransformationState(new TransformationState(true, Optional.empty())).save(miraculous, entity);
                     } else {
                         kwami.playHurtSound(level.damageSources().starve());
                     }
@@ -217,7 +218,7 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
 
             MiraculousData transformed = startTransformation();
             Optional<Integer> transformationFrames = NeoForge.EVENT_BUS.post(new MiraculousEvent.Transform.Start(entity, miraculous, transformed, miraculousStack, value.transformationFrames())).getTransformationFrames();
-            transformationFrames.ifPresentOrElse(frames -> transformed.setTransformationState(entity, miraculous, new TransformationState(true, frames)), () -> transformed.finishTransformation(entity, level, miraculous));
+            transformationFrames.ifPresentOrElse(frames -> transformed.setTransformationState(entity, miraculous, new TransformationState(true, Optional.of(frames))), () -> transformed.finishTransformation(entity, level, miraculous));
 
             if (entity instanceof ServerPlayer player) {
                 MineraculousEntityUtils.refreshAndSyncDisplayName(player);
@@ -297,7 +298,7 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
 
             MiraculousData detransformed = startDetransformation();
             Optional<Integer> detransformationFrames = NeoForge.EVENT_BUS.post(new MiraculousEvent.Detransform.Start(entity, miraculous, detransformed, miraculousStack, value.transformationFrames())).getDetransformationFrames();
-            detransformationFrames.ifPresentOrElse(frames -> detransformed.setTransformationState(entity, miraculous, new TransformationState(false, frames)), () -> detransformed.finishDetransformation(entity, miraculous, stack));
+            detransformationFrames.ifPresentOrElse(frames -> detransformed.setTransformationState(entity, miraculous, new TransformationState(false, Optional.of(frames))), () -> detransformed.finishDetransformation(entity, miraculous, stack));
         } else {
             ArmorData.restoreOrClear(entity);
             MiraculousData detransformed = finishRemovedDetransformation();
@@ -316,12 +317,12 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
 
     @ApiStatus.Internal
     public void tick(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous) {
-        transformationState.ifPresentOrElse(state -> {
-            int frames = state.remainingFrames();
+        transformationState.ifPresentOrElse(state -> state.remainingFrames().ifPresent(frames -> {
             if (state.transforming()) {
                 if (frames > 0) {
                     if (entity.tickCount % 2 == 0) {
-                        entity.getArmorSlots().forEach(stack -> stack.set(MineraculousDataComponents.TRANSFORMATION_STATE, new TransformationState(true, frames - 1)));
+                        TransformationState newState = state.decrementFrames();
+                        entity.getArmorSlots().forEach(stack -> stack.set(MineraculousDataComponents.TRANSFORMATION_STATE, newState));
                         decrementFrames().save(miraculous, entity);
                     }
                 } else {
@@ -331,7 +332,8 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
             } else {
                 if (frames > 0) {
                     if (entity.tickCount % 2 == 0) {
-                        entity.getArmorSlots().forEach(stack -> stack.set(MineraculousDataComponents.TRANSFORMATION_STATE, new TransformationState(false, frames - 1)));
+                        TransformationState newState = state.decrementFrames();
+                        entity.getArmorSlots().forEach(stack -> stack.set(MineraculousDataComponents.TRANSFORMATION_STATE, newState));
                         decrementFrames().save(miraculous, entity);
                     }
                 } else {
@@ -339,7 +341,7 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
                     finishDetransformation(entity, miraculous, stack);
                 }
             }
-        }, () -> {
+        }), () -> {
             if (transformed) {
                 Miraculous value = miraculous.value();
 
@@ -627,17 +629,17 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
      * @param transforming    Whether this is a transformation or detransformation
      * @param remainingFrames The remaining frames for this de/transformation
      */
-    public record TransformationState(boolean transforming, int remainingFrames) {
+    public record TransformationState(boolean transforming, Optional<Integer> remainingFrames) {
         public static final Codec<TransformationState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.BOOL.fieldOf("transforming").forGetter(TransformationState::transforming),
-                ExtraCodecs.NON_NEGATIVE_INT.fieldOf("remainingFrames").forGetter(TransformationState::remainingFrames)).apply(instance, TransformationState::new));
+                ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("remaining_frames").forGetter(TransformationState::remainingFrames)).apply(instance, TransformationState::new));
         public static final StreamCodec<ByteBuf, TransformationState> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.BOOL, TransformationState::transforming,
-                ByteBufCodecs.VAR_INT, TransformationState::remainingFrames,
+                ByteBufCodecs.optional(ByteBufCodecs.VAR_INT), TransformationState::remainingFrames,
                 TransformationState::new);
 
         public TransformationState decrementFrames() {
-            return new TransformationState(transforming, remainingFrames - 1);
+            return new TransformationState(transforming, remainingFrames.map(i -> i - 1));
         }
     }
 }

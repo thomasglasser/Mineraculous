@@ -152,7 +152,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         KamikotizationData transformed = startTransformation(revertibleId, kamikotizedSlot, kamikotizationStack.getCount());
         Optional<Integer> transformationFrames = NeoForge.EVENT_BUS.post(new KamikotizationEvent.Transform.Start(entity, transformed, kamikotizationStack, Optional.of(TRANSFORMATION_FRAMES))).getTransformationFrames();
         ItemStack finalKamikotizationStack = kamikotizationStack;
-        transformationFrames.ifPresentOrElse(frames -> transformed.withTransformationState(new MiraculousData.TransformationState(true, frames)).save(entity), () -> transformed.finishTransformation(entity, finalKamikotizationStack));
+        transformationFrames.ifPresentOrElse(frames -> transformed.withTransformationState(new MiraculousData.TransformationState(true, Optional.of(frames))).save(entity), () -> transformed.finishTransformation(entity, finalKamikotizationStack));
 
         if (entity instanceof ServerPlayer player) {
             MineraculousEntityUtils.refreshAndSyncDisplayName(player);
@@ -204,7 +204,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         } else {
             KamikotizationData detransformed = startDetransformation(kamikotizedStack);
             Optional<Integer> detransformationFrames = NeoForge.EVENT_BUS.post(new KamikotizationEvent.Detransform.Start(entity, detransformed, kamikotizedStack, Optional.of(TRANSFORMATION_FRAMES))).getDetransformationFrames();
-            detransformationFrames.ifPresentOrElse(frames -> detransformed.withTransformationState(new MiraculousData.TransformationState(false, frames)).save(entity), () -> finishDetransformation(entity, kamikotizedStack));
+            detransformationFrames.ifPresentOrElse(frames -> detransformed.withTransformationState(new MiraculousData.TransformationState(false, Optional.of(frames))).save(entity), () -> finishDetransformation(entity, kamikotizedStack));
         }
 
         if (entity instanceof ServerPlayer player) {
@@ -214,8 +214,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
 
     @ApiStatus.Internal
     public void tick(LivingEntity entity, ServerLevel level) {
-        transformationState.ifPresentOrElse(state -> {
-            int frames = state.remainingFrames();
+        transformationState.ifPresentOrElse(state -> state.remainingFrames().ifPresent(frames -> {
             if (frames > 0) {
                 if (entity.tickCount % 2 == 0) {
                     decrementFrames().save(entity);
@@ -228,7 +227,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
                     finishDetransformation(entity, brokenKamikotizedStack.orElse(null));
                 }
             }
-        }, () -> {
+        }), () -> {
             level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((key, miraculousEffect) -> {
                 Holder<MobEffect> effect = level.holderOrThrow(key);
                 if (!entity.hasEffect(effect)) {

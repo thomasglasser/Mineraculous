@@ -74,8 +74,8 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
         ItemStack stack = getCurrentStack();
         return MiraculousItemRenderer.getMiraculousOrDefault(stack).value().transformationFrames().map(frames -> {
             MiraculousData.TransformationState state = stack.get(MineraculousDataComponents.TRANSFORMATION_STATE);
-            if (state != null) {
-                int remaining = state.remainingFrames();
+            if (state != null && state.remainingFrames().isPresent()) {
+                int remaining = state.remainingFrames().get();
                 int frame = state.transforming() ? frames - remaining : remaining;
                 if (frame >= 0) {
                     ResourceLocation texture = getAssetOrDefault(LookAssetTypes.TRANSFORMATION_TEXTURES).get(frame);

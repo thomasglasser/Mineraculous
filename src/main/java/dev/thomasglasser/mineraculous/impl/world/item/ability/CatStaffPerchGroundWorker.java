@@ -8,14 +8,15 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffD
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 
 public class CatStaffPerchGroundWorker {
     private static final double LAUNCHING_USER_STRENGTH = 2.0;
@@ -159,22 +160,22 @@ public class CatStaffPerchGroundWorker {
     }
 
     private static void setUserLaunchingData(LivingEntity user) {
-        Vec3 staffTipStartup = staffTipStartup(user);
-        Vec3 staffOriginStartup = staffOriginStartup(user, staffTipStartup);
+        Vec3 staffTipStartup = CatStaffItem.staffTipStartup(user, !user.onGround());
+        Vec3 staffOriginStartup = CatStaffItem.staffOriginStartup(user, staffTipStartup);
         createLaunchingData(user, staffOriginStartup, staffTipStartup).save(user);
     }
 
     private static PerchingCatStaffData createLaunchingData(LivingEntity user, Vec3 staffOrigin, Vec3 staffTip) {
         return new PerchingCatStaffData(
+                true,
                 PerchingCatStaffData.PerchingState.LAUNCH,
-                PerchingCatStaffData.VerticalMovement.NEUTRAL,
-                Direction.fromYRot(user.yHeadRot),
-                user.position(),
                 staffOrigin,
                 staffTip,
-                true,
+                user.position(),
                 false,
-                true);
+                true,
+                PerchingCatStaffData.VerticalMovement.NEUTRAL,
+                Direction.fromYRot(user.yHeadRot));
     }
 
     private static PerchingCatStaffData getUserLeaningData(Entity user, PerchingCatStaffData data) {
@@ -231,7 +232,7 @@ public class CatStaffPerchGroundWorker {
         }
 
         double maxLength = MineraculousServerConfig.get().maxToolLength.get();
-        double minLength = user.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
+        double minLength = CatStaffItem.getMinStaffLength(user);
         double length = data.staffLength();
         length += (length + yMovement < maxLength) ? yMovement : (maxLength - length);
         length = Math.max(minLength, length);
@@ -251,13 +252,14 @@ public class CatStaffPerchGroundWorker {
 
     private static PerchingCatStaffData extendDownward(Level level, double expectedStaffTipY, PerchingCatStaffData data) {
         double maxLength = MineraculousServerConfig.get().maxToolLength.get();
-        BlockPos targetPosition = BlockPos.containing(data.staffOrigin());
-        int analyzedBlocks = 0;
-        while (!level.getBlockState(targetPosition.below()).isSolid() && analyzedBlocks <= CatStaffItem.STAFF_GROWTH_SPEED) {
-            analyzedBlocks++;
-            targetPosition = targetPosition.below();
-        }
-        Vec3 newStaffOrigin = data.withStaffOriginY(targetPosition.getY()).staffOrigin();
+        HitResult result = level.clip(
+                new ClipContext(
+                        data.staffOrigin(),
+                        data.staffOrigin().subtract(0, CatStaffItem.STAFF_GROWTH_SPEED, 0),
+                        ClipContext.Block.COLLIDER,
+                        ClipContext.Fluid.NONE,
+                        CollisionContext.empty()));
+        Vec3 newStaffOrigin = data.withStaffOriginY(result.getLocation().y).staffOrigin();
         double newLength = expectedStaffTipY - newStaffOrigin.y;
         if (newLength < maxLength) {
             data = data.withStaffLength(newLength, false);
@@ -292,27 +294,5 @@ public class CatStaffPerchGroundWorker {
             user.move(MoverType.SELF, constrain);
             user.hurtMarked = true;
         }
-    }
-
-    private static Vec3 staffTipStartup(Entity user) {
-        Vec3 userPosition = user.position();
-        Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user.getYRot());
-        Vec3 front = new Vec3(horizontalFacing.x, 0, horizontalFacing.y);
-        Vec3 placement = user.onGround()
-                ? front
-                : MineraculousMathUtils.UP.cross(front)
-                        .scale((user instanceof Player player && player.getMainArm() == HumanoidArm.RIGHT) ? -1 : 1)
-                        .add(front.scale(CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS));
-        placement = placement.scale(CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS);
-        double userHeight = user.getEyeHeight(Pose.STANDING);
-        return new Vec3(
-                userPosition.x + placement.x,
-                userPosition.y + userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET,
-                userPosition.z + placement.z);
-    }
-
-    private static Vec3 staffOriginStartup(Entity user, Vec3 staffTip) {
-        double userY = user.getY();
-        return new Vec3(staffTip.x, userY, staffTip.z);
     }
 }

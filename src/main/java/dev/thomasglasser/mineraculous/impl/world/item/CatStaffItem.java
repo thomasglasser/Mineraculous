@@ -16,11 +16,13 @@ import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
+import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchCommander;
-import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelHandler;
+import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelCommander;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.newTravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
@@ -48,7 +50,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
@@ -62,6 +66,8 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.Nullable;
@@ -166,8 +172,10 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
             Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
             boolean inHand = livingEntity.getMainHandItem() == stack || livingEntity.getOffhandItem() == stack;
             CatStaffPerchCommander.tick(level, entity, mode);
+            CatStaffTravelCommander.tick(level, entity, mode);
             if (!inHand || !Active.isActive(stack)) {
                 PerchingCatStaffData.remove(entity);
+                newTravelingCatStaffData.remove(entity);
             }
         }
         MineraculousItemUtils.checkHelicopterSlowFall(stack, entity);
@@ -182,15 +190,17 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
             Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
             if (mode == Mode.BLOCK || mode == Mode.THROW || mode == Mode.TRAVEL)
                 player.startUsingItem(hand);
-            else if (mode == Mode.PERCH) {
+            if (mode == Mode.PERCH) {
                 CatStaffPerchCommander.itemUsed(level, player);
                 player.awardStat(Stats.ITEM_USED.get(this));
-            } else if (mode == Mode.SPYGLASS) {
+            }
+            if (mode == Mode.TRAVEL) {
+                CatStaffTravelCommander.itemUsed(level, player);
+            }
+            if (mode == Mode.SPYGLASS) {
                 level.playSound(null, player, SoundEvents.SPYGLASS_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
                 player.startUsingItem(hand);
             }
-            if (mode == Mode.TRAVEL)
-                CatStaffTravelHandler.init(level, player);
             return InteractionResultHolder.consume(stack);
         }
         return super.use(level, player, hand);
@@ -395,6 +405,52 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
             triggerAnim(holder, GeoItem.getOrAssignId(stack, (ServerLevel) holder.level()), CONTROLLER_EXTEND, anim);
             holder.level().playSound(null, holder.blockPosition(), sound, holder.getSoundSource(), 1.0F, 1.0F);
         }
+    }
+
+    /**
+     * Calculates the staff's tip in world space.
+     * Used for travel and perch.
+     * 
+     * @param user     The entity using the staff.
+     * @param sideways True if the staff should render next to the player's dominant hand.
+     * @return Returns the position of the upward extremity in world space.
+     */
+    public static Vec3 staffTipStartup(Entity user, boolean sideways) {
+        Vec3 userPosition = user.position();
+        Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user.getYRot());
+        Vec3 front = new Vec3(horizontalFacing.x, 0, horizontalFacing.y);
+        Vec3 placement = sideways
+                ? MineraculousMathUtils.UP.cross(front)
+                        .scale((user instanceof Player player && player.getMainArm() == HumanoidArm.RIGHT) ? -1 : 1)
+                        .add(front.scale(CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS))
+                : front;
+        placement = placement.scale(CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS);
+        double userHeight = user.getEyeHeight(Pose.STANDING);
+        return new Vec3(
+                userPosition.x + placement.x,
+                userPosition.y + userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET,
+                userPosition.z + placement.z);
+    }
+
+    /**
+     * Calculates the staff's origin in world space.
+     * Used for travel and perch.
+     * 
+     * @param user     The entity using the staff.
+     * @param staffTip The position of the tip/
+     * @return Returns the position of the downward extremity in world space.
+     */
+    public static Vec3 staffOriginStartup(Entity user, Vec3 staffTip) {
+        double userY = user.getY();
+        return new Vec3(staffTip.x, userY, staffTip.z);
+    }
+
+    /**
+     * @param user The entity using the staff.
+     * @return Returns the minimum length of the staff depending on the user's height
+     */
+    public static double getMinStaffLength(Entity user) {
+        return user.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
     }
 
     public enum Mode implements RadialMenuOption, StringRepresentable {

@@ -15,6 +15,7 @@ import dev.thomasglasser.mineraculous.api.core.look.LookData;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
 import dev.thomasglasser.mineraculous.api.core.look.metadata.LookMetadataType;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
+import dev.thomasglasser.mineraculous.impl.core.look.LookLoader;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -27,6 +28,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -59,7 +61,7 @@ public class LookCustomizationScreen<T> extends Screen {
     public static final String SELECTED = "gui.mineraculous.look_customization.selected";
     public static final Component ENTER_NAME = Component.translatable("gui.mineraculous.look_customization.name").withStyle(ChatFormatting.GRAY);
     public static final Component APPLY = Component.translatable("gui.mineraculous.look_customization.apply");
-    public static final Component UNDO = Component.translatable("gui.mineraculous.look_customization.undo");
+    public static final Component OPEN_FOLDER = Component.translatable("gui.mineraculous.look_customization.open_folder");
     public static final Component RESET = Component.translatable("gui.mineraculous.look_customization.reset");
 
     protected final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
@@ -144,7 +146,7 @@ public class LookCustomizationScreen<T> extends Screen {
         this.addRenderableWidget(nextButton);
         LinearLayout footer = this.layout.addToFooter(LinearLayout.horizontal().spacing(8));
         footer.addChild(Button.builder(APPLY, button -> apply()).width(80).build());
-        footer.addChild(Button.builder(UNDO, button -> undo()).width(80).build());
+        footer.addChild(Button.builder(OPEN_FOLDER, button -> openFolder()).width(80).build());
         footer.addChild(Button.builder(RESET, button -> reset()).width(80).build());
         footer.addChild(Button.builder(CommonComponents.GUI_CANCEL, button -> onClose()).width(80).build());
         this.layout.visitWidgets(widget -> {
@@ -355,10 +357,8 @@ public class LookCustomizationScreen<T> extends Screen {
         onClose();
     }
 
-    protected void undo() {
-        ResourceKey<LookContext> context = ((LookTab) tabManager.getCurrentTab()).getContext().getKey();
-        selectedLooks.put(context, looks.get(context).asList().getFirst());
-        refreshPreviews();
+    protected void openFolder() {
+        Util.getPlatform().openPath(LookLoader.LOOKS_DIR);
     }
 
     protected void reset() {

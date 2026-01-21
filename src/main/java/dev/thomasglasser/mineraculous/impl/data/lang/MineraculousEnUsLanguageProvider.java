@@ -325,7 +325,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(LookCustomizationScreen.SELECTED, "Selected: %s");
         add(LookCustomizationScreen.ENTER_NAME, "Enter Name...");
         add(LookCustomizationScreen.APPLY, "Apply");
-        add(LookCustomizationScreen.UNDO, "Undo");
+        add(LookCustomizationScreen.OPEN_FOLDER, "Open Folder");
         add(LookCustomizationScreen.RESET, "Reset");
 
         // Miraculous Transfer Screen

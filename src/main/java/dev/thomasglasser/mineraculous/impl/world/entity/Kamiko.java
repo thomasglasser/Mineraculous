@@ -317,7 +317,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         return BrainActivityGroup.idleTasks(
                 new FirstApplicableBehaviour<>(
                         new SetAttackTarget<Kamiko>(false).targetFinder(Kamiko::findNearestForceKamikotizeTarget).startCondition(Kamiko::isReplica),
-                        new FollowOwner<Kamiko>().startCondition(Kamiko::shouldFollowOwner),
+                        new FollowOwner<Kamiko>().teleportToTargetAfter(64).startCondition(Kamiko::shouldFollowOwner),
                         new FollowTemptation<>(),
                         new SetRandomFlyingTarget<>()));
     }

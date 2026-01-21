@@ -64,6 +64,7 @@ import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.FlyingAnimal;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
@@ -79,6 +80,7 @@ import net.tslat.smartbrainlib.api.core.behaviour.FirstApplicableBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowEntity;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowOwner;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowTemptation;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
@@ -87,8 +89,10 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetPlayerLookTar
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetRandomLookTarget;
 import net.tslat.smartbrainlib.api.core.navigation.SmoothFlyingPathNavigation;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
+import net.tslat.smartbrainlib.api.core.sensor.custom.NearbyItemsSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.ItemTemptingSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyPlayersSensor;
+import net.tslat.smartbrainlib.registry.SBLMemoryTypes;
 import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -153,6 +157,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
 
     public Kwami(EntityType<? extends Kwami> entityType, Level level) {
         super(entityType, level);
+        setCanPickUpLoot(true);
         setPersistenceRequired();
         moveControl = new FlyingMoveControl(this, 10, true);
         setInvulnerable(true);
@@ -467,7 +472,8 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                         return isTreat(stack) || isPreferredFood(stack) || isFood(stack);
                     }
                     return false;
-                }));
+                }),
+                new NearbyItemsSensor<Kwami>().setPredicate((item, kwami) -> kwami.isTreat(item.getItem())));
     }
 
     @Override
@@ -478,7 +484,6 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public BrainActivityGroup<? extends Kwami> getIdleTasks() {
         return BrainActivityGroup.idleTasks(
                 new FirstApplicableBehaviour<>(
@@ -487,8 +492,12 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                 new FirstApplicableBehaviour<>(
                         new SetWalkTargetToLikedPlayer<>(),
                         new FollowTemptation<>(),
+                        new FollowEntity<Kwami, ItemEntity>().stopFollowingWithin(0).following(kwami -> {
+                            List<ItemEntity> items = BrainUtils.getMemory(kwami, SBLMemoryTypes.NEARBY_ITEMS.get());
+                            return items != null && !items.isEmpty() ? items.getFirst() : null;
+                        }).startCondition(kwami -> !kwami.isCharged()),
                         new OneRandomBehaviour<>(
-                                new FollowOwner<>().speedMod(10).stopFollowingWithin(2).teleportToTargetAfter(8),
+                                new FollowOwner<>().speedMod(10).stopFollowingWithin(1).teleportToTargetAfter(64),
                                 new SetRandomFlyingTarget<>(),
                                 new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)))));
     }
@@ -509,16 +518,9 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                         TommyLibServices.NETWORK.sendToClient(new ClientboundOpenMiraculousTransferScreenPayload(getId()), serverPlayer);
                     } else if (!isCharged() && getMainHandItem().isEmpty()) {
                         if (isTreat(stack) || isPreferredFood(stack) || isFood(stack)) {
-                            int eatTicks = getMaxEatTicks(stack);
-                            if (eatTicks <= 0)
-                                eatTicks = getDefaultEatTicks();
-                            var event = NeoForge.EVENT_BUS.post(new KwamiEvent.Eat.Start(this, stack, eatTicks));
-                            if (event.isCanceled())
+                            if (!startEating(stack))
                                 return InteractionResult.FAIL;
-                            this.eatTicks = event.getEatTicks();
-                            setItemInHand(InteractionHand.MAIN_HAND, stack.copyWithCount(1));
                             ItemUtils.safeShrink(1, stack, player);
-                            startUsingItem(InteractionHand.MAIN_HAND);
                         }
                     }
                 }
@@ -526,6 +528,19 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
             return InteractionResult.sidedSuccess(level().isClientSide);
         }
         return InteractionResult.FAIL;
+    }
+
+    public boolean startEating(ItemStack stack) {
+        int eatTicks = getMaxEatTicks(stack);
+        if (eatTicks <= 0)
+            eatTicks = getDefaultEatTicks();
+        var event = NeoForge.EVENT_BUS.post(new KwamiEvent.Eat.Start(this, stack, eatTicks));
+        if (event.isCanceled())
+            return false;
+        this.eatTicks = event.getEatTicks();
+        setItemInHand(InteractionHand.MAIN_HAND, stack.copyWithCount(1));
+        startUsingItem(InteractionHand.MAIN_HAND);
+        return true;
     }
 
     @Override
@@ -682,6 +697,24 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                 getMainHandItem().remove(MineraculousDataComponents.POWERED);
                 player.addItem(getMainHandItem());
                 setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            }
+        }
+    }
+
+    @Override
+    public boolean canHoldItem(ItemStack stack) {
+        return !isCharged() && isTreat(stack);
+    }
+
+    @Override
+    protected void pickUpItem(ItemEntity itemEntity) {
+        ItemStack stack = itemEntity.getItem();
+        if (canHoldItem(stack) && startEating(stack)) {
+            this.onItemPickup(itemEntity);
+            this.take(itemEntity, stack.getCount());
+            stack.shrink(1);
+            if (stack.isEmpty()) {
+                itemEntity.discard();
             }
         }
     }

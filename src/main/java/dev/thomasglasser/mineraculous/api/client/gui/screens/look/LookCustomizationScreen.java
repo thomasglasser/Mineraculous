@@ -64,6 +64,8 @@ public class LookCustomizationScreen<T> extends Screen {
 
     protected final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
     protected final TabManager tabManager = new TabManager(this::addRenderableWidget, this::removeWidget);
+
+    private static final ResourceLocation EMPTY_LOC = ResourceLocation.withDefaultNamespace("");
     private static final double MOUSE_SENSITIVITY_ROTATION_FACTOR = 1.5;
     private static final double ROTATION_SPEED = 1.3;
     private static final int MOUSE_SENSITIVITY_ZOOM_FACTOR = 5;
@@ -274,6 +276,8 @@ public class LookCustomizationScreen<T> extends Screen {
 
         ImmutableMultimap.Builder<ResourceKey<LookContext>, ResourceLocation> looks = new ImmutableMultimap.Builder<>();
         for (Holder<LookContext> context : contextSet) {
+            ResourceKey<LookContext> contextKey = context.getKey();
+            looks.put(contextKey, EMPTY_LOC);
             Set<ResourceLocation> toCheck = new ObjectOpenHashSet<>(LookManager.getBuiltIn());
             for (String hash : LookManager.getEquippable()) {
                 toCheck.add(ResourceLocation.withDefaultNamespace(hash));
@@ -282,7 +286,7 @@ public class LookCustomizationScreen<T> extends Screen {
                 Look<?> look = LookManager.getLook(lookId);
                 Set<ResourceKey<T>> valid = look.getMetadata(metadataType);
                 if (valid != null && valid.contains(selected.getKey())) {
-                    looks.put(context.getKey(), lookId);
+                    looks.put(contextKey, lookId);
                 }
             }
         }
@@ -342,7 +346,12 @@ public class LookCustomizationScreen<T> extends Screen {
 
     protected void apply() {
         String name = nameEdit.getValue();
-        onApply.accept(ClientUtils.getLocalPlayer(), new LookData(name.isBlank() ? Optional.empty() : Optional.of(name), ImmutableMap.copyOf(selectedLooks)));
+        ImmutableMap.Builder<ResourceKey<LookContext>, ResourceLocation> looks = new ImmutableMap.Builder<>();
+        for (Map.Entry<ResourceKey<LookContext>, ResourceLocation> entry : selectedLooks.entrySet()) {
+            if (!entry.getValue().equals(EMPTY_LOC))
+                looks.put(entry.getKey(), entry.getValue());
+        }
+        onApply.accept(ClientUtils.getLocalPlayer(), new LookData(name.isBlank() ? Optional.empty() : Optional.of(name), looks.build()));
         onClose();
     }
 

@@ -100,6 +100,19 @@ repositories {
         }
         filter { includeGroupAndSubgroups "dev.thomasglasser.sherdsapi" }
     }
+	exclusiveContent {
+        forRepository {
+            maven {
+				name = 'AWCAPI'
+				url = 'https://maven.pkg.github.com/Nyfaria/AdvancedWallClimberAPI'
+				credentials {
+					username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+					password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+				}
+            }
+        }
+        filter { includeGroupAndSubgroups "com.nyfaria.awcapi" }
+    }
 	maven {
 		name = 'TommyLib'
 		url = 'https://dl.cloudsmith.io/public/thomasglasser/tommylib/maven/'
@@ -182,11 +195,12 @@ dependencies {
 	jarJar implementation("dev.thomasglasser.tommylib:tommylib-neoforge-${minecraft_version}:${tommylib_version}")
 	jarJar implementation("maven.modrinth:trimmed:${trimmed_version}+neoforge")
 
+	implementation "dev.thomasglasser.sherdsapi:sherdsapi-neoforge-${minecraft_version}:${sherdsapi_version}"
 	implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 	implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${smartbrainlib_version}"
 	implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 	implementation "maven.modrinth:lithostitched:${lithostitched_version}-neoforge-${minecraft_version}"
-    implementation "dev.thomasglasser.sherdsapi:sherdsapi-neoforge-${minecraft_version}:${sherdsapi_version}"
+	implementation "com.nyfaria.awcapi:awcapi-neoforge:${awcapi_version}+${minecraft_version}"
 
 	implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
     implementation "maven.modrinth:jade:${jade_version}+neoforge"
@@ -220,6 +234,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
 			curios_version: curios_version,
 			trimmed_version: trimmed_version,
 			lithostitched_version: lithostitched_version,
+			awcapi_version: awcapi_version,
 			jei_version: jei_version,
             jade_version: jade_version,
 			modonomicon_version: modonomicon_version,

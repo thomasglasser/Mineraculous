@@ -74,6 +74,12 @@ type="required"
 versionRange="[${lithostitched_version},)"
 ordering="NONE"
 side="BOTH"
+[[dependencies.${mod_id}]]
+modId="awcapi"
+type="required"
+versionRange="[${awcapi_version},)"
+ordering="NONE"
+side="BOTH"
 
 # Optional Dependencies
 [[dependencies.${mod_id}]]

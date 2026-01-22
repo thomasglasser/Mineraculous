@@ -27,7 +27,7 @@ public class MineraculousEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<Butterfly>> BUTTERFLY = ENTITY_TYPES.register("butterfly", Butterfly::new, MobCategory.CREATURE, builder -> builder
             .sized(0.25F, 0.25F));
     public static final DeferredHolder<EntityType<?>, EntityType<Caterpillar>> CATERPILLAR = ENTITY_TYPES.register("caterpillar", Caterpillar::new, MobCategory.CREATURE, builder -> builder
-            .sized(0.05625F, 0.0125F));
+            .sized(0.1125F, 0.025F));
     public static final DeferredHolder<EntityType<?>, EntityType<Kamiko>> KAMIKO = ENTITY_TYPES.register("kamiko", Kamiko::new, MobCategory.CREATURE, builder -> builder
             .clientTrackingRange(Integer.MAX_VALUE / 16)
             .sized(0.25F, 0.25F));

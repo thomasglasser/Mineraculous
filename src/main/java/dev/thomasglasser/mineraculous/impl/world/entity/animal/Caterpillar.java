@@ -1,5 +1,9 @@
 package dev.thomasglasser.mineraculous.impl.world.entity.animal;
 
+import com.nyfaria.awcapi.ClimberHelper;
+import com.nyfaria.awcapi.entity.ClimberComponent;
+import com.nyfaria.awcapi.entity.IAdvancedClimber;
+import com.nyfaria.awcapi.entity.movement.ClimberPathNavigator;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
@@ -8,6 +12,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.animal.ButterflyVariants;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -22,6 +27,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -43,7 +49,6 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowTemptation;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
-import net.tslat.smartbrainlib.api.core.navigation.SmoothGroundNavigation;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.ItemTemptingSensor;
 import org.jetbrains.annotations.Nullable;
@@ -55,13 +60,16 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class Caterpillar extends Animal implements SmartBrainOwner<Caterpillar>, GeoEntity {
+public class Caterpillar extends Animal implements SmartBrainOwner<Caterpillar>, GeoEntity, IAdvancedClimber {
     private static final EntityDataAccessor<Holder<ButterflyVariant>> DATA_VARIANT = SynchedEntityData.defineId(Caterpillar.class, MineraculousEntityDataSerializers.BUTTERFLY_VARIANT.get());
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private final ClimberComponent climberComponent;
 
     public Caterpillar(EntityType<? extends Caterpillar> entityType, Level level) {
         super(entityType, level);
+        this.climberComponent = new ClimberComponent(this);
+        ClimberHelper.initClimber(this);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -69,6 +77,46 @@ public class Caterpillar extends Animal implements SmartBrainOwner<Caterpillar>,
                 .add(Attributes.MAX_HEALTH, 1)
                 .add(Attributes.MOVEMENT_SPEED, 0.1)
                 .add(Attributes.SAFE_FALL_DISTANCE, 64);
+    }
+
+    @Override
+    public ClimberComponent getClimberComponent() {
+        return climberComponent;
+    }
+
+    @Override
+    public Mob asMob() {
+        return this;
+    }
+
+    @Override
+    public void setLerpYRot(Float f) {
+        this.lerpYRot = f;
+    }
+
+    @Override
+    public void setLerpXRot(Float f) {
+        this.lerpXRot = f;
+    }
+
+    @Override
+    public void setLerpYHeadRot(Float f) {
+        this.lerpYHeadRot = f;
+    }
+
+    @Override
+    public void setLerpHeadSteps(int i) {
+        this.lerpHeadSteps = i;
+    }
+
+    @Override
+    public float getMovementSpeed() {
+        return (float) getAttributeValue(Attributes.MOVEMENT_SPEED);
+    }
+
+    @Override
+    public float getBlockSlipperiness(BlockPos pos) {
+        return level().getBlockState(pos).getBlock().getFriction() * 0.91f;
     }
 
     @Override
@@ -88,7 +136,9 @@ public class Caterpillar extends Animal implements SmartBrainOwner<Caterpillar>,
 
     @Override
     protected PathNavigation createNavigation(Level level) {
-        return new SmoothGroundNavigation(this, level);
+        ClimberPathNavigator<Caterpillar> navigator = new ClimberPathNavigator<>(this, level, false);
+        navigator.setCanFloat(true);
+        return navigator;
     }
 
     @Override
@@ -114,6 +164,50 @@ public class Caterpillar extends Animal implements SmartBrainOwner<Caterpillar>,
 
     @Override
     public void makeStuckInBlock(BlockState state, Vec3 motionMultiplier) {}
+
+    @Override
+    public void aiStep() {
+        ClimberHelper.livingTickClimber(this);
+        super.aiStep();
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        ClimberHelper.tickClimber(this);
+    }
+
+    @Override
+    public void move(MoverType type, Vec3 movement) {
+        ClimberHelper.handleMove(this, type, movement, true);
+        super.move(type, movement);
+        ClimberHelper.handleMove(this, type, movement, false);
+    }
+
+    @Override
+    public void travel(Vec3 travelVector) {
+        if (!ClimberHelper.handleTravel(this, travelVector)) {
+            super.travel(travelVector);
+        }
+        ClimberHelper.postTravel(this, travelVector);
+    }
+
+    @Override
+    public void jumpFromGround() {
+        if (!ClimberHelper.handleJump(this)) {
+            super.jumpFromGround();
+        }
+    }
+
+    @Override
+    public BlockPos getOnPos() {
+        return ClimberHelper.getAdjustedOnPosition(this, super.getOnPos());
+    }
+
+    @Override
+    public boolean onClimbable() {
+        return false; // Disable vanilla climbing
+    }
 
     @Override
     protected void customServerAiStep() {

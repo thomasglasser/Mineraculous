@@ -48,10 +48,10 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPay
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.KamikotizedMinion;
-import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchGroundWorker;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.newTravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
@@ -666,7 +666,7 @@ public class MineraculousClientUtils {
         return Vec3.ZERO;
     }
 
-    public record CatStaffTickData(Vec3 prevOrigin, Vec3 currOrigin) {}
+    public record CatStaffTickData(Vec3 previousOrigin, Vec3 currentOrigin) {}
 
     public static Map<Integer, CatStaffTickData> catStaffPastTickExtremitiesEntityMap = new HashMap<>();
 
@@ -676,18 +676,35 @@ public class MineraculousClientUtils {
         if (level != null) {
             Set<Integer> seenThisTick = new HashSet<>();
             for (Entity entity : level.entitiesForRendering()) {
-                PerchingCatStaffData data = entity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-                if (!data.isModeActive()) continue;
+                PerchingCatStaffData perchingData = entity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+                newTravelingCatStaffData travelingData = entity.getData(MineraculousAttachmentTypes.newTRAVELING_CAT_STAFF);
+                boolean perchingActive = perchingData.isModeActive();
+                boolean travelingActive = travelingData.isModeActive();
+                if (!perchingActive && !travelingActive) {
+                    continue;
+                }
+
                 seenThisTick.add(entity.getId());
                 catStaffPastTickExtremitiesEntityMap.compute(entity.getId(), (id, old) -> {
                     if (old == null) {
+                        if (perchingActive) {
+                            return new CatStaffTickData(
+                                    perchingData.staffOrigin(),
+                                    perchingData.staffOrigin());
+                        }
                         return new CatStaffTickData(
-                                data.staffOrigin(),
-                                data.staffOrigin());
+                                travelingData.staffOrigin(),
+                                travelingData.staffOrigin());
+                    }
+                    if (perchingActive) {
+                        return new CatStaffTickData(
+                                old.currentOrigin(),
+                                perchingData.staffOrigin());
                     }
                     return new CatStaffTickData(
-                            old.currOrigin(),
-                            data.staffOrigin());
+                            old.currentOrigin(),
+                            travelingData.staffOrigin());
+
                 });
             }
             catStaffPastTickExtremitiesEntityMap.keySet().removeIf(id -> !seenThisTick.contains(id));
@@ -699,32 +716,14 @@ public class MineraculousClientUtils {
         if (level != null) {
             for (Entity entity : level.entitiesForRendering()) {
                 PerchingCatStaffData perchingData = entity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+                newTravelingCatStaffData travelingData = entity.getData(MineraculousAttachmentTypes.newTRAVELING_CAT_STAFF);
                 boolean renderPerch = perchingData.isModeActive();
+                boolean renderTravel = travelingData.isModeActive();
                 if (renderPerch) {
-                    CatStaffTickData extremities = catStaffPastTickExtremitiesEntityMap.get(entity.getId());
-                    if (extremities != null) {
-                        Vec3 interpolatedOrigin = extremities.prevOrigin.lerp(extremities.currOrigin, partialTick);
-                        double y = CatStaffPerchGroundWorker.expectedStaffTip(entity, partialTick).y;
-                        Vec3 interpolatedTip = perchingData.withStaffTipY(y).staffTip();
-
-                        boolean leaning = perchingData.state() == PerchingCatStaffData.PerchingState.LEAN;
-                        if (leaning) {
-                            Vec3 userGroundProjected = perchingData.userPositionBeforeLeanOrRelease().multiply(1, 0, 1).add(0, perchingData.staffOrigin().y, 0);
-                            Vec3 oldUserPosition = new Vec3(entity.xOld, entity.yOld, entity.zOld);
-                            Vec3 userPosition = oldUserPosition.lerp(entity.position(), partialTick);
-                            Quaternionf rotation = new Quaternionf().rotationTo(MineraculousMathUtils.UP.toVector3f(), userPosition.subtract(userGroundProjected).normalize().toVector3f());
-                            poseStack.pushPose();
-                            poseStack.rotateAround(
-                                    rotation,
-                                    (float) perchingData.staffOrigin().x,
-                                    (float) perchingData.staffOrigin().y,
-                                    (float) perchingData.staffOrigin().z);
-                        }
-                        CatStaffRenderer.renderStaffInWorldSpace(poseStack, bufferSource, light, interpolatedOrigin, interpolatedTip, perchingData.pawDirection());
-                        if (leaning) {
-                            poseStack.popPose();
-                        }
-                    }
+                    CatStaffRenderer.renderPerchInWorldSpace(poseStack, bufferSource, light, partialTick, entity, perchingData);
+                }
+                if (renderTravel) {
+                    CatStaffRenderer.renderTravelInWorldSpace(poseStack, bufferSource, light, partialTick, entity, travelingData);
                 }
             }
         }

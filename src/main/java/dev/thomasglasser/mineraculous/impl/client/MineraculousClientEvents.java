@@ -434,7 +434,7 @@ public class MineraculousClientEvents {
             poseStack.pushPose();
             Vec3 cameraPos = renderDispatcher.camera.getPosition();
             poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
-            MineraculousClientUtils.renderCatStaffsInWorldSpace(poseStack, bufferSource, light, partialTick);
+            MineraculousClientUtils.renderCatStaffsInWorldSpace(poseStack, bufferSource, light, event.getPartialTick().getGameTimeDeltaPartialTick(true));
             poseStack.popPose();
         }
     }

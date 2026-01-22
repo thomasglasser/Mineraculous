@@ -16,7 +16,6 @@ import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
-import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchCommander;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelCommander;
@@ -50,7 +49,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlotGroup;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -66,8 +64,6 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.Nullable;
@@ -405,44 +401,6 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
             triggerAnim(holder, GeoItem.getOrAssignId(stack, (ServerLevel) holder.level()), CONTROLLER_EXTEND, anim);
             holder.level().playSound(null, holder.blockPosition(), sound, holder.getSoundSource(), 1.0F, 1.0F);
         }
-    }
-
-    /**
-     * Calculates the staff's tip in world space.
-     * Used for travel and perch.
-     * 
-     * @param user     The entity using the staff.
-     * @param sideways True if the staff should render next to the player's dominant hand.
-     * @return Returns the position of the upward extremity in world space.
-     */
-    public static Vec3 staffTipStartup(Entity user, boolean sideways) {
-        Vec3 userPosition = user.position();
-        Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user.getYRot());
-        Vec3 front = new Vec3(horizontalFacing.x, 0, horizontalFacing.y);
-        Vec3 placement = sideways
-                ? MineraculousMathUtils.UP.cross(front)
-                        .scale((user instanceof Player player && player.getMainArm() == HumanoidArm.RIGHT) ? -1 : 1)
-                        .add(front.scale(CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS))
-                : front;
-        placement = placement.scale(CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS);
-        double userHeight = user.getEyeHeight(Pose.STANDING);
-        return new Vec3(
-                userPosition.x + placement.x,
-                userPosition.y + userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET,
-                userPosition.z + placement.z);
-    }
-
-    /**
-     * Calculates the staff's origin in world space.
-     * Used for travel and perch.
-     * 
-     * @param user     The entity using the staff.
-     * @param staffTip The position of the tip/
-     * @return Returns the position of the downward extremity in world space.
-     */
-    public static Vec3 staffOriginStartup(Entity user, Vec3 staffTip) {
-        double userY = user.getY();
-        return new Vec3(staffTip.x, userY, staffTip.z);
     }
 
     /**

@@ -29,20 +29,23 @@ public class CatStaffTravelCommander {
         newTravelingCatStaffData originalData = user.getData(MineraculousAttachmentTypes.newTRAVELING_CAT_STAFF);
         newTravelingCatStaffData data = originalData;
 
+        data = CatStaffTravelGroundWorker.updateSafeFallTicks(user, data);
         if (data.isModeActive()) {
-            // UPDATE STAFF TIP WHERE EXPECTED
+            System.out.println(data);
+            data = CatStaffTravelGroundWorker.updateStaffExtremities(user, data);
             if (!data.anchored() && !data.retracting()) {
-                // EXTEND AT THE ORIGIN UNTIL IT ANCHORS
-                // needs raycasting
-                // when falling the ray cannot be cut
+                data = CatStaffTravelGroundWorker.increaseStaffLength(level, data);
+            }
+            if (data.safeFallTick() <= 5 && data.retracting()) {
+                data = CatStaffTravelGroundWorker.decreaseStaffLength(user, data);
+            }
+            if (data.retracting() && data.staffLength() <= CatStaffItem.getMinStaffLength(user) + 1) {// || collision
+                data = data.withEnabled(false);
+                // if collision apply damage to user
             }
             boolean justAnchored = data.anchored() && !originalData.anchored();
             if (justAnchored) {
-                // LAUNCH AND START RETRACTING
-            }
-            if (data.retracting() && data.staffLength() <= CatStaffItem.getMinStaffLength(user)) {// || collision
-                data = data.withEnabled(false);
-                // if collision apply damage to user
+                data = CatStaffTravelGroundWorker.launchUser(user, data);
             }
         }
         // IF NOT ANCHORED && NOT RETRACTING -> EXTEND AT THE ORIGIN UNTIL IT ANCHORS

@@ -13,8 +13,11 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
+import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchGroundWorker;
+import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelGroundWorker;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.newTravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -34,6 +37,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
@@ -151,7 +155,67 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
 
     private record Vec3Directions(Vec3 north, Vec3 east) {}
 
-    public static void renderStaffInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light, Vec3 staffOrigin, Vec3 staffTip, Direction pawDirection) {
+    public static void renderPerchInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick, Entity entity, PerchingCatStaffData perchingData) {
+        MineraculousClientUtils.CatStaffTickData extremities = MineraculousClientUtils.catStaffPastTickExtremitiesEntityMap.get(entity.getId());
+        if (extremities != null) {
+            Vec3 interpolatedOrigin = extremities.previousOrigin().lerp(extremities.currentOrigin(), partialTick);
+            double interpolatedLength = CatStaffPerchGroundWorker.expectedStaffTip(entity, partialTick).y - interpolatedOrigin.y;
+            boolean leaning = perchingData.state() == PerchingCatStaffData.PerchingState.LEAN;
+            if (leaning) {
+                Vec3 userGroundProjected = perchingData.userPositionBeforeLeanOrRelease().multiply(1, 0, 1).add(0, perchingData.staffOrigin().y, 0);
+                Vec3 userPosition = entity.getPosition(partialTick);
+                Quaternionf rotation = new Quaternionf().rotationTo(MineraculousMathUtils.UP.toVector3f(), userPosition.subtract(userGroundProjected).normalize().toVector3f());
+                poseStack.pushPose();
+                poseStack.rotateAround(
+                        rotation,
+                        (float) perchingData.staffOrigin().x,
+                        (float) perchingData.staffOrigin().y,
+                        (float) perchingData.staffOrigin().z);
+            }
+            CatStaffRenderer.renderStaffInWorldSpace(poseStack, bufferSource, light, interpolatedOrigin, interpolatedLength, perchingData.pawDirection());
+            if (leaning) {
+                poseStack.popPose();
+            }
+        }
+    }
+
+    public static void renderTravelInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick, Entity entity, newTravelingCatStaffData travelingData) {
+        MineraculousClientUtils.CatStaffTickData extremities = MineraculousClientUtils.catStaffPastTickExtremitiesEntityMap.get(entity.getId());
+        if (extremities != null) {
+            Vec3 tipToOrigin = travelingData.staffOrigin().subtract(travelingData.staffTip());
+            Vec3 interpolatedTip = CatStaffTravelGroundWorker.expectedStaffTip(entity, travelingData, partialTick);
+            //Vec3 interpolatedOrigin = extremities.previousOrigin().lerp(extremities.currentOrigin(), partialTick);
+            Vec3 interpolatedOrigin = interpolatedTip.add(tipToOrigin);
+
+            // TODO fix interpolated origin cuz rn the current system is not efficient and not working.
+            double interpolatedLength = interpolatedTip.subtract(interpolatedOrigin).length();
+            Quaternionf rotation = new Quaternionf().rotationTo(MineraculousMathUtils.UP.toVector3f(), interpolatedTip.subtract(interpolatedOrigin).normalize().toVector3f());
+            poseStack.pushPose();
+            poseStack.rotateAround(
+                    rotation,
+                    (float) travelingData.staffOrigin().x,
+                    (float) travelingData.staffOrigin().y,
+                    (float) travelingData.staffOrigin().z);
+            Direction pawDirection = Direction.getNearest(travelingData.initialUserHorizontalDirection());
+            CatStaffRenderer.renderStaffInWorldSpace(poseStack, bufferSource, light, interpolatedOrigin, interpolatedLength, pawDirection);
+            poseStack.popPose();
+
+        }
+    }
+
+    /**
+     * Renders the cat staff in world space.
+     * This renders the staff in a vertical position only.
+     * 
+     * @param poseStack
+     * @param bufferSource
+     * @param light
+     * @param staffOrigin
+     * @param length
+     * @param pawDirection
+     */
+    public static void renderStaffInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light, Vec3 staffOrigin, double length, Direction pawDirection) {
+        Vec3 staffTip = staffOrigin.add(0, length, 0);
         Vec3Directions directions = computeDirections(staffTip, staffOrigin);
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(CAT_STAFF_TEXTURE));
         PoseStack.Pose pose = poseStack.last();

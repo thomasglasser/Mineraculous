@@ -8,9 +8,11 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffD
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
@@ -160,8 +162,8 @@ public class CatStaffPerchGroundWorker {
     }
 
     private static void setUserLaunchingData(LivingEntity user) {
-        Vec3 staffTipStartup = CatStaffItem.staffTipStartup(user, !user.onGround());
-        Vec3 staffOriginStartup = CatStaffItem.staffOriginStartup(user, staffTipStartup);
+        Vec3 staffTipStartup = staffTipStartup(user, !user.onGround());
+        Vec3 staffOriginStartup = staffOriginStartup(user, staffTipStartup);
         createLaunchingData(user, staffOriginStartup, staffTipStartup).save(user);
     }
 
@@ -294,5 +296,27 @@ public class CatStaffPerchGroundWorker {
             user.move(MoverType.SELF, constrain);
             user.hurtMarked = true;
         }
+    }
+
+    private static Vec3 staffTipStartup(Entity user, boolean sideways) {
+        Vec3 userPosition = user.position();
+        Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user.getYRot());
+        Vec3 front = new Vec3(horizontalFacing.x, 0, horizontalFacing.y);
+        Vec3 placement = sideways
+                ? MineraculousMathUtils.UP.cross(front)
+                        .scale((user instanceof Player player && player.getMainArm() == HumanoidArm.RIGHT) ? -1 : 1)
+                        .add(front.scale(CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS))
+                : front;
+        placement = placement.scale(CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS);
+        double userHeight = user.getEyeHeight(Pose.STANDING);
+        return new Vec3(
+                userPosition.x + placement.x,
+                userPosition.y + userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET,
+                userPosition.z + placement.z);
+    }
+
+    private static Vec3 staffOriginStartup(Entity user, Vec3 staffTip) {
+        double userY = user.getY();
+        return new Vec3(staffTip.x, userY, staffTip.z);
     }
 }

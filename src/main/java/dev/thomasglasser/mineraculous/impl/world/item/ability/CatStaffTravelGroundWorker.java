@@ -16,9 +16,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 
 public class CatStaffTravelGroundWorker {
-    // Method for calculating expected tip relative to the user
-    // Method for extending
-    // Method for ray tracing
     // Method for damage calculating
     private static final double LAUNCHING_STRENGTH = 5;
 
@@ -65,7 +62,7 @@ public class CatStaffTravelGroundWorker {
 
     protected static void stopStaffRetraction(Level level, LivingEntity user, TravelingCatStaffData data) {
         if (!level.isClientSide()) {
-            data.withRetracting(false).save(user);
+            data.withRetracting(false).withAnchored(false).save(user);
         }
     }
 
@@ -73,7 +70,7 @@ public class CatStaffTravelGroundWorker {
         Vec3 direction = data.launchingDirection();
         user.hurtMarked = true;
         user.setDeltaMovement(direction.scale(LAUNCHING_STRENGTH));
-        return data.withSafeFallTick(60);
+        return data.withSafeFallTick(100);
     }
 
     protected static TravelingCatStaffData updateSafeFallTicks(Entity user, TravelingCatStaffData data) {
@@ -91,7 +88,7 @@ public class CatStaffTravelGroundWorker {
         Vec3 originToTip = tip.subtract(origin);
         double minLength = CatStaffItem.getMinStaffLength(user);
         Vec3 newOrigin = origin.add(originToTip.normalize().scale(CatStaffItem.STAFF_GROWTH_SPEED / 4d));
-        if (tip.subtract(newOrigin).length() <= minLength) {
+        if (tip.subtract(newOrigin).length() < minLength) {
             newOrigin = origin.add(originToTip.normalize().scale(minLength));
             data = data.withEnabled(false);
         }
@@ -109,18 +106,19 @@ public class CatStaffTravelGroundWorker {
                         ClipContext.Block.COLLIDER,
                         ClipContext.Fluid.NONE,
                         CollisionContext.empty()));
-        if (result.getType() == HitResult.Type.BLOCK) {
-            BlockPos pos = BlockPos.containing(result.getLocation());
-            BlockState state = level.getBlockState(pos);
-            if (!state.getCollisionShape(level, pos).isEmpty()) {
-                data = data.withAnchored(true).withRetracting(true);
-            }
-        }
         Vec3 newOrigin = result.getLocation();
         double maxLength = MineraculousServerConfig.get().maxToolLength.get();
         double newLength = newOrigin.subtract(tip).length();
         if (newLength > maxLength) {
             newOrigin = tip.add(tipToOrigin.scale(maxLength));
+        } else {
+            if (result.getType() == HitResult.Type.BLOCK) {
+                BlockPos pos = BlockPos.containing(newOrigin);
+                BlockState state = level.getBlockState(pos);
+                if (!state.getCollisionShape(level, pos).isEmpty()) {
+                    data = data.withAnchored(true);
+                }
+            }
         }
         return data.withStaffOrigin(newOrigin);
     }

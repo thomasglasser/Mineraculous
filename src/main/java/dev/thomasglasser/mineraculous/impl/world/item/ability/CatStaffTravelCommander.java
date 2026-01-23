@@ -41,21 +41,16 @@ public class CatStaffTravelCommander {
             if (justAnchored) {
                 data = CatStaffTravelGroundWorker.launchUser(user, data);
             }
-            if (data.safeFallTick() == 30) {
+            if (data.safeFallTick() == 90) {
                 data = data.withRetracting(true);
             }
             if (data.retracting()) {
                 data = CatStaffTravelGroundWorker.decreaseStaffLength(user, data);
             }
-            /*if (data.retracting() && data.staffLength() <= CatStaffItem.getMinStaffLength(user)) {// || collision
+            if (data.safeFallTick() == 20) {
                 data = data.withEnabled(false);
-                // if collision apply damage to user
-            }*/
+            }
         }
-        // IF NOT ANCHORED && NOT RETRACTING -> EXTEND AT THE ORIGIN UNTIL IT ANCHORS
-        // WHEN ANCHORING IT LAUNCH THE PLAYER AND START RETRACTION
-        // WHEN USER COLLIDES enable = false AND APPLY DAMAGE
-        // WHEN RETRACTING AND LENGTH IS SMALL -> ENABLE = FALSE
         originalData.update(user, data);
     }
 }

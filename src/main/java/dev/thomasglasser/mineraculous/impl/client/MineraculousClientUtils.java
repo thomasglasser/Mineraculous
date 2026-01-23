@@ -65,11 +65,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.client.Camera;
@@ -664,51 +661,6 @@ public class MineraculousClientUtils {
             return livingEntity.getEyePosition(partialTick).add(-cosRot * armOffset - sinRot * frontOffsetScaled, (double) crouchOffset + heightOffset * (double) scale, -sinRot * armOffset + cosRot * frontOffsetScaled);
         }
         return Vec3.ZERO;
-    }
-
-    public record CatStaffTickData(Vec3 previousOrigin, Vec3 currentOrigin) {}
-
-    public static Map<Integer, CatStaffTickData> catStaffPastTickExtremitiesEntityMap = new HashMap<>();
-
-    public static void updateCatStaffMap() {
-        catStaffPastTickExtremitiesEntityMap.clear();
-        ClientLevel level = Minecraft.getInstance().level;
-        if (level != null) {
-            Set<Integer> seenThisTick = new HashSet<>();
-            for (Entity entity : level.entitiesForRendering()) {
-                PerchingCatStaffData perchingData = entity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-                newTravelingCatStaffData travelingData = entity.getData(MineraculousAttachmentTypes.newTRAVELING_CAT_STAFF);
-                boolean perchingActive = perchingData.isModeActive();
-                boolean travelingActive = travelingData.isModeActive();
-                if (!perchingActive && !travelingActive) {
-                    continue;
-                }
-
-                seenThisTick.add(entity.getId());
-                catStaffPastTickExtremitiesEntityMap.compute(entity.getId(), (id, old) -> {
-                    if (old == null) {
-                        if (perchingActive) {
-                            return new CatStaffTickData(
-                                    perchingData.staffOrigin(),
-                                    perchingData.staffOrigin());
-                        }
-                        return new CatStaffTickData(
-                                travelingData.staffOrigin(),
-                                travelingData.staffOrigin());
-                    }
-                    if (perchingActive) {
-                        return new CatStaffTickData(
-                                old.currentOrigin(),
-                                perchingData.staffOrigin());
-                    }
-                    return new CatStaffTickData(
-                            old.currentOrigin(),
-                            travelingData.staffOrigin());
-
-                });
-            }
-            catStaffPastTickExtremitiesEntityMap.keySet().removeIf(id -> !seenThisTick.contains(id));
-        }
     }
 
     public static void renderCatStaffsInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick) {

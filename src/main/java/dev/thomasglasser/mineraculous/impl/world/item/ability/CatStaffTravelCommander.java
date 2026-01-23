@@ -22,6 +22,8 @@ public class CatStaffTravelCommander {
     }
 
     public static void tick(Level level, Entity user, CatStaffItem.Mode mode) {
+        if (level.isClientSide())
+            return;
         if (mode != CatStaffItem.Mode.TRAVEL && user.hasData(MineraculousAttachmentTypes.newTRAVELING_CAT_STAFF)) {
             newTravelingCatStaffData.remove(user);
         }
@@ -36,17 +38,20 @@ public class CatStaffTravelCommander {
             if (!data.anchored() && !data.retracting()) {
                 data = CatStaffTravelGroundWorker.increaseStaffLength(level, data);
             }
-            if (data.safeFallTick() <= 5 && data.retracting()) {
-                data = CatStaffTravelGroundWorker.decreaseStaffLength(user, data);
-            }
-            if (data.retracting() && data.staffLength() <= CatStaffItem.getMinStaffLength(user) + 1) {// || collision
-                data = data.withEnabled(false);
-                // if collision apply damage to user
-            }
             boolean justAnchored = data.anchored() && !originalData.anchored();
             if (justAnchored) {
                 data = CatStaffTravelGroundWorker.launchUser(user, data);
             }
+            if (data.safeFallTick() == 30) {
+                data = data.withRetracting(true);
+            }
+            if (data.retracting()) {
+                data = CatStaffTravelGroundWorker.decreaseStaffLength(user, data);
+            }
+            /*if (data.retracting() && data.staffLength() <= CatStaffItem.getMinStaffLength(user)) {// || collision
+                data = data.withEnabled(false);
+                // if collision apply damage to user
+            }*/
         }
         // IF NOT ANCHORED && NOT RETRACTING -> EXTEND AT THE ORIGIN UNTIL IT ANCHORS
         // WHEN ANCHORING IT LAUNCH THE PLAYER AND START RETRACTION

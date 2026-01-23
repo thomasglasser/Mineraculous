@@ -89,18 +89,15 @@ public record newTravelingCatStaffData(
                   enabled      = %s
                   length       = %s
                   launchingDir = %s
-                  origin       = %s
-                  tip          = %s
                   initialHoriz = %s
                   anchored     = %s
+                  retracting   = %s
                   tick         = %s
                 }
                 """.formatted(
                 isModeActive,
                 staffLength(),
                 launchingDirection,
-                staffOrigin,
-                staffTip,
                 initialUserHorizontalDirection,
                 anchored,
                 retracting,

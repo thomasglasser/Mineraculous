@@ -32,7 +32,8 @@ public class CatStaffTravelGroundWorker {
 
     public static Vec3 expectedStaffTip(Entity user, newTravelingCatStaffData data, float partialTick) {
         Vec3 horizontalDirection = data.initialUserHorizontalDirection();
-        return user.getPosition(partialTick).add(0, user.getBbHeight() / 2d, 0).add(horizontalDirection);
+        Vec3 userPos = user.getPosition(partialTick);
+        return userPos.add(0, user.getBbHeight() / 2d, 0).add(horizontalDirection.normalize());
     }
 
     protected static void activateMode(Level level, LivingEntity user) {
@@ -72,7 +73,7 @@ public class CatStaffTravelGroundWorker {
         Vec3 direction = data.launchingDirection();
         user.hurtMarked = true;
         user.setDeltaMovement(direction.scale(LAUNCHING_STRENGTH));
-        return data.withSafeFallTick(10);
+        return data.withSafeFallTick(60);
     }
 
     protected static newTravelingCatStaffData updateSafeFallTicks(Entity user, newTravelingCatStaffData data) {
@@ -89,9 +90,10 @@ public class CatStaffTravelGroundWorker {
         Vec3 tip = data.staffTip();
         Vec3 originToTip = tip.subtract(origin);
         double minLength = CatStaffItem.getMinStaffLength(user);
-        Vec3 newOrigin = origin.add(originToTip.normalize().scale(CatStaffItem.STAFF_GROWTH_SPEED));
-        if (tip.subtract(newOrigin).length() < minLength) {
+        Vec3 newOrigin = origin.add(originToTip.normalize().scale(CatStaffItem.STAFF_GROWTH_SPEED / 4d));
+        if (tip.subtract(newOrigin).length() <= minLength) {
             newOrigin = origin.add(originToTip.normalize().scale(minLength));
+            data = data.withEnabled(false);
         }
         return data.withStaffOrigin(newOrigin);
     }

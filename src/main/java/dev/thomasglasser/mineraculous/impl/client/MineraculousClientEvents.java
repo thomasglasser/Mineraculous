@@ -343,7 +343,6 @@ public class MineraculousClientEvents {
         if (player != null) {
             checkYoyoInput(player);
         }
-        MineraculousClientUtils.updateCatStaffMap();
     }
 
     private static void checkYoyoInput(LocalPlayer player) {

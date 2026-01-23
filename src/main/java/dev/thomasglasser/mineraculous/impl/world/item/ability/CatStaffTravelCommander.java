@@ -2,14 +2,14 @@ package dev.thomasglasser.mineraculous.impl.world.item.ability;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.newTravelingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
 public class CatStaffTravelCommander {
     public static void itemUsed(Level level, LivingEntity user) {
-        newTravelingCatStaffData data = user.getData(MineraculousAttachmentTypes.newTRAVELING_CAT_STAFF);
+        TravelingCatStaffData data = user.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
         if (data.isModeActive() && !data.retracting()) {
             CatStaffTravelGroundWorker.makeStaffRetract(level, user, data);
         } else {
@@ -24,12 +24,12 @@ public class CatStaffTravelCommander {
     public static void tick(Level level, Entity user, CatStaffItem.Mode mode) {
         if (level.isClientSide())
             return;
-        if (mode != CatStaffItem.Mode.TRAVEL && user.hasData(MineraculousAttachmentTypes.newTRAVELING_CAT_STAFF)) {
-            newTravelingCatStaffData.remove(user);
+        if (mode != CatStaffItem.Mode.TRAVEL && user.hasData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF)) {
+            TravelingCatStaffData.remove(user);
         }
 
-        newTravelingCatStaffData originalData = user.getData(MineraculousAttachmentTypes.newTRAVELING_CAT_STAFF);
-        newTravelingCatStaffData data = originalData;
+        TravelingCatStaffData originalData = user.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
+        TravelingCatStaffData data = originalData;
 
         data = CatStaffTravelGroundWorker.updateSafeFallTicks(user, data);
         if (data.isModeActive()) {

@@ -12,7 +12,7 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYo
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTriggerData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.newTravelingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import io.netty.buffer.ByteBuf;
@@ -48,7 +48,7 @@ public class MineraculousAttachmentTypes {
     /// Holds data for perching with a {@link dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem}.
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<PerchingCatStaffData>> PERCHING_CAT_STAFF = ATTACHMENT_TYPES.register("perching_cat_staff", () -> AttachmentType.builder(PerchingCatStaffData::new).sync(PerchingCatStaffData.STREAM_CODEC).build());
     /// Holds data for traveling with a {@link dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem}.
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<newTravelingCatStaffData>> newTRAVELING_CAT_STAFF = ATTACHMENT_TYPES.register("newtraveling_cat_staff", () -> AttachmentType.builder(newTravelingCatStaffData::new).sync(newTravelingCatStaffData.STREAM_CODEC).build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<TravelingCatStaffData>> TRAVELING_CAT_STAFF = ATTACHMENT_TYPES.register("traveling_cat_staff", () -> AttachmentType.builder(TravelingCatStaffData::new).sync(TravelingCatStaffData.STREAM_CODEC).build());
     /// Holds data for triggering a {@link dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug}.
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<MiraculousLadybugTriggerData>>> MIRACULOUS_LADYBUG_TRIGGER = ATTACHMENT_TYPES.register("miraculous_ladybug_trigger", () -> AttachmentType.builder(Optional::<MiraculousLadybugTriggerData>empty).serialize(optionalCodec(MiraculousLadybugTriggerData.CODEC)).sync(optionalStreamCodec(MiraculousLadybugTriggerData.STREAM_CODEC)).build());
 

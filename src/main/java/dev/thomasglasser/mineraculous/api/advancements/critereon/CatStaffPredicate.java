@@ -5,6 +5,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import java.util.Optional;
+
+import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import net.minecraft.advancements.critereon.EntitySubPredicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -12,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Predicate for entity cat staff use according to their {@link dev.thomasglasser.mineraculous.impl.world.level.storage.newTravelingCatStaffData} and {@link dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData}.
+ * Predicate for entity cat staff use according to their {@link TravelingCatStaffData} and {@link dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData}.
  * 
  * @param traveling Whether the entity must be traveling
  * @param perching  Whether the entity must be perching
@@ -58,7 +60,7 @@ public record CatStaffPredicate(Optional<Boolean> traveling, Optional<Boolean> p
 
     @Override
     public boolean matches(Entity entity, ServerLevel level, @Nullable Vec3 position) {
-        return traveling.map(traveling -> traveling == entity.getData(MineraculousAttachmentTypes.newTRAVELING_CAT_STAFF).isModeActive()).orElse(true) &&
+        return traveling.map(traveling -> traveling == entity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).isModeActive()).orElse(true) &&
                 perching.map(perching -> perching == entity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF).isModeActive()).orElse(true);
     }
 }

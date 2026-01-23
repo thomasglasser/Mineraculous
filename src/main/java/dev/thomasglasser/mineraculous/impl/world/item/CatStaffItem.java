@@ -21,7 +21,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchComma
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelCommander;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.newTravelingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
@@ -130,7 +130,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
                 Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
                 if (carrierId != null) {
                     Entity entity = ClientUtils.getEntityById(carrierId);
-                    if (entity instanceof Player player && player.getUseItem() == stack && !player.getCooldowns().isOnCooldown(stack.getItem()) && !player.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_MODE) == Mode.TRAVEL && !player.getData(MineraculousAttachmentTypes.newTRAVELING_CAT_STAFF).isModeActive()) {
+                    if (entity instanceof Player player && player.getUseItem() == stack && !player.getCooldowns().isOnCooldown(stack.getItem()) && !player.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_MODE) == Mode.TRAVEL && !player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).isModeActive()) {
                         return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
                     }
                 }
@@ -171,7 +171,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
             CatStaffTravelCommander.tick(level, entity, mode);
             if (!inHand || !Active.isActive(stack)) {
                 PerchingCatStaffData.remove(entity);
-                newTravelingCatStaffData.remove(entity);
+                TravelingCatStaffData.remove(entity);
             }
         }
         MineraculousItemUtils.checkHelicopterSlowFall(stack, entity);
@@ -206,7 +206,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         super.onUseTick(level, livingEntity, stack, remainingUseDuration);
         if (livingEntity instanceof Player player) {
-            boolean travelEligible = !player.getCooldowns().isOnCooldown(stack.getItem()) && !player.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_MODE) == Mode.TRAVEL && !player.getData(MineraculousAttachmentTypes.newTRAVELING_CAT_STAFF).isModeActive() && stack.getUseDuration(livingEntity) - remainingUseDuration > 1;
+            boolean travelEligible = !player.getCooldowns().isOnCooldown(stack.getItem()) && !player.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_MODE) == Mode.TRAVEL && !player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).isModeActive() && stack.getUseDuration(livingEntity) - remainingUseDuration > 1;
             if ((stack.has(MineraculousDataComponents.BLOCKING) || travelEligible) && remainingUseDuration % 10 == 0) {
                 player.playSound(MineraculousSoundEvents.GENERIC_SPIN.get());
             }

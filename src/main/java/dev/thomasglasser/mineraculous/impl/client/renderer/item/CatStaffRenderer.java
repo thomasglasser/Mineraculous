@@ -16,7 +16,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchGroundWorker;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelGroundWorker;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.newTravelingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -100,7 +100,7 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
                 CatStaffItem.Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
                 getTexture(animatable);
                 if (mode == CatStaffItem.Mode.PERCH || mode == CatStaffItem.Mode.TRAVEL) {
-                    newTravelingCatStaffData travelingCatStaffData = carrier.getData(MineraculousAttachmentTypes.newTRAVELING_CAT_STAFF);
+                    TravelingCatStaffData travelingCatStaffData = carrier.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
                     PerchingCatStaffData perchingCatStaffData = carrier.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
                     if (perchingCatStaffData.isModeActive() || travelingCatStaffData.isModeActive()) {
                         boolean firstPersonHand = this.renderPerspective == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
@@ -174,7 +174,7 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
         }
     }
 
-    public static void renderTravelInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick, Entity entity, newTravelingCatStaffData travelingData) {
+    public static void renderTravelInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick, Entity entity, TravelingCatStaffData travelingData) {
         double length = travelingData.staffOrigin().subtract(travelingData.staffTip()).length();
         Vec3 tipToOrigin = travelingData.staffOrigin().subtract(travelingData.staffTip());
         Vec3 interpolatedTip = CatStaffTravelGroundWorker.expectedStaffTip(entity, travelingData, partialTick);

@@ -51,7 +51,7 @@ import dev.thomasglasser.mineraculous.impl.world.entity.KamikotizedMinion;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.newTravelingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
@@ -668,7 +668,7 @@ public class MineraculousClientUtils {
         if (level != null) {
             for (Entity entity : level.entitiesForRendering()) {
                 PerchingCatStaffData perchingData = entity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-                newTravelingCatStaffData travelingData = entity.getData(MineraculousAttachmentTypes.newTRAVELING_CAT_STAFF);
+                TravelingCatStaffData travelingData = entity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
                 boolean renderPerch = perchingData.isModeActive();
                 boolean renderTravel = travelingData.isModeActive();
                 if (renderPerch) {

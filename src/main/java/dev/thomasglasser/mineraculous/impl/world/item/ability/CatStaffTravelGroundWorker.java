@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.impl.world.item.ability;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.newTravelingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,7 +22,7 @@ public class CatStaffTravelGroundWorker {
     // Method for damage calculating
     private static final double LAUNCHING_STRENGTH = 5;
 
-    public static Vec3 expectedStaffTip(Entity user, newTravelingCatStaffData data) {
+    public static Vec3 expectedStaffTip(Entity user, TravelingCatStaffData data) {
         return expectedStaffTip(user, data.initialUserHorizontalDirection());
     }
 
@@ -30,7 +30,7 @@ public class CatStaffTravelGroundWorker {
         return user.position().add(0, user.getBbHeight() / 2d, 0).add(horizontalDirection);
     }
 
-    public static Vec3 expectedStaffTip(Entity user, newTravelingCatStaffData data, float partialTick) {
+    public static Vec3 expectedStaffTip(Entity user, TravelingCatStaffData data, float partialTick) {
         Vec3 horizontalDirection = data.initialUserHorizontalDirection();
         Vec3 userPos = user.getPosition(partialTick);
         return userPos.add(0, user.getBbHeight() / 2d, 0).add(horizontalDirection.normalize());
@@ -44,7 +44,7 @@ public class CatStaffTravelGroundWorker {
             Vec3 staffTip = expectedStaffTip(user, horizontalDirection);
             Vec3 staffOrigin = staffTip.add(lookAngle.scale(CatStaffItem.getMinStaffLength(user)));
 
-            new newTravelingCatStaffData(
+            new TravelingCatStaffData(
                     true,
                     lookAngle,
                     staffTip,
@@ -57,26 +57,26 @@ public class CatStaffTravelGroundWorker {
         }
     }
 
-    protected static void makeStaffRetract(Level level, LivingEntity user, newTravelingCatStaffData data) {
+    protected static void makeStaffRetract(Level level, LivingEntity user, TravelingCatStaffData data) {
         if (!level.isClientSide()) {
             data.withAnchored(false).withRetracting(true).save(user);
         }
     }
 
-    protected static void stopStaffRetraction(Level level, LivingEntity user, newTravelingCatStaffData data) {
+    protected static void stopStaffRetraction(Level level, LivingEntity user, TravelingCatStaffData data) {
         if (!level.isClientSide()) {
             data.withRetracting(false).save(user);
         }
     }
 
-    protected static newTravelingCatStaffData launchUser(Entity user, newTravelingCatStaffData data) {
+    protected static TravelingCatStaffData launchUser(Entity user, TravelingCatStaffData data) {
         Vec3 direction = data.launchingDirection();
         user.hurtMarked = true;
         user.setDeltaMovement(direction.scale(LAUNCHING_STRENGTH));
         return data.withSafeFallTick(60);
     }
 
-    protected static newTravelingCatStaffData updateSafeFallTicks(Entity user, newTravelingCatStaffData data) {
+    protected static TravelingCatStaffData updateSafeFallTicks(Entity user, TravelingCatStaffData data) {
         int tick = data.safeFallTick();
         if (tick > 0) {
             user.resetFallDistance();
@@ -85,7 +85,7 @@ public class CatStaffTravelGroundWorker {
         return data;
     }
 
-    protected static newTravelingCatStaffData decreaseStaffLength(Entity user, newTravelingCatStaffData data) {
+    protected static TravelingCatStaffData decreaseStaffLength(Entity user, TravelingCatStaffData data) {
         Vec3 origin = data.staffOrigin();
         Vec3 tip = data.staffTip();
         Vec3 originToTip = tip.subtract(origin);
@@ -98,7 +98,7 @@ public class CatStaffTravelGroundWorker {
         return data.withStaffOrigin(newOrigin);
     }
 
-    protected static newTravelingCatStaffData increaseStaffLength(Level level, newTravelingCatStaffData data) {
+    protected static TravelingCatStaffData increaseStaffLength(Level level, TravelingCatStaffData data) {
         Vec3 origin = data.staffOrigin();
         Vec3 tip = data.staffTip();
         Vec3 tipToOrigin = origin.subtract(tip).normalize();
@@ -125,7 +125,7 @@ public class CatStaffTravelGroundWorker {
         return data.withStaffOrigin(newOrigin);
     }
 
-    protected static newTravelingCatStaffData updateStaffExtremities(Entity user, newTravelingCatStaffData data) {
+    protected static TravelingCatStaffData updateStaffExtremities(Entity user, TravelingCatStaffData data) {
         Vec3 oldTip = data.staffTip();
         Vec3 oldOrigin = data.staffOrigin();
         Vec3 tipToOrigin = oldOrigin.subtract(oldTip);

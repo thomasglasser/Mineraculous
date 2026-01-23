@@ -33,7 +33,6 @@ public class CatStaffTravelCommander {
 
         data = CatStaffTravelGroundWorker.updateSafeFallTicks(user, data);
         if (data.isModeActive()) {
-            System.out.println(data);
             data = CatStaffTravelGroundWorker.updateStaffExtremities(user, data);
             if (!data.anchored() && !data.retracting()) {
                 data = CatStaffTravelGroundWorker.increaseStaffLength(level, data);

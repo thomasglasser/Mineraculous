@@ -339,7 +339,6 @@
     "mineraculous:synced_transient_ability_effects",
     "mineraculous:thrown_ladybug_yoyo",
     "mineraculous:transient_ability_effects",
-    "mineraculous:traveling_cat_staff",
     "mineraculous:yoyo_leash_override"
   ],
   "neoforge:entity_data_serializers": [
@@ -362,7 +361,6 @@
     "mineraculous:perching_cat_staff",
     "mineraculous:synced_transient_ability_effects",
     "mineraculous:thrown_ladybug_yoyo",
-    "mineraculous:traveling_cat_staff",
     "mineraculous:yoyo_leash_override"
   ]
 }

@@ -331,7 +331,6 @@
     "mineraculous:leashing_ladybug_yoyo",
     "mineraculous:miraculous_ladybug_trigger",
     "mineraculous:miraculouses",
-    "mineraculous:newtraveling_cat_staff",
     "mineraculous:old_kamikotization",
     "mineraculous:perching_cat_staff",
     "mineraculous:persistent_ability_effects",
@@ -339,6 +338,7 @@
     "mineraculous:synced_transient_ability_effects",
     "mineraculous:thrown_ladybug_yoyo",
     "mineraculous:transient_ability_effects",
+    "mineraculous:traveling_cat_staff",
     "mineraculous:yoyo_leash_override"
   ],
   "neoforge:entity_data_serializers": [
@@ -357,10 +357,10 @@
     "mineraculous:leashing_ladybug_yoyo",
     "mineraculous:miraculous_ladybug_trigger",
     "mineraculous:miraculouses",
-    "mineraculous:newtraveling_cat_staff",
     "mineraculous:perching_cat_staff",
     "mineraculous:synced_transient_ability_effects",
     "mineraculous:thrown_ladybug_yoyo",
+    "mineraculous:traveling_cat_staff",
     "mineraculous:yoyo_leash_override"
   ]
 }

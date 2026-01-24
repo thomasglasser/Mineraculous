@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -64,18 +65,22 @@ public record ServerboundUpdateStaffInputPayload(int input) implements ExtendedP
                 player.setDeltaMovement(movement);
                 player.hurtMarked = true;
             } else if (leaning && jump()) {
-                Vec2 horizontal = MineraculousMathUtils.getHorizontalFacingVector(player.getYRot());
+                BlockPos pos = BlockPos.containing(player.position());
+                boolean isAir = player.level().getBlockState(pos).isAir();
+                if (isAir) {
+                    Vec2 horizontal = MineraculousMathUtils.getHorizontalFacingVector(player.getYRot());
 
-                // TODO fix magic numbers and find a way to get 32 from server config
-                double lengthFactor = Math.min(perchingData.staffLength() / 32.0, 1.0);
-                double jumpFactor = 0.5 + 0.5 * lengthFactor;
+                    // TODO fix magic numbers and find a way to get 32 from server config
+                    double lengthFactor = Math.min(perchingData.staffLength() / 32.0, 1.0);
+                    double jumpFactor = 0.5 + 0.5 * lengthFactor;
 
-                Vec3 movement = new Vec3(
-                        horizontal.x * LEAN_JUMP_HORIZONTAL_MULTIPLIER * jumpFactor,
-                        LEAN_JUMP_VERTICAL_MULTIPLIER * jumpFactor,
-                        horizontal.y * LEAN_JUMP_HORIZONTAL_MULTIPLIER * jumpFactor);
-                player.setDeltaMovement(movement);
-                player.hurtMarked = true;
+                    Vec3 movement = new Vec3(
+                            horizontal.x * LEAN_JUMP_HORIZONTAL_MULTIPLIER * jumpFactor,
+                            LEAN_JUMP_VERTICAL_MULTIPLIER * jumpFactor,
+                            horizontal.y * LEAN_JUMP_HORIZONTAL_MULTIPLIER * jumpFactor);
+                    player.setDeltaMovement(movement);
+                    player.hurtMarked = true;
+                }
                 perchingData.withEnabled(false).save(player);
             }
         }

@@ -130,7 +130,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
                 Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
                 if (carrierId != null) {
                     Entity entity = ClientUtils.getEntityById(carrierId);
-                    if (entity instanceof Player player && player.getUseItem() == stack && !player.getCooldowns().isOnCooldown(stack.getItem()) && !player.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_MODE) == Mode.TRAVEL && !player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).isModeActive()) {
+                    if (entity instanceof Player player && player.getUseItem() == stack && !player.onGround() && player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).helicopter()) {
                         return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
                     }
                 }
@@ -206,8 +206,8 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         super.onUseTick(level, livingEntity, stack, remainingUseDuration);
         if (livingEntity instanceof Player player) {
-            boolean travelEligible = !player.getCooldowns().isOnCooldown(stack.getItem()) && !player.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_MODE) == Mode.TRAVEL && !player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).isModeActive() && stack.getUseDuration(livingEntity) - remainingUseDuration > 1;
-            if ((stack.has(MineraculousDataComponents.BLOCKING) || travelEligible) && remainingUseDuration % 10 == 0) {
+            boolean helicopter = player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).helicopter() && !player.onGround();
+            if ((stack.has(MineraculousDataComponents.BLOCKING) || helicopter) && remainingUseDuration % 10 == 0) {
                 player.playSound(MineraculousSoundEvents.GENERIC_SPIN.get());
             }
         }
@@ -215,6 +215,12 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
 
     public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeLeft) {
         Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
+        if (mode == Mode.TRAVEL) {
+            TravelingCatStaffData travelingData = livingEntity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
+            if (travelingData.helicopter()) {
+                travelingData.withHelicopter(false).save(livingEntity);
+            }
+        }
         if (mode == Mode.THROW) {
             int i = this.getUseDuration(stack, livingEntity) - timeLeft;
             if (i >= 10) {

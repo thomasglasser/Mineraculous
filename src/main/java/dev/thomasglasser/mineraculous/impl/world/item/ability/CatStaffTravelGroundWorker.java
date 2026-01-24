@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.item.ability;
 
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
@@ -33,7 +34,7 @@ public class CatStaffTravelGroundWorker {
         return userPos.add(0, user.getBbHeight() / 2d, 0).add(horizontalDirection.normalize());
     }
 
-    protected static void activateMode(Level level, LivingEntity user) {
+    protected static void activateModeOrHelicopter(Level level, LivingEntity user) {
         if (!level.isClientSide()) {
             Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user.getYRot());
             Vec3 horizontalDirection = new Vec3(horizontalFacing.x, 0, horizontalFacing.y);
@@ -41,16 +42,12 @@ public class CatStaffTravelGroundWorker {
             Vec3 staffTip = expectedStaffTip(user, horizontalDirection);
             Vec3 staffOrigin = staffTip.add(lookAngle.scale(CatStaffItem.getMinStaffLength(user)));
 
-            new TravelingCatStaffData(
-                    true,
-                    lookAngle,
-                    staffTip,
-                    staffOrigin,
-                    horizontalDirection,
-                    false,
-                    false,
-                    0)
-                            .save(user);
+            HitResult raycast = raycast(level, staffOrigin, staffTip.subtract(staffOrigin).normalize(), MineraculousServerConfig.get().maxToolLength.get());
+            if (raycast.getType() == HitResult.Type.BLOCK) {
+                activateMode(user, lookAngle, staffTip, staffOrigin, horizontalDirection);
+            } else {
+                startHelicopter(user);
+            }
         }
     }
 
@@ -99,20 +96,14 @@ public class CatStaffTravelGroundWorker {
         Vec3 origin = data.staffOrigin();
         Vec3 tip = data.staffTip();
         Vec3 tipToOrigin = origin.subtract(tip).normalize();
-        HitResult result = level.clip(
-                new ClipContext(
-                        origin,
-                        origin.add(tipToOrigin.scale(CatStaffItem.STAFF_GROWTH_SPEED)),
-                        ClipContext.Block.COLLIDER,
-                        ClipContext.Fluid.NONE,
-                        CollisionContext.empty()));
-        Vec3 newOrigin = result.getLocation();
+        HitResult raycast = raycast(level, origin, tipToOrigin, CatStaffItem.STAFF_GROWTH_SPEED);
+        Vec3 newOrigin = raycast.getLocation();
         double maxLength = MineraculousServerConfig.get().maxToolLength.get();
         double newLength = newOrigin.subtract(tip).length();
         if (newLength > maxLength) {
             newOrigin = tip.add(tipToOrigin.scale(maxLength));
         } else {
-            if (result.getType() == HitResult.Type.BLOCK) {
+            if (raycast.getType() == HitResult.Type.BLOCK) {
                 BlockPos pos = BlockPos.containing(newOrigin);
                 BlockState state = level.getBlockState(pos);
                 if (!state.getCollisionShape(level, pos).isEmpty()) {
@@ -130,5 +121,34 @@ public class CatStaffTravelGroundWorker {
         Vec3 updatedTip = expectedStaffTip(user, data);
         Vec3 updatedOrigin = updatedTip.add(tipToOrigin);
         return data.withStaffTip(updatedTip).withStaffOrigin(updatedOrigin);
+    }
+
+    protected static HitResult raycast(Level level, Vec3 origin, Vec3 direction, double length) {
+        return level.clip(
+                new ClipContext(
+                        origin,
+                        origin.add(direction.scale(length)),
+                        ClipContext.Block.COLLIDER,
+                        ClipContext.Fluid.NONE,
+                        CollisionContext.empty()));
+    }
+
+    private static void activateMode(Entity user, Vec3 lookAngle, Vec3 staffTip, Vec3 staffOrigin, Vec3 horizontalDirection) {
+        new TravelingCatStaffData(
+                true,
+                lookAngle,
+                staffTip,
+                staffOrigin,
+                horizontalDirection,
+                false,
+                false,
+                false,
+                0)
+                        .save(user);
+    }
+
+    private static void startHelicopter(Entity user) {
+        TravelingCatStaffData data = user.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
+        data.withEnabled(false).withHelicopter(true).save(user);
     }
 }

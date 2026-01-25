@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.look.Look;
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetTypes;
@@ -29,6 +30,7 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SimpleTexture;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -46,6 +48,7 @@ import software.bernie.geckolib.renderer.GeoItemRenderer;
 
 public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRenderer<T> implements MiraculousToolLookRenderer {
     private static final float PIXEL = 1 / 16f;
+    private static final ResourceLocation DEFAULT_CAT_STAFF = MineraculousConstants.modLoc("textures/item/geo/cat_staff.png");
 
     private static final int STAFF_GLOWING_LINE_HEIGHT_PIXELS = 1; //DO NOT FETCH FROM JSON
     private static final int STAFF_WIDTH_WORLD_PIXELS = 2;  // DO NOT FETCH
@@ -123,38 +126,48 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
 
     private static ResourceLocation getWorldTexture(ItemStack stack) {
         Look<?> look = MiraculousItemRenderer.getLook(stack, LookContexts.MIRACULOUS_TOOL);
-        if (look == null)
-            look = LookManager.getBuiltInLook(MiraculousToolLookRenderer.getDefaultLookId(stack));
+        if (look == null) {
+            look = LookManager.getBuiltInLook(
+                    MiraculousToolLookRenderer.getDefaultLookId(stack));
+        }
         ResourceLocation original = look.getAsset(LookContexts.MIRACULOUS_TOOL, LookAssetTypes.TEXTURE);
         if (original == null) {
-            return MissingTextureAtlasSprite.getLocation();
+            original = DEFAULT_CAT_STAFF;
         }
         ResourceLocation result = original.withSuffix("_perch_travel");
-        if (Minecraft.getInstance().getTextureManager().getTexture(result) == MissingTextureAtlasSprite.getTexture())
-            registerWorldTextures(original, result);
+        TextureManager textureManager = Minecraft.getInstance().getTextureManager();
+        AbstractTexture existing = textureManager.getTexture(result);
+        if (existing != MissingTextureAtlasSprite.getTexture()) {
+            return result;
+        }
+        NativeImage copiedImage = copyTextureImage(original);
+        textureManager.register(result, new DynamicTexture(copiedImage));
         return result;
     }
 
-    private static void registerWorldTextures(ResourceLocation original, ResourceLocation result) {
-        try (AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(original)) {
-            NativeImage image;
+    private static NativeImage copyTextureImage(ResourceLocation original) {
+        TextureManager textureManager = Minecraft.getInstance().getTextureManager();
+        AbstractTexture texture = textureManager.getTexture(original);
+        NativeImage source;
+        try {
             if (texture instanceof SimpleTexture simpleTexture) {
-                image = simpleTexture.getTextureImage(Minecraft.getInstance().getResourceManager()).getImage();
+                source = simpleTexture
+                        .getTextureImage(Minecraft.getInstance().getResourceManager())
+                        .getImage();
             } else if (texture instanceof DynamicTexture dynamicTexture) {
-                image = dynamicTexture.getPixels();
+                source = dynamicTexture.getPixels();
             } else {
-                throw new IllegalStateException("Invalid cat staff texture");
-            }
-            if (image != null) {
-                Minecraft.getInstance().getTextureManager().register(result, new DynamicTexture(image));
-                // TODO: Glowmask too if present
-                // (i dont think this to do is needed)
-            } else {
-                throw new IllegalStateException("Invalid cat staff texture");
+                throw new IllegalStateException("Unsupported texture type: " + texture);
             }
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to load cat staff texture", e);
+            throw new IllegalStateException("Failed to read texture pixels: " + original, e);
         }
+        if (source == null) {
+            throw new IllegalStateException("Texture image was null: " + original);
+        }
+        NativeImage copy = new NativeImage(source.getWidth(), source.getHeight(), false);
+        copy.copyFrom(source);
+        return copy;
     }
 
     private record IntPair(int first, int second) {}

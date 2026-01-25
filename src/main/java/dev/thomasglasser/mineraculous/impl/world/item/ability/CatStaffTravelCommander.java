@@ -16,7 +16,10 @@ public class CatStaffTravelCommander {
             CatStaffTravelGroundWorker.makeStaffRetract(level, user, data);
         } else {
             if (!data.isModeActive()) {
-                CatStaffTravelGroundWorker.activateModeOrHelicopter(level, user, stack);
+                boolean yoyoLeashed = user.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE);
+                if (!yoyoLeashed) {
+                    CatStaffTravelGroundWorker.activateModeOrHelicopter(level, user, stack);
+                }
             } else { // If retracting
                 CatStaffTravelGroundWorker.stopStaffRetraction(level, user, data);
             }
@@ -25,39 +28,44 @@ public class CatStaffTravelCommander {
 
     public static void tick(Level level, Entity user, CatStaffItem.Mode mode) {
         TravelingCatStaffData originalData = user.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
-        if (originalData.helicopter()) {
-            user.resetFallDistance();
-            MineraculousItemUtils.applyHelicopterSlowFall(user);
-        }
-        if (!level.isClientSide()) {
-            if (mode != CatStaffItem.Mode.TRAVEL && user.hasData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF)) {
-                TravelingCatStaffData.remove(user);
+        TravelingCatStaffData data = originalData;
+        boolean yoyoLeashed = user.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE);
+        if (!yoyoLeashed) {
+            if (originalData.helicopter()) {
+                user.resetFallDistance();
+                MineraculousItemUtils.applyHelicopterSlowFall(user);
             }
+            if (!level.isClientSide()) {
+                if (mode != CatStaffItem.Mode.TRAVEL && user.hasData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF)) {
+                    TravelingCatStaffData.remove(user);
+                }
 
-            TravelingCatStaffData data = originalData;
 
-            data = CatStaffTravelGroundWorker.updateSafeFallTicks(user, data);
-            if (data.isModeActive()) {
-                data = data.withHelicopter(false);
-                data = CatStaffTravelGroundWorker.updateStaffExtremities(user, data);
-                if (!data.anchored() && !data.retracting()) {
-                    data = CatStaffTravelGroundWorker.increaseStaffLength(level, data);
-                }
-                boolean justAnchored = data.anchored() && !originalData.anchored();
-                if (justAnchored) {
-                    data = CatStaffTravelGroundWorker.launchUser(user, data);
-                }
-                if (data.safeFallTick() == 90) {
-                    data = data.withRetracting(true);
-                }
-                if (data.retracting()) {
-                    data = CatStaffTravelGroundWorker.decreaseStaffLength(user, data);
-                }
-                if (data.safeFallTick() == 20) {
-                    data = data.withEnabled(false);
+                data = CatStaffTravelGroundWorker.updateSafeFallTicks(user, data);
+                if (data.isModeActive()) {
+                    data = data.withHelicopter(false);
+                    data = CatStaffTravelGroundWorker.updateStaffExtremities(user, data);
+                    if (!data.anchored() && !data.retracting()) {
+                        data = CatStaffTravelGroundWorker.increaseStaffLength(level, data);
+                    }
+                    boolean justAnchored = data.anchored() && !originalData.anchored();
+                    if (justAnchored) {
+                        data = CatStaffTravelGroundWorker.launchUser(user, data);
+                    }
+                    if (data.safeFallTick() == 90) {
+                        data = data.withRetracting(true);
+                    }
+                    if (data.retracting()) {
+                        data = CatStaffTravelGroundWorker.decreaseStaffLength(user, data);
+                    }
+                    if (data.safeFallTick() == 20) {
+                        data = data.withEnabled(false);
+                    }
                 }
             }
-            originalData.update(user, data);
+        } else {
+            data = data.withEnabled(false);
         }
+        originalData.update(user, data);
     }
 }

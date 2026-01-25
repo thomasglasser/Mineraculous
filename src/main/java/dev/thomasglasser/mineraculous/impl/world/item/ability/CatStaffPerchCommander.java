@@ -29,7 +29,10 @@ public class CatStaffPerchCommander {
                 CatStaffPerchGroundWorker.makeUserReleaseStaff(user, data);
             }
         } else {
-            CatStaffPerchGroundWorker.activateModeAndLaunch(level, user, stack);
+            boolean yoyoLeashed = user.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE);
+            if (!yoyoLeashed) {
+                CatStaffPerchGroundWorker.activateModeAndLaunch(level, user, stack);
+            }
         }
     }
 
@@ -64,7 +67,9 @@ public class CatStaffPerchCommander {
      * @param user  The entity using the tool.
      */
     public static void tick(Level level, Entity user, CatStaffItem.Mode mode) {
-        if (mode != CatStaffItem.Mode.PERCH && user.hasData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF)) {
+        boolean yoyoLeashed = user.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE);
+
+        if ((mode != CatStaffItem.Mode.PERCH || yoyoLeashed) && user.hasData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF)) {
             PerchingCatStaffData.remove(user);
         }
 

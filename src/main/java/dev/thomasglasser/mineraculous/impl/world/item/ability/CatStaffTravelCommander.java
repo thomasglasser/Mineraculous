@@ -53,6 +53,7 @@ public class CatStaffTravelCommander {
                 data = CatStaffTravelGroundWorker.updateSafeFallTicks(user, data);
                 if (data.isModeActive()) {
                     data = data.withHelicopter(false);
+                    data = CatStaffItem.checkForCollisionAndApplyDamage(user, data, data::withEnabled);
                     data = CatStaffTravelGroundWorker.updateStaffExtremities(user, data);
                     if (!data.anchored() && !data.retracting()) {
                         data = CatStaffTravelGroundWorker.increaseStaffLength(level, data);

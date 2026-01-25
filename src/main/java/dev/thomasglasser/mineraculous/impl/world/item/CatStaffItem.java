@@ -29,6 +29,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -64,6 +65,7 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.Nullable;
@@ -407,6 +409,18 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
             triggerAnim(holder, GeoItem.getOrAssignId(stack, (ServerLevel) holder.level()), CONTROLLER_EXTEND, anim);
             holder.level().playSound(null, holder.blockPosition(), sound, holder.getSoundSource(), 1.0F, 1.0F);
         }
+    }
+
+    public static <T> T checkForCollisionAndApplyDamage(Entity user, T data, Function<Boolean, T> withEnabledFn) {
+        Vec3 vel = user.getDeltaMovement();
+        double speed = vel.length();
+        if (speed > 0.6 && user.horizontalCollision) {
+            float damage = (float) (speed * 10);
+            user.hurt(user.damageSources().flyIntoWall(), damage);
+            user.setDeltaMovement(vel.scale(-0.2));
+            return withEnabledFn.apply(false);
+        }
+        return data;
     }
 
     /**

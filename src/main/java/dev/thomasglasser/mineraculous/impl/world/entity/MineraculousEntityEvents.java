@@ -32,6 +32,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchCommander;
+import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelCommander;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugBlockTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugEntityTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetCollector;
@@ -195,6 +196,7 @@ public class MineraculousEntityEvents {
             event.setDamageMultiplier(0);
         }
         CatStaffPerchCommander.entityFall(event);
+        CatStaffTravelCommander.entityFall(event);
     }
 
     public static void onEntityTeleport(EntityTeleportEvent event) {

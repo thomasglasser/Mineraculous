@@ -13,6 +13,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
@@ -61,9 +62,9 @@ public class CatStaffPerchGroundWorker {
         return entity.getY() + entity.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
     }
 
-    protected static void activateModeAndLaunch(Level level, LivingEntity user) {
+    protected static void activateModeAndLaunch(Level level, LivingEntity user, ItemStack stack) {
         if (!level.isClientSide()) {
-            setUserLaunchingData(user);
+            setUserLaunchingData(user, stack);
         }
         launchUser(user);
     }
@@ -161,14 +162,15 @@ public class CatStaffPerchGroundWorker {
         user.setDeltaMovement(new Vec3(0, LAUNCHING_USER_STRENGTH, 0));
     }
 
-    private static void setUserLaunchingData(LivingEntity user) {
+    private static void setUserLaunchingData(LivingEntity user, ItemStack stack) {
         Vec3 staffTipStartup = staffTipStartup(user, !user.onGround());
         Vec3 staffOriginStartup = staffOriginStartup(user, staffTipStartup);
-        createLaunchingData(user, staffOriginStartup, staffTipStartup).save(user);
+        createLaunchingData(user, stack, staffOriginStartup, staffTipStartup).save(user);
     }
 
-    private static PerchingCatStaffData createLaunchingData(LivingEntity user, Vec3 staffOrigin, Vec3 staffTip) {
+    private static PerchingCatStaffData createLaunchingData(LivingEntity user, ItemStack stack, Vec3 staffOrigin, Vec3 staffTip) {
         return new PerchingCatStaffData(
+                stack,
                 true,
                 PerchingCatStaffData.PerchingState.LAUNCH,
                 staffOrigin,

@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaff
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,7 +35,7 @@ public class CatStaffTravelGroundWorker {
         return userPos.add(0, user.getBbHeight() / 2d, 0).add(horizontalDirection.normalize());
     }
 
-    protected static void activateModeOrHelicopter(Level level, LivingEntity user) {
+    protected static void activateModeOrHelicopter(Level level, LivingEntity user, ItemStack stack) {
         if (!level.isClientSide()) {
             Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user.getYRot());
             Vec3 horizontalDirection = new Vec3(horizontalFacing.x, 0, horizontalFacing.y);
@@ -44,7 +45,7 @@ public class CatStaffTravelGroundWorker {
 
             HitResult raycast = raycast(level, staffOrigin, staffTip.subtract(staffOrigin).normalize(), MineraculousServerConfig.get().maxToolLength.get());
             if (raycast.getType() == HitResult.Type.BLOCK) {
-                activateMode(user, lookAngle, staffTip, staffOrigin, horizontalDirection);
+                activateMode(user, stack, lookAngle, staffTip, staffOrigin, horizontalDirection);
             } else {
                 startHelicopter(user);
             }
@@ -133,8 +134,9 @@ public class CatStaffTravelGroundWorker {
                         CollisionContext.empty()));
     }
 
-    private static void activateMode(Entity user, Vec3 lookAngle, Vec3 staffTip, Vec3 staffOrigin, Vec3 horizontalDirection) {
+    private static void activateMode(Entity user, ItemStack stack, Vec3 lookAngle, Vec3 staffTip, Vec3 staffOrigin, Vec3 horizontalDirection) {
         new TravelingCatStaffData(
+                stack,
                 true,
                 lookAngle,
                 staffTip,

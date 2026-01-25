@@ -6,16 +6,17 @@ import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public class CatStaffTravelCommander {
-    public static void itemUsed(Level level, LivingEntity user) {
+    public static void itemUsed(Level level, LivingEntity user, ItemStack stack) {
         TravelingCatStaffData data = user.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
         if (data.isModeActive() && !data.retracting()) {
             CatStaffTravelGroundWorker.makeStaffRetract(level, user, data);
         } else {
             if (!data.isModeActive()) {
-                CatStaffTravelGroundWorker.activateModeOrHelicopter(level, user);
+                CatStaffTravelGroundWorker.activateModeOrHelicopter(level, user, stack);
             } else { // If retracting
                 CatStaffTravelGroundWorker.stopStaffRetraction(level, user, data);
             }

@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffD
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 
@@ -21,14 +22,14 @@ import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
  * the ground. This mode has 3 behavior states : LAUNCH, STAND, RELEASE, LEAN.
  */
 public class CatStaffPerchCommander {
-    public static void itemUsed(Level level, LivingEntity user) {
+    public static void itemUsed(Level level, LivingEntity user, ItemStack stack) {
         PerchingCatStaffData data = user.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
         if (data.isModeActive()) {
             if (!level.isClientSide() && data.isStaffReleaseable()) {
                 CatStaffPerchGroundWorker.makeUserReleaseStaff(user, data);
             }
         } else {
-            CatStaffPerchGroundWorker.activateModeAndLaunch(level, user);
+            CatStaffPerchGroundWorker.activateModeAndLaunch(level, user, stack);
         }
     }
 

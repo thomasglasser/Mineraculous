@@ -3,6 +3,9 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.thomasglasser.mineraculous.api.client.look.Look;
+import dev.thomasglasser.mineraculous.api.client.look.LookManager;
+import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetTypes;
 import dev.thomasglasser.mineraculous.api.client.look.util.renderer.MiraculousToolLookRenderer;
 import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
@@ -24,8 +27,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SimpleTexture;
-import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -63,8 +66,6 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
 
     private final GeoModel<T> model;
 
-    private static ResourceLocation CAT_STAFF_TEXTURE;
-
     public CatStaffRenderer() {
         super((GeoModel<T>) null);
         addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
@@ -98,7 +99,6 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
             Entity carrier = level.getEntity(carrierId);
             if (carrier != null) {
                 CatStaffItem.Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
-                getTexture(animatable);
                 if (mode == CatStaffItem.Mode.PERCH || mode == CatStaffItem.Mode.TRAVEL) {
                     TravelingCatStaffData travelingCatStaffData = carrier.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
                     PerchingCatStaffData perchingCatStaffData = carrier.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
@@ -121,11 +121,22 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
         super.defaultRender(poseStack, animatable, bufferSource, renderType, buffer, yaw, partialTick, packedLight);
     }
 
-    private void getTexture(T animatable) {
-        ResourceLocation original = this.getTextureLocation(animatable);
+    private static ResourceLocation getWorldTexture(ItemStack stack) {
+        Look<?> look = MiraculousItemRenderer.getLook(stack, LookContexts.MIRACULOUS_TOOL);
+        if (look == null)
+            look = LookManager.getBuiltInLook(MiraculousToolLookRenderer.getDefaultLookId(stack));
+        ResourceLocation original = look.getAsset(LookContexts.MIRACULOUS_TOOL, LookAssetTypes.TEXTURE);
+        if (original == null) {
+            return MissingTextureAtlasSprite.getLocation();
+        }
         ResourceLocation result = original.withSuffix("_perch_travel");
-        TextureManager textureManager = Minecraft.getInstance().getTextureManager();
-        try (AbstractTexture texture = textureManager.getTexture(original)) {
+        if (Minecraft.getInstance().getTextureManager().getTexture(result) == MissingTextureAtlasSprite.getTexture())
+            registerWorldTextures(original, result);
+        return result;
+    }
+
+    private static void registerWorldTextures(ResourceLocation original, ResourceLocation result) {
+        try (AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(original)) {
             NativeImage image;
             if (texture instanceof SimpleTexture simpleTexture) {
                 image = simpleTexture.getTextureImage(Minecraft.getInstance().getResourceManager()).getImage();
@@ -136,7 +147,8 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
             }
             if (image != null) {
                 Minecraft.getInstance().getTextureManager().register(result, new DynamicTexture(image));
-                CAT_STAFF_TEXTURE = result;
+                // TODO: Glowmask too if present
+                // (i dont think this to do is needed)
             } else {
                 throw new IllegalStateException("Invalid cat staff texture");
             }
@@ -168,7 +180,7 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
                     (float) perchingData.staffOrigin().y,
                     (float) perchingData.staffOrigin().z);
         }
-        CatStaffRenderer.renderStaffInWorldSpace(poseStack, bufferSource, light, origin, false, interpolatedLength, perchingData.pawDirection());
+        CatStaffRenderer.renderStaffInWorldSpace(perchingData.stack(), poseStack, bufferSource, light, origin, false, interpolatedLength, perchingData.pawDirection());
         if (leaning) {
             poseStack.popPose();
         }
@@ -187,11 +199,11 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
                 (float) interpolatedTip.y,
                 (float) interpolatedTip.z);
         Direction pawDirection = Direction.getNearest(travelingData.initialUserHorizontalDirection());
-        CatStaffRenderer.renderStaffInWorldSpace(poseStack, bufferSource, light, interpolatedTip, true, length, pawDirection);
+        CatStaffRenderer.renderStaffInWorldSpace(travelingData.stack(), poseStack, bufferSource, light, interpolatedTip, true, length, pawDirection);
         poseStack.popPose();
     }
 
-    public static void renderStaffInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light, Vec3 staffExtremity, boolean tip, double length, Direction pawDirection) {
+    public static void renderStaffInWorldSpace(ItemStack stack, PoseStack poseStack, MultiBufferSource bufferSource, int light, Vec3 staffExtremity, boolean tip, double length, Direction pawDirection) {
         //Vec3 staffOrigin = staffTip.add(0, -length, 0);
         Vec3 staffTip, staffOrigin;
         if (tip) {
@@ -202,7 +214,7 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
             staffTip = staffOrigin.add(0, length, 0);
         }
         Vec3Directions directions = computeDirections(staffTip, staffOrigin);
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(CAT_STAFF_TEXTURE));
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(getWorldTexture(stack)));
         PoseStack.Pose pose = poseStack.last();
         renderBar(pose, vertexConsumer, light, staffOrigin, staffTip, directions);
         renderPaw(pose, vertexConsumer, staffTip, directions, pawDirection);

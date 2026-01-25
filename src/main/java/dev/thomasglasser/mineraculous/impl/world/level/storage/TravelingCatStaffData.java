@@ -2,13 +2,15 @@ package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
-import io.netty.buffer.ByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 public record TravelingCatStaffData(
+        ItemStack stack,
         boolean isModeActive,
         Vec3 launchingDirection,
         Vec3 staffOrigin,
@@ -19,7 +21,8 @@ public record TravelingCatStaffData(
         boolean helicopter,
         int safeFallTick) {
 
-    public static final StreamCodec<ByteBuf, TravelingCatStaffData> STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, TravelingCatStaffData> STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
+            ItemStack.OPTIONAL_STREAM_CODEC, TravelingCatStaffData::stack,
             ByteBufCodecs.BOOL, TravelingCatStaffData::isModeActive,
             TommyLibExtraStreamCodecs.VEC_3, TravelingCatStaffData::launchingDirection,
             TommyLibExtraStreamCodecs.VEC_3, TravelingCatStaffData::staffOrigin,
@@ -31,7 +34,7 @@ public record TravelingCatStaffData(
             ByteBufCodecs.INT, TravelingCatStaffData::safeFallTick,
             TravelingCatStaffData::new);
     public TravelingCatStaffData() {
-        this(false, Vec3.ZERO, Vec3.ZERO, Vec3.ZERO, Vec3.ZERO, false, false, false, 0);
+        this(ItemStack.EMPTY, false, Vec3.ZERO, Vec3.ZERO, Vec3.ZERO, Vec3.ZERO, false, false, false, 0);
     }
 
     public double staffLength() {
@@ -39,31 +42,31 @@ public record TravelingCatStaffData(
     }
 
     public TravelingCatStaffData withEnabled(boolean enabled) {
-        return new TravelingCatStaffData(enabled, launchingDirection, staffOrigin, staffTip, initialUserHorizontalDirection, anchored, retracting, helicopter, safeFallTick);
+        return new TravelingCatStaffData(stack, enabled, launchingDirection, staffOrigin, staffTip, initialUserHorizontalDirection, anchored, retracting, helicopter, safeFallTick);
     }
 
     public TravelingCatStaffData withStaffOrigin(Vec3 origin) {
-        return new TravelingCatStaffData(isModeActive, launchingDirection, origin, staffTip, initialUserHorizontalDirection, anchored, retracting, helicopter, safeFallTick);
+        return new TravelingCatStaffData(stack, isModeActive, launchingDirection, origin, staffTip, initialUserHorizontalDirection, anchored, retracting, helicopter, safeFallTick);
     }
 
     public TravelingCatStaffData withStaffTip(Vec3 tip) {
-        return new TravelingCatStaffData(isModeActive, launchingDirection, staffTip, tip, initialUserHorizontalDirection, anchored, retracting, helicopter, safeFallTick);
+        return new TravelingCatStaffData(stack, isModeActive, launchingDirection, staffTip, tip, initialUserHorizontalDirection, anchored, retracting, helicopter, safeFallTick);
     }
 
     public TravelingCatStaffData withAnchored(boolean anchored) {
-        return new TravelingCatStaffData(isModeActive, launchingDirection, staffOrigin, staffTip, initialUserHorizontalDirection, anchored, retracting, helicopter, safeFallTick);
+        return new TravelingCatStaffData(stack, isModeActive, launchingDirection, staffOrigin, staffTip, initialUserHorizontalDirection, anchored, retracting, helicopter, safeFallTick);
     }
 
     public TravelingCatStaffData withRetracting(boolean retracting) {
-        return new TravelingCatStaffData(isModeActive, launchingDirection, staffOrigin, staffTip, initialUserHorizontalDirection, anchored, retracting, helicopter, safeFallTick);
+        return new TravelingCatStaffData(stack, isModeActive, launchingDirection, staffOrigin, staffTip, initialUserHorizontalDirection, anchored, retracting, helicopter, safeFallTick);
     }
 
     public TravelingCatStaffData withSafeFallTick(int safeFallTick) {
-        return new TravelingCatStaffData(isModeActive, launchingDirection, staffOrigin, staffTip, initialUserHorizontalDirection, anchored, retracting, helicopter, safeFallTick);
+        return new TravelingCatStaffData(stack, isModeActive, launchingDirection, staffOrigin, staffTip, initialUserHorizontalDirection, anchored, retracting, helicopter, safeFallTick);
     }
 
     public TravelingCatStaffData withHelicopter(boolean helicopter) {
-        return new TravelingCatStaffData(isModeActive, launchingDirection, staffOrigin, staffTip, initialUserHorizontalDirection, anchored, retracting, helicopter, safeFallTick);
+        return new TravelingCatStaffData(stack, isModeActive, launchingDirection, staffOrigin, staffTip, initialUserHorizontalDirection, anchored, retracting, helicopter, safeFallTick);
     }
 
     public void save(Entity entity) {

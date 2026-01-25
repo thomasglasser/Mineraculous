@@ -187,11 +187,11 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
             if (mode == Mode.BLOCK || mode == Mode.THROW || mode == Mode.TRAVEL)
                 player.startUsingItem(hand);
             if (mode == Mode.PERCH) {
-                CatStaffPerchCommander.itemUsed(level, player);
+                CatStaffPerchCommander.itemUsed(level, player, stack);
                 player.awardStat(Stats.ITEM_USED.get(this));
             }
             if (mode == Mode.TRAVEL) {
-                CatStaffTravelCommander.itemUsed(level, player);
+                CatStaffTravelCommander.itemUsed(level, player, stack);
             }
             if (mode == Mode.SPYGLASS) {
                 level.playSound(null, player, SoundEvents.SPYGLASS_USE, SoundSource.PLAYERS, 1.0F, 1.0F);

@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.impl.world.item.ability;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -50,7 +49,6 @@ public class CatStaffTravelCommander {
                 if (mode != CatStaffItem.Mode.TRAVEL && user.hasData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF)) {
                     TravelingCatStaffData.remove(user);
                 }
-
 
                 data = CatStaffTravelGroundWorker.updateSafeFallTicks(user, data);
                 if (data.isModeActive()) {

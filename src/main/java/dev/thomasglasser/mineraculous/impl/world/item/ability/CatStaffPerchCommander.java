@@ -84,6 +84,7 @@ public class CatStaffPerchCommander {
             if (level.isClientSide()) {
                 signalMovementInputToServer(data);
             } else {
+                data = CatStaffPerchGroundWorker.checkForCollisionAndApplyDamage(level, user, data);
                 data = CatStaffPerchGroundWorker.adjustLength(level, user, data);
                 data = CatStaffPerchGroundWorker.transitionState(user, data);
             }

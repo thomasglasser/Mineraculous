@@ -148,6 +148,20 @@ public class CatStaffPerchGroundWorker {
         }
     }
 
+    protected static PerchingCatStaffData checkForCollisionAndApplyDamage(Level level, Entity user, PerchingCatStaffData data) {
+        Vec3 vel = user.getDeltaMovement();
+        double speed = vel.length();
+        if (speed > 0.6 && user.horizontalCollision) {
+            float damage = (float) (speed * 10);
+            user.hurt(
+                    user.damageSources().flyIntoWall(),
+                    damage);
+            user.setDeltaMovement(vel.scale(-0.2));
+            return data.withEnabled(false);
+        }
+        return data;
+    }
+
     private static PerchingCatStaffData disablePerch(PerchingCatStaffData data) {
         return data.withEnabled(false);
     }

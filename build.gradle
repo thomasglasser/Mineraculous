@@ -179,14 +179,16 @@ configurations {
 }
 
 dependencies {
-	jarJar implementation("dev.thomasglasser.tommylib:tommylib-neoforge-${minecraft_version}:${tommylib_version}")
+	jarJar api("dev.thomasglasser.tommylib:tommylib-neoforge-${minecraft_version}:${tommylib_version}")
+
+	jarJar implementation("dev.thomasglasser.sherdsapi:sherdsapi-neoforge-${minecraft_version}:${sherdsapi_version}")
 	jarJar implementation("maven.modrinth:trimmed:${trimmed_version}+neoforge")
 
-	implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
-	implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${smartbrainlib_version}"
-	implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+	api "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
+	api "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${smartbrainlib_version}"
+	api "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+
 	implementation "maven.modrinth:lithostitched:${lithostitched_version}-neoforge-${minecraft_version}"
-    implementation "dev.thomasglasser.sherdsapi:sherdsapi-neoforge-${minecraft_version}:${sherdsapi_version}"
 
 	implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
     implementation "maven.modrinth:jade:${jade_version}+neoforge"
@@ -215,10 +217,10 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
 			github_name: github_name,
 			tommylib_version: tommylib_version,
             sherdsapi_version: sherdsapi_version,
+			trimmed_version: trimmed_version,
 			geckolib_version: geckolib_version,
 			smartbrainlib_version: smartbrainlib_version,
 			curios_version: curios_version,
-			trimmed_version: trimmed_version,
 			lithostitched_version: lithostitched_version,
 			jei_version: jei_version,
             jade_version: jade_version,

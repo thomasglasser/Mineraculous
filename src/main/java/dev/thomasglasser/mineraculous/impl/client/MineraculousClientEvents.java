@@ -270,6 +270,7 @@ public class MineraculousClientEvents {
 
     static void onRegisterItemColorHandlers(RegisterColorHandlersEvent.Item event) {
         event.register((stack, index) -> index == 0 ? FastColor.ARGB32.opaque(MiraculousItemRenderer.getMiraculousOrDefault(stack).value().color().getValue()) : -1, MineraculousArmors.MIRACULOUS.getAllAsItems().toArray(new Item[0]));
+        event.register((stack, index) -> index == 0 ? FastColor.ARGB32.opaque(MiraculousItemRenderer.getMiraculousOrDefault(stack).value().color().getValue()) : -1, MineraculousArmors.FAKE_MIRACULOUS.getAllAsItems().toArray(new Item[0]));
         event.register((stack, index) -> index == 0 ? DyedItemColor.getOrDefault(stack, DEFAULT_MACARON_COLOR) : -1, MineraculousItems.RAW_MACARON, MineraculousItems.MACARON);
     }
 

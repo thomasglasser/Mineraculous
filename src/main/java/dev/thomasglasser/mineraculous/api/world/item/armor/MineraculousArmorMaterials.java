@@ -28,6 +28,15 @@ public class MineraculousArmorMaterials {
         map.put(ArmorItem.Type.BODY, 30);
     }), 0, Holder.direct(SoundEvents.EMPTY), 20.0F, 0.0F, () -> Ingredient.EMPTY);
 
+    ///  Fake replica of the magical armor. Very weak, unenchantable and unrepairable.
+    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> COSTUME = register("costume", Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
+        map.put(ArmorItem.Type.BOOTS, 1);
+        map.put(ArmorItem.Type.LEGGINGS, 1);
+        map.put(ArmorItem.Type.CHESTPLATE, 1);
+        map.put(ArmorItem.Type.HELMET, 1);
+        map.put(ArmorItem.Type.BODY, 1);
+    }), 0, Holder.direct(SoundEvents.EMPTY), 0.0F, 0.0F, () -> Ingredient.EMPTY);
+
     private static DeferredHolder<ArmorMaterial, ArmorMaterial> register(
             String name,
             EnumMap<ArmorItem.Type, Integer> defense,

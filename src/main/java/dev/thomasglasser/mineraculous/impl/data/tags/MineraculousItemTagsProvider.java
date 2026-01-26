@@ -132,6 +132,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
     private void addArmors() {
         armorSet(MineraculousArmors.MIRACULOUS);
+        armorSet(MineraculousArmors.FAKE_MIRACULOUS);
         armorSet(MineraculousArmors.KAMIKOTIZATION);
     }
 

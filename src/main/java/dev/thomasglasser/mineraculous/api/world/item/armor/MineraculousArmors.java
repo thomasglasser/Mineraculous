@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.api.world.item.armor;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.impl.world.item.armor.FakeMiraculousArmorItem;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.KamikotizationArmorItem;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.MiraculousArmorItem;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
@@ -17,6 +18,8 @@ public class MineraculousArmors {
 
     /// A set of epic {@link MiraculousArmorItem}s.
     public static final ArmorSet MIRACULOUS = createMiraculousSet();
+    /// A set of uncommon {@link FakeMiraculousArmorItem}s
+    public static final ArmorSet FAKE_MIRACULOUS = createFakeMiraculousSet();
     /// A set of epic {@link KamikotizationArmorItem}s.
     public static final ArmorSet KAMIKOTIZATION = createKamikotizationSet();
 
@@ -25,6 +28,15 @@ public class MineraculousArmors {
         DeferredItem<ArmorItem> chestplate = ItemUtils.register(ARMORS, "miraculous_chestplate", () -> new MiraculousArmorItem(ArmorItem.Type.CHESTPLATE, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
         DeferredItem<ArmorItem> leggings = ItemUtils.register(ARMORS, "miraculous_leggings", () -> new MiraculousArmorItem(ArmorItem.Type.LEGGINGS, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
         DeferredItem<ArmorItem> boots = ItemUtils.register(ARMORS, "miraculous_boots", () -> new MiraculousArmorItem(ArmorItem.Type.BOOTS, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
+
+        return new ArmorSet("miraculous", mask, chestplate, leggings, boots);
+    }
+
+    private static ArmorSet createFakeMiraculousSet() {
+        DeferredItem<ArmorItem> mask = ItemUtils.register(ARMORS, "fake_miraculous_mask", () -> new FakeMiraculousArmorItem(ArmorItem.Type.HELMET, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.UNCOMMON))));
+        DeferredItem<ArmorItem> chestplate = ItemUtils.register(ARMORS, "fake_miraculous_chestplate", () -> new FakeMiraculousArmorItem(ArmorItem.Type.CHESTPLATE, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.UNCOMMON))));
+        DeferredItem<ArmorItem> leggings = ItemUtils.register(ARMORS, "fake_miraculous_leggings", () -> new FakeMiraculousArmorItem(ArmorItem.Type.LEGGINGS, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.UNCOMMON))));
+        DeferredItem<ArmorItem> boots = ItemUtils.register(ARMORS, "fake_miraculous_boots", () -> new FakeMiraculousArmorItem(ArmorItem.Type.BOOTS, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.UNCOMMON))));
 
         return new ArmorSet("miraculous", mask, chestplate, leggings, boots);
     }

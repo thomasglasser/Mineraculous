@@ -24,6 +24,7 @@
     "mineraculous:add_creamery_taiga_zombie"
   ],
   "minecraft:armor_material": [
+    "mineraculous:costume",
     "mineraculous:miraculous"
   ],
   "minecraft:block": [
@@ -120,6 +121,10 @@
     "mineraculous:exquisite_camembert_wedge",
     "mineraculous:exquisite_cheese_block",
     "mineraculous:exquisite_cheese_wedge",
+    "mineraculous:fake_miraculous_boots",
+    "mineraculous:fake_miraculous_chestplate",
+    "mineraculous:fake_miraculous_leggings",
+    "mineraculous:fake_miraculous_mask",
     "mineraculous:fresh_camembert_block",
     "mineraculous:fresh_camembert_wedge",
     "mineraculous:fresh_cheese_block",

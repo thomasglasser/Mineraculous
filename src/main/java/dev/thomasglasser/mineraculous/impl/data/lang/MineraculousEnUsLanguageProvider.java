@@ -166,6 +166,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Armor
         addSuitArmor(MineraculousArmors.MIRACULOUS, "Miraculous");
+        addSuitArmor(MineraculousArmors.FAKE_MIRACULOUS, "Miraculous Costume");
         addSuitArmor(MineraculousArmors.KAMIKOTIZATION, "Kamikotization");
     }
 

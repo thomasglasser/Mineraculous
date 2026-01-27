@@ -398,6 +398,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
     private void addPotterySherds() {
         addSherd(MineraculousItems.LADYBUG_POTTERY_SHERD);
+        addSherd(MineraculousItems.CAT_POTTERY_SHERD);
+        addSherd(MineraculousItems.BUTTERFLY_POTTERY_SHERD);
     }
 
     private void addArmorTrims() {

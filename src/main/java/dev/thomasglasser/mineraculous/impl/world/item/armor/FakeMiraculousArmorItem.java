@@ -24,7 +24,7 @@ public class FakeMiraculousArmorItem extends ArmorItem implements GeoArmorItem {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public FakeMiraculousArmorItem(Type type, Properties pProperties) {
-        super(MineraculousArmorMaterials.COSTUME, type, pProperties.rarity(Rarity.UNCOMMON));
+        super(MineraculousArmorMaterials.COSTUME, type, pProperties);
         GeckoLibUtil.registerSyncedAnimatable(this);
     }
 

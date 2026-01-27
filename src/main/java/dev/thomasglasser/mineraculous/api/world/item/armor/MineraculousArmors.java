@@ -38,7 +38,7 @@ public class MineraculousArmors {
         DeferredItem<ArmorItem> leggings = ItemUtils.register(ARMORS, "fake_miraculous_leggings", () -> new FakeMiraculousArmorItem(ArmorItem.Type.LEGGINGS, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.UNCOMMON))));
         DeferredItem<ArmorItem> boots = ItemUtils.register(ARMORS, "fake_miraculous_boots", () -> new FakeMiraculousArmorItem(ArmorItem.Type.BOOTS, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.UNCOMMON))));
 
-        return new ArmorSet("miraculous", mask, chestplate, leggings, boots);
+        return new ArmorSet("fake_miraculous", mask, chestplate, leggings, boots);
     }
 
     private static ArmorSet createKamikotizationSet() {

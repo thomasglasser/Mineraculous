@@ -82,6 +82,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.FIXED).translation(0, -4, 0).end()
                 .transform(ItemDisplayContext.GUI).rotation(0, 180, 0).translation(0, -6, 0).end()
                 .end();
+        withEntityModel(MineraculousItems.FAKE_MIRACULOUS).guiLight(BlockModel.GuiLight.FRONT);
 
         basicItem(MineraculousItems.CATACLYSM_DUST);
         basicItem(MineraculousItems.LADYBUG_POTTERY_SHERD);

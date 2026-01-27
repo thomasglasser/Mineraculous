@@ -69,6 +69,18 @@ public class MineraculousCreativeModeTabs {
         output.acceptAll(set);
     }).withTabsBefore(KAMIKOTIZATION_TOOLS.getKey()).build());
 
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> FAKE_MIRACULOUS = TABS.register("fake_miraculous", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(MineraculousConstants.modLoc("fake_miraculous").toLanguageKey("item_group")))
+            .icon(() -> {
+                Level level = ClientUtils.getLevel();
+                if (level != null) {
+                    return Miraculous.createFakeMiraculousStack(level.holderOrThrow(Miraculouses.LADYBUG));
+                }
+                return ItemStack.EMPTY;
+            }).displayItems((parameters, output) -> {
+                parameters.holders().lookupOrThrow(MineraculousRegistries.MIRACULOUS).listElements()
+                        .forEach(miraculous -> output.accept(Miraculous.createFakeMiraculousStack(miraculous)));
+            }).withSearchBar().withTabsBefore(KAMIKOTIZABLES.getKey()).build());
+
     /// Holds all items from the mod
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MINERACULOUS = TABS.register(MineraculousConstants.MOD_ID, () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(MineraculousConstants.modLoc(MineraculousConstants.MOD_ID).toLanguageKey("item_group"))).icon(() -> MineraculousItems.CATACLYSM_DUST.get().getDefaultInstance()).type(CreativeModeTab.Type.SEARCH).displayItems((parameters, output) -> {
         Set<ItemStack> set = ItemStackLinkedSet.createTypeAndComponentsSet();
@@ -82,9 +94,8 @@ public class MineraculousCreativeModeTabs {
                 }
             }
         });
-
         output.acceptAll(set);
-    }).withTabsBefore(KAMIKOTIZABLES.getKey()).build());
+    }).withTabsBefore(FAKE_MIRACULOUS.getKey()).build());
 
     @ApiStatus.Internal
     public static void init() {}

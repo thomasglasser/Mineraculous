@@ -202,9 +202,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     private void addTabs() {
-        add(MineraculousCreativeModeTabs.MIRACULOUS.get(), "Miraculous");
+        add(MineraculousCreativeModeTabs.MIRACULOUS.get(), "Miraculouses");
         add(MineraculousCreativeModeTabs.KAMIKOTIZATION_TOOLS.get(), "Kamikotization Tools");
         add(MineraculousCreativeModeTabs.KAMIKOTIZABLES.get(), "Kamikotizables");
+        add(MineraculousCreativeModeTabs.FAKE_MIRACULOUS.get(), "Fake Miraculouses");
         add(MineraculousCreativeModeTabs.MINERACULOUS.get(), "Mineraculous");
     }
 

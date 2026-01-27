@@ -57,6 +57,7 @@
     "mineraculous:oven"
   ],
   "minecraft:creative_mode_tab": [
+    "mineraculous:fake_miraculous",
     "mineraculous:kamikotizables",
     "mineraculous:kamikotization_tools",
     "mineraculous:mineraculous",
@@ -184,7 +185,8 @@
     "mineraculous:has_item"
   ],
   "minecraft:loot_function_type": [
-    "mineraculous:dye_randomly"
+    "mineraculous:dye_randomly",
+    "mineraculous:set_miraculous_randomly"
   ],
   "minecraft:loot_number_provider_type": [
     "mineraculous:power_level_multiplier"

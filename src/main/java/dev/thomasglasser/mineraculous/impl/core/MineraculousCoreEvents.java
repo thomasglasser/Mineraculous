@@ -11,6 +11,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
+import dev.thomasglasser.mineraculous.api.world.level.storage.loot.functions.SetMiraculousRandomlyFunction;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.core.look.LookLoader;
 import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
@@ -121,7 +122,12 @@ public class MineraculousCoreEvents {
                     LootItem.lootTableItem(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE),
                     LootItem.lootTableItem(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE),
                     LootItem.lootTableItem(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE));
-        }
+        } else if (name.equals(BuiltInLootTables.UNDERWATER_RUIN_BIG) ||
+                name.equals(BuiltInLootTables.UNDERWATER_RUIN_SMALL) ||
+                name.equals(BuiltInLootTables.OCEAN_RUIN_COLD_ARCHAEOLOGY) ||
+                name.equals(BuiltInLootTables.OCEAN_RUIN_WARM_ARCHAEOLOGY)) {
+                    addLootToTable(table, LootItem.lootTableItem(MineraculousItems.FAKE_MIRACULOUS).apply(SetMiraculousRandomlyFunction.randomMiraculous()));
+                }
     }
 
     public static void addLootToTable(LootTable table, LootPoolEntryContainer.Builder<?>... entries) {

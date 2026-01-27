@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.level.storage.BlockReversionData;
-import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
+import dev.thomasglasser.mineraculous.impl.world.level.block.MineraculousBlockUtils;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ public record MiraculousLadybugBlockTarget(BlockPos blockPos, UUID cause) implem
     }
 
     private void spawnParticles(ServerLevel level) {
-        MineraculousMathUtils.spawnBlockParticles(level, blockPos, MineraculousParticleTypes.REVERTING_LADYBUG.get(), 22); // hey! idk about you, but i'm feeling 22!
+        MineraculousBlockUtils.spawnParticlesAtBlock(level, blockPos, MineraculousParticleTypes.REVERTING_LADYBUG.get(), 22); // hey! idk about you, but i'm feeling 22!
     }
 
     @Override

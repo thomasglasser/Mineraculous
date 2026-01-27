@@ -3,7 +3,9 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -12,6 +14,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Leashable;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
@@ -21,6 +25,16 @@ public class YoyoRopeRenderer {
     private static final int POINTS = 100;
     private static final double CATENARY_CURVE_FACTOR = 2048.0;
     private static final double ROPE_THICKNESS = 0.025;
+
+    public static void render(PoseStack poseStack, MultiBufferSource bufferSource, float partialTick) {
+        if (MineraculousClientUtils.getCameraEntity() instanceof Leashable leashable && leashable.getLeashHolder() instanceof Player holder) {
+            holder.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).map(LeashingLadybugYoyoData::maxRopeLength).ifPresent(maxLength -> {
+                double y = (leashable instanceof LivingEntity livingLeashed && livingLeashed.isCrouching()) ? -1.2d : -1.6d;
+                poseStack.translate(0, y, 0);
+                render((Entity) leashable, holder, maxLength + 1.3d, poseStack, bufferSource, partialTick);
+            });
+        }
+    }
 
     public static void render(Entity entity, Player ropeOwner, double maxLength, PoseStack poseStack, MultiBufferSource bufferSource, float partialTick) {
         poseStack.pushPose();

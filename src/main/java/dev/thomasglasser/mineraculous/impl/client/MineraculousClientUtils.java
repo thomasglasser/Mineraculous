@@ -35,6 +35,7 @@ import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.Per
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterCosmeticOptions;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.SpecialPlayerData;
+import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRevertConvertedEntityPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetInventoryTrackedPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetMiraculousLookDataPayload;
@@ -48,7 +49,9 @@ import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.KamikotizedMinion;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
@@ -74,6 +77,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -659,6 +663,24 @@ public class MineraculousClientUtils {
         return Vec3.ZERO;
     }
 
+    public static void renderCatStaffsInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick) {
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level != null) {
+            for (Entity entity : level.entitiesForRendering()) {
+                PerchingCatStaffData perchingData = entity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+                TravelingCatStaffData travelingData = entity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
+                boolean renderPerch = perchingData.isModeActive();
+                boolean renderTravel = travelingData.isModeActive();
+                if (renderPerch) {
+                    CatStaffRenderer.renderPerchInWorldSpace(poseStack, bufferSource, light, partialTick, entity, perchingData);
+                }
+                if (renderTravel) {
+                    CatStaffRenderer.renderTravelInWorldSpace(poseStack, bufferSource, light, partialTick, entity, travelingData);
+                }
+            }
+        }
+    }
+
     public record InputState(boolean front, boolean back, boolean left, boolean right, boolean jump) {
         public int packInputs() {
             int bits = 0;
@@ -718,6 +740,21 @@ public class MineraculousClientUtils {
     public static void vertex(VertexConsumer vertexConsumer, PoseStack.Pose pose, Vec3 position, float u, float v, int light) {
         Vector3f pos = position.toVector3f();
         vertex(vertexConsumer, pose, pos, u, v, light);
+    }
+
+    public static void vertex(
+            VertexConsumer vc,
+            PoseStack.Pose pose,
+            float x, float y, float z,
+            float u, float v,
+            int light,
+            float nx, float ny, float nz) {
+        vc.addVertex(pose, x, y, z)
+                .setColor(-1)
+                .setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(light)
+                .setNormal(pose, nx, ny, nz);
     }
 
     private record EntityInInventoryQuaternions(Quaternionf horizontal, Quaternionf vertical) {}

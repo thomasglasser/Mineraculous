@@ -12,9 +12,6 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 public class MineraculousPayloads {
     public static List<PayloadInfo<?>> PAYLOADS = ImmutableList.of(
             // Serverbound
-            new PayloadInfo<>(ServerboundUpdateStaffPerchLength.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateStaffPerchLength.CODEC),
-            new PayloadInfo<>(ServerboundUpdateStaffInputPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateStaffInputPayload.CODEC),
-            new PayloadInfo<>(ServerboundUpdateYoyoInputPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateYoyoInputPayload.CODEC),
             new PayloadInfo<>(ServerboundMiraculousTransformPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundMiraculousTransformPayload.CODEC),
             new PayloadInfo<>(ServerboundSetInventoryTrackedPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetInventoryTrackedPayload.CODEC),
             new PayloadInfo<>(ServerboundStealItemPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundStealItemPayload.CODEC),
@@ -51,6 +48,9 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundSetMiraculousLookDataPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetMiraculousLookDataPayload.CODEC),
             new PayloadInfo<>(ServerboundRequestLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRequestLookPayload.CODEC),
             new PayloadInfo<>(ServerboundSendLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSendLookPayload.CODEC),
+            new PayloadInfo<>(ServerboundUpdateYoyoInputPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateYoyoInputPayload.CODEC),
+            new PayloadInfo<>(ServerboundUpdateStaffInputPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateStaffInputPayload.CODEC),
+            new PayloadInfo<>(ServerboundPerchVerticalInputPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundPerchVerticalInputPayload.CODEC),
 
             // Clientbound
             new PayloadInfo<>(ClientboundToggleNightVisionShaderPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundToggleNightVisionShaderPayload.CODEC),

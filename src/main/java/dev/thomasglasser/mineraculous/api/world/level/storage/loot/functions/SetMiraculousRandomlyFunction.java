@@ -2,10 +2,13 @@ package dev.thomasglasser.mineraculous.api.world.level.storage.loot.functions;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import java.util.List;
+import java.util.Optional;
+import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
@@ -31,17 +34,18 @@ public class SetMiraculousRandomlyFunction extends LootItemConditionalFunction {
     @Override
     protected ItemStack run(ItemStack stack, LootContext context) {
         RandomSource random = context.getRandom();
-
         List<Holder.Reference<Miraculous>> allMiraculous = context.getLevel()
                 .holderLookup(MineraculousRegistries.MIRACULOUS)
                 .listElements()
                 .toList();
-
-        if (!allMiraculous.isEmpty()) {
-            Holder<Miraculous> randomMiraculous = allMiraculous.get(random.nextInt(allMiraculous.size()));
-            stack.set(MineraculousDataComponents.MIRACULOUS, randomMiraculous);
+        Optional<Holder.Reference<Miraculous>> optional = Util.getRandomSafe(allMiraculous, random);
+        if (optional.isEmpty()) {
+            MineraculousConstants.LOGGER.warn("Couldn't find a compatible miraculous data for {}", stack);
+            return stack;
+        } else {
+            stack.set(MineraculousDataComponents.MIRACULOUS, optional.get());
+            return stack;
         }
-        return stack;
     }
 
     public static Builder randomMiraculous() {

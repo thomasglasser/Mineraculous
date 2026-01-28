@@ -122,10 +122,11 @@ public class MineraculousCoreEvents {
                     LootItem.lootTableItem(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE),
                     LootItem.lootTableItem(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE),
                     LootItem.lootTableItem(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE));
-        } else if (name.equals(BuiltInLootTables.UNDERWATER_RUIN_BIG) ||
-                name.equals(BuiltInLootTables.UNDERWATER_RUIN_SMALL) ||
-                name.equals(BuiltInLootTables.OCEAN_RUIN_COLD_ARCHAEOLOGY) ||
-                name.equals(BuiltInLootTables.OCEAN_RUIN_WARM_ARCHAEOLOGY)) {
+        } else if (name.equals(BuiltInLootTables.UNDERWATER_RUIN_BIG.location()) ||
+                name.equals(BuiltInLootTables.UNDERWATER_RUIN_SMALL.location()) ||
+                name.equals(BuiltInLootTables.OCEAN_RUIN_COLD_ARCHAEOLOGY.location()) ||
+                name.equals(BuiltInLootTables.OCEAN_RUIN_WARM_ARCHAEOLOGY.location())) {
+                    System.out.println("ADDED LOOT MIRACULOUS");
                     addLootToTable(table, LootItem.lootTableItem(MineraculousItems.FAKE_MIRACULOUS).apply(SetMiraculousRandomlyFunction.randomMiraculous()));
                 }
     }

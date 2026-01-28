@@ -13,6 +13,7 @@ import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -20,6 +21,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackLinkedSet;
@@ -30,7 +32,7 @@ public class MineraculousCreativeModeTabs {
     private static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MineraculousConstants.MOD_ID);
 
     /// Holds all data-driven {@link MiraculousItem}s.
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MIRACULOUS = TABS.register("miraculous", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(MineraculousConstants.modLoc("miraculous").toLanguageKey("item_group"))).icon(() -> {
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MIRACULOUSES = TABS.register("miraculouses", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(MineraculousConstants.modLoc("miraculouses").toLanguageKey("item_group"))).icon(() -> {
         Level level = ClientUtils.getLevel();
         if (level != null) {
             return Miraculous.createMiraculousStack(level.holderOrThrow(Miraculouses.LADYBUG));
@@ -45,7 +47,7 @@ public class MineraculousCreativeModeTabs {
                 .sorted(Comparator.comparing(Holder.Reference::key))
                 .map(kamikotization -> kamikotization.value().powerSource().left())
                 .forEach(powerSource -> powerSource.ifPresent(output::accept));
-    }).withTabsBefore(MIRACULOUS.getKey()).build());
+    }).withTabsBefore(MIRACULOUSES.getKey()).build());
 
     private static final ItemPredicate ANY = ItemPredicate.Builder.item().build();
     /// Holds all items valid for predicated data-driven {@link Kamikotization}s.
@@ -69,7 +71,7 @@ public class MineraculousCreativeModeTabs {
         output.acceptAll(set);
     }).withTabsBefore(KAMIKOTIZATION_TOOLS.getKey()).build());
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> FAKE_MIRACULOUS = TABS.register("fake_miraculous", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(MineraculousConstants.modLoc("fake_miraculous").toLanguageKey("item_group")))
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> FAKE_MIRACULOUSES = TABS.register("fake_miraculouses", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(MineraculousConstants.modLoc("fake_miraculouses").toLanguageKey("item_group")))
             .icon(() -> {
                 Level level = ClientUtils.getLevel();
                 if (level != null) {
@@ -77,8 +79,13 @@ public class MineraculousCreativeModeTabs {
                 }
                 return ItemStack.EMPTY;
             }).displayItems((parameters, output) -> {
-                parameters.holders().lookupOrThrow(MineraculousRegistries.MIRACULOUS).listElements()
-                        .forEach(miraculous -> output.accept(Miraculous.createFakeMiraculousStack(miraculous)));
+                List<Holder.Reference<Miraculous>> miraculousList = parameters.holders().lookupOrThrow(MineraculousRegistries.MIRACULOUS).listElements().toList();
+                for (Holder.Reference<Miraculous> miraculous : miraculousList) {
+                    for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
+                        output.accept(Miraculous.createItemStack(MineraculousArmors.FAKE_MIRACULOUS.getForSlot(slot), miraculous));
+                    }
+                    output.accept(Miraculous.createFakeMiraculousStack(miraculous));
+                }
             }).withSearchBar().withTabsBefore(KAMIKOTIZABLES.getKey()).build());
 
     /// Holds all items from the mod
@@ -95,7 +102,7 @@ public class MineraculousCreativeModeTabs {
             }
         });
         output.acceptAll(set);
-    }).withTabsBefore(FAKE_MIRACULOUS.getKey()).build());
+    }).withTabsBefore(FAKE_MIRACULOUSES.getKey()).build());
 
     @ApiStatus.Internal
     public static void init() {}

@@ -14,7 +14,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Unit;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -32,8 +31,7 @@ public class FakeMiraculousItem extends Item implements ICurioItem, GeoItem {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public FakeMiraculousItem(Properties properties) {
-        super(properties.stacksTo(1)
-                .component(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE));
+        super(properties.stacksTo(1));
         GeckoLibUtil.registerSyncedAnimatable(this);
     }
 
@@ -65,7 +63,9 @@ public class FakeMiraculousItem extends Item implements ICurioItem, GeoItem {
             slotsTooltip.append(Component.translatable("curios.identifier." + miraculous.value().acceptableSlot()).withStyle(ChatFormatting.YELLOW));
         }
         List<Component> newTooltips = new ReferenceArrayList<>(tooltips);
-        newTooltips.removeLast();
+        if (!newTooltips.isEmpty()) {
+            newTooltips.removeLast();
+        }
         newTooltips.add(slotsTooltip);
         return newTooltips;
     }

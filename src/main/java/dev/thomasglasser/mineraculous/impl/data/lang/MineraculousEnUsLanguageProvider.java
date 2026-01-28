@@ -167,7 +167,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Armor
         addSuitArmor(MineraculousArmors.MIRACULOUS, "Miraculous");
-        addSuitArmor(MineraculousArmors.FAKE_MIRACULOUS, "Miraculous Costume");
+        addSuitArmor(MineraculousArmors.FAKE_MIRACULOUS, "Miraculous");
         addSuitArmor(MineraculousArmors.KAMIKOTIZATION, "Kamikotization");
     }
 
@@ -202,10 +202,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     private void addTabs() {
-        add(MineraculousCreativeModeTabs.MIRACULOUS.get(), "Miraculouses");
+        add(MineraculousCreativeModeTabs.MIRACULOUSES.get(), "Miraculouses");
         add(MineraculousCreativeModeTabs.KAMIKOTIZATION_TOOLS.get(), "Kamikotization Tools");
         add(MineraculousCreativeModeTabs.KAMIKOTIZABLES.get(), "Kamikotizables");
-        add(MineraculousCreativeModeTabs.FAKE_MIRACULOUS.get(), "Fake Miraculouses");
+        add(MineraculousCreativeModeTabs.FAKE_MIRACULOUSES.get(), "Fake Miraculouses");
         add(MineraculousCreativeModeTabs.MINERACULOUS.get(), "Mineraculous");
     }
 

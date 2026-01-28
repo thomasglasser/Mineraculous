@@ -35,7 +35,7 @@ public class MineraculousArmorMaterials {
         map.put(ArmorItem.Type.CHESTPLATE, 1);
         map.put(ArmorItem.Type.HELMET, 1);
         map.put(ArmorItem.Type.BODY, 1);
-    }), 0, Holder.direct(SoundEvents.EMPTY), 0.0F, 0.0F, () -> Ingredient.EMPTY);
+    }), 0, Holder.direct(SoundEvents.ARMOR_EQUIP_LEATHER.value()), 0.0F, 0.0F, () -> Ingredient.EMPTY);
 
     private static DeferredHolder<ArmorMaterial, ArmorMaterial> register(
             String name,

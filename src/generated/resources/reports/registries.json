@@ -57,11 +57,11 @@
     "mineraculous:oven"
   ],
   "minecraft:creative_mode_tab": [
-    "mineraculous:fake_miraculous",
+    "mineraculous:fake_miraculouses",
     "mineraculous:kamikotizables",
     "mineraculous:kamikotization_tools",
     "mineraculous:mineraculous",
-    "mineraculous:miraculous"
+    "mineraculous:miraculouses"
   ],
   "minecraft:damage_type": [
     "mineraculous:cataclysm"

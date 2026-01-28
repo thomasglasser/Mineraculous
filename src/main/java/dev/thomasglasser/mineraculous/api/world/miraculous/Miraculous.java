@@ -126,6 +126,16 @@ public record Miraculous(TextColor color, String acceptableSlot, Optional<Intege
     }
 
     /**
+     * Creates a {@link MineraculousItems#FAKE_MIRACULOUS} with the provided miraculous.
+     *
+     * @param miraculous The miraculous to assign to the stack
+     * @return The fake miraculous stack
+     */
+    public static ItemStack createFakeMiraculousStack(Holder<Miraculous> miraculous) {
+        return createItemStack(MineraculousItems.FAKE_MIRACULOUS, miraculous);
+    }
+
+    /**
      * Prefixes the item name with the name of the miraculous assigned to the stack in the miraculous' color.
      *
      * @param stack    The stack to format the name of

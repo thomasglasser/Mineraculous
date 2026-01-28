@@ -24,6 +24,7 @@
     "mineraculous:add_creamery_taiga_zombie"
   ],
   "minecraft:armor_material": [
+    "mineraculous:costume",
     "mineraculous:miraculous"
   ],
   "minecraft:block": [
@@ -56,10 +57,11 @@
     "mineraculous:oven"
   ],
   "minecraft:creative_mode_tab": [
+    "mineraculous:fake_miraculouses",
     "mineraculous:kamikotizables",
     "mineraculous:kamikotization_tools",
     "mineraculous:mineraculous",
-    "mineraculous:miraculous"
+    "mineraculous:miraculouses"
   ],
   "minecraft:damage_type": [
     "mineraculous:cataclysm"
@@ -120,6 +122,11 @@
     "mineraculous:exquisite_camembert_wedge",
     "mineraculous:exquisite_cheese_block",
     "mineraculous:exquisite_cheese_wedge",
+    "mineraculous:fake_miraculous",
+    "mineraculous:fake_miraculous_boots",
+    "mineraculous:fake_miraculous_chestplate",
+    "mineraculous:fake_miraculous_leggings",
+    "mineraculous:fake_miraculous_mask",
     "mineraculous:fresh_camembert_block",
     "mineraculous:fresh_camembert_wedge",
     "mineraculous:fresh_cheese_block",
@@ -178,7 +185,8 @@
     "mineraculous:has_item"
   ],
   "minecraft:loot_function_type": [
-    "mineraculous:dye_randomly"
+    "mineraculous:dye_randomly",
+    "mineraculous:set_miraculous_randomly"
   ],
   "minecraft:loot_number_provider_type": [
     "mineraculous:power_level_multiplier"

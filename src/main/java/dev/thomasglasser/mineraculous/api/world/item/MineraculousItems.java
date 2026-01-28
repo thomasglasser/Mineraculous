@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
+import dev.thomasglasser.mineraculous.impl.world.item.FakeMiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
@@ -56,6 +57,7 @@ public class MineraculousItems {
     // Miraculous
     public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", () -> new MiraculousItem(new Item.Properties().component(MineraculousDataComponents.CHARGED, true)));
     public static final DeferredItem<KwamiItem> KWAMI = register("kwami", () -> new KwamiItem(new Item.Properties()));
+    public static final DeferredItem<FakeMiraculousItem> FAKE_MIRACULOUS = register("fake_miraculous", () -> new FakeMiraculousItem(new Item.Properties()));
 
     /// Dramatically large and powerful sword for lucky charm
     public static final DeferredItem<SwordItem> GREAT_SWORD = register("great_sword", () -> new SwordItem(MineraculousTiers.MIRACULOUS, new Item.Properties().attributes(SwordItem.createAttributes(MineraculousTiers.MIRACULOUS, 6, -3))));

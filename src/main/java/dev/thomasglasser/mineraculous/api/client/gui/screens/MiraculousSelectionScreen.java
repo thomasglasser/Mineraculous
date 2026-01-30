@@ -1,10 +1,7 @@
 package dev.thomasglasser.mineraculous.api.client.gui.screens;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexSorting;
-import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
@@ -14,6 +11,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.LightTexture;
@@ -24,15 +22,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class MiraculousSelectionScreen extends Screen {
     private static final ResourceLocation CIRCLE_TEXTURE = MineraculousConstants.modLoc("textures/gui/sprites/miraculous_selection/circle.png");
-    private static final float MAX_CIRCLE_RADIUS = 90;
+    private static final float MAX_CIRCLE_RADIUS = 1;
     private static final float ITEM_SCALE_RELATIVE_TO_RADIUS = 0.05f;
     private static final float CIRCLE_RADIUS_PIXELS = 19;
     private static final int ITEM_MODEL_CENTER_OFFSET = -8;
@@ -42,6 +39,7 @@ public class MiraculousSelectionScreen extends Screen {
     private List<ItemStack> availableMiraculous = new ArrayList<>();
     private float oldCircleRadius = 0;
     private float circleRadius = 0;
+    private int mouseX, mouseY;
 
     public MiraculousSelectionScreen(int activationKey) {
         super(Component.empty());
@@ -96,7 +94,7 @@ public class MiraculousSelectionScreen extends Screen {
         }
         oldCircleRadius = circleRadius;
         if (circleRadius < MAX_CIRCLE_RADIUS) {
-            circleRadius++;
+            circleRadius += 0.1f;
         }
     }
 
@@ -106,43 +104,29 @@ public class MiraculousSelectionScreen extends Screen {
         MultiBufferSource bufferSource = guiGraphics.bufferSource();
         int height = guiGraphics.guiHeight();
         int width = guiGraphics.guiWidth();
-        mouseX = mouseX - width / 2;
-        mouseY = -1 * (mouseY - height / 2);
-
-        /*RenderSystem.backupProjectionMatrix();
-
-        Matrix4f perspective = new Matrix4f()
-                .setPerspective(
-                        (float) Math.toRadians(45.0f),
-                        (float) width / height,
-                        0.0001f,
-                        2000
-                );
-
-        RenderSystem.setProjectionMatrix(perspective, VertexSorting.DISTANCE_TO_ORIGIN);
-*/
-        /*
-        poseStack.pushPose();
-        poseStack.translate(width / 2d, height / 2d, 0);
-        float wheelSize = getCircleRadius(partialTick);
-        poseStack.scale(wheelSize, wheelSize, wheelSize);
-        //poseStack.rotateAround(new Quaternionf().rotateTo(new Vector3f(0, 0, 1), new Vector3f(0, 1, 0.7f)), 0, 0, 0);
-        //poseStack.mulPose(Axis.XP.rotationDegrees(80f));
-        //poseStack.mulPose(Axis.XP.rotationDegrees(80f));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(mouseX));
-        renderMiraculous(guiGraphics, poseStack);
-        renderGoldenCircle(poseStack, bufferSource);
-
-        poseStack.popPose();*/
+        this.mouseX = mouseX - width / 2;
+        this.mouseY = -1 * (mouseY - height / 2);
     }
 
     private float getCircleRadius(float partialTick) {
         return Mth.lerp(partialTick, oldCircleRadius, circleRadius);
     }
 
-    private static void renderGoldenCircle(PoseStack poseStack, MultiBufferSource bufferSource) {
+    public void render3DElements(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, float partialTick) {
         poseStack.pushPose();
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.text(CIRCLE_TEXTURE));
+        MineraculousClientUtils.rotateFacingCamera(poseStack, new Vector3f(0, 0, 0), 0);
+        poseStack.translate(0, 0, 3);
+        float wheelSize = getCircleRadius(partialTick);
+        poseStack.scale(wheelSize, wheelSize, wheelSize);
+        VertexConsumer circleConsumer = bufferSource.getBuffer(RenderType.text(CIRCLE_TEXTURE));
+        renderGoldenCircle(poseStack, circleConsumer);
+        //bufferSource.endLastBatch();
+        //renderMiraculous(poseStack, bufferSource);
+        poseStack.popPose();
+    }
+
+    public void renderGoldenCircle(PoseStack poseStack, VertexConsumer vertexConsumer) {
+        poseStack.pushPose();
         PoseStack.Pose pose = poseStack.last();
         MineraculousClientUtils.vertex(vertexConsumer, pose, new Vec3(-1, 1, 0), 0, 0, LightTexture.FULL_BRIGHT);
         MineraculousClientUtils.vertex(vertexConsumer, pose, new Vec3(1, 1, 0), 1, 0, LightTexture.FULL_BRIGHT);
@@ -151,28 +135,31 @@ public class MiraculousSelectionScreen extends Screen {
         poseStack.popPose();
     }
 
-    private void renderMiraculous(GuiGraphics guiGraphics, PoseStack poseStack) {
+    public void renderMiraculous(PoseStack poseStack, MultiBufferSource bufferSource) {
         if (!availableMiraculous.isEmpty()) {
             poseStack.pushPose();
-            poseStack.scale(ITEM_SCALE_RELATIVE_TO_RADIUS, ITEM_SCALE_RELATIVE_TO_RADIUS, ITEM_SCALE_RELATIVE_TO_RADIUS);
-            int numberOfOptions = availableMiraculous.size() + 1;
+            int numberOfOptions = availableMiraculous.size();
             double angleStep = 2 * Math.PI / numberOfOptions;
-
             for (int i = 0; i < numberOfOptions; i++) {
                 double angle = i * angleStep;
-                double x = CIRCLE_RADIUS_PIXELS * Math.cos(angle);
-                double y = CIRCLE_RADIUS_PIXELS * Math.sin(angle);
+                double x = 0.9 * Math.cos(angle);
+                double y = 0.9 * Math.sin(angle);
                 boolean lastOption = i == numberOfOptions - 1; // last option is the cancel button
-                if (!lastOption) {
+                //if (!lastOption) {
                     ItemStack miraculous = availableMiraculous.get(i);
                     poseStack.pushPose();
-                    Quaternionf rotation = new Quaternionf().rotationTo(new Vector3f(0, 0, 1), new Vector3f(0, 1, 0));
-                    //poseStack.mulPose(Axis.XP.rotationDegrees(-80f));
                     poseStack.translate(x, y, 0);
-                    poseStack.rotateAround(rotation, (float) x, (float) y, 0);
-                    guiGraphics.renderItem(miraculous, ITEM_MODEL_CENTER_OFFSET, ITEM_MODEL_CENTER_OFFSET);
+                    Minecraft.getInstance().getItemRenderer().renderStatic(
+                            miraculous,
+                            ItemDisplayContext.NONE,
+                            LightTexture.FULL_BRIGHT,
+                            0,
+                            poseStack,
+                            bufferSource,
+                            null,
+                            0);
                     poseStack.popPose();
-                }
+                //}
             }
             poseStack.popPose();
         }

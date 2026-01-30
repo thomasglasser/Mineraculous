@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_almond": {
+      "conditions": {
+        "items": [
+          {
+            "items": "mineraculous:almond"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "mineraculous:roasted_almond_from_oven_cooking"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_almond"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "mineraculous:roasted_almond_from_oven_cooking"
+    ]
+  }
+}

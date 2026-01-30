@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#mineraculous:has_common_almond_trees",
+  "features": "mineraculous:common_trees_almonds",
+  "step": "vegetal_decoration"
+}

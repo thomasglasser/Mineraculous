@@ -132,6 +132,8 @@ public class MineraculousCoreEvents {
 
     public static void addLootToTable(LootTable table, LootPoolEntryContainer.Builder<?>... entries) {
         LootPool main = table.getPool("main");
+        if (main == null)
+            main = table.getPool("pool0");
         if (main != null) {
             ImmutableList.Builder<LootPoolEntryContainer> list = new ImmutableList.Builder<>();
             list.addAll(main.entries);

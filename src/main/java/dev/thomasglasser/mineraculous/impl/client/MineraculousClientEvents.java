@@ -71,8 +71,10 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.client.Minecraft;
@@ -273,13 +275,10 @@ public class MineraculousClientEvents {
     private static final int DEFAULT_MACARON_COLOR = 0xFFf9d7a4;
 
     static void onRegisterItemColorHandlers(RegisterColorHandlersEvent.Item event) {
-        ItemColor miraculousColorHandler = (stack, index) -> index == 0 ? FastColor.ARGB32.opaque(MiraculousItemRenderer.getMiraculousOrDefault(stack).value().color().getValue()) : -1;
-
-        ArrayList<ItemLike> toRegister = new ArrayList<>();
-        Collections.addAll(toRegister, MineraculousArmors.MIRACULOUS.getAllAsItems().toArray(new Item[0]));
-        Collections.addAll(toRegister, MineraculousArmors.FAKE_MIRACULOUS.getAllAsItems().toArray(new Item[0]));
-        event.register(miraculousColorHandler, toRegister.toArray(new ItemLike[0]));
-
+        Set<ItemLike> miraculousColored = new HashSet<>();
+        miraculousColored.addAll(MineraculousArmors.MIRACULOUS.getAllAsItems());
+        miraculousColored.addAll(MineraculousArmors.FAKE_MIRACULOUS.getAllAsItems());
+        event.register((stack, index) -> index == 0 ? FastColor.ARGB32.opaque(MiraculousItemRenderer.getMiraculousOrDefault(stack).value().color().getValue()) : -1, miraculousColored.toArray(new ItemLike[0]));
         event.register((stack, index) -> index == 0 ? DyedItemColor.getOrDefault(stack, DEFAULT_MACARON_COLOR) : -1, MineraculousItems.RAW_MACARON, MineraculousItems.MACARON);
     }
 

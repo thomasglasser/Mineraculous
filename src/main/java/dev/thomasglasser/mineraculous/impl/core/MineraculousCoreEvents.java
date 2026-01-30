@@ -126,7 +126,6 @@ public class MineraculousCoreEvents {
                 name.equals(BuiltInLootTables.UNDERWATER_RUIN_SMALL.location()) ||
                 name.equals(BuiltInLootTables.OCEAN_RUIN_COLD_ARCHAEOLOGY.location()) ||
                 name.equals(BuiltInLootTables.OCEAN_RUIN_WARM_ARCHAEOLOGY.location())) {
-                    System.out.println("ADDED LOOT MIRACULOUS");
                     addLootToTable(table, LootItem.lootTableItem(MineraculousItems.FAKE_MIRACULOUS).apply(SetMiraculousRandomlyFunction.randomMiraculous()));
                 }
     }

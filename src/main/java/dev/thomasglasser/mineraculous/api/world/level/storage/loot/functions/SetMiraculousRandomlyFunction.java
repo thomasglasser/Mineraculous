@@ -34,11 +34,11 @@ public class SetMiraculousRandomlyFunction extends LootItemConditionalFunction {
     @Override
     protected ItemStack run(ItemStack stack, LootContext context) {
         RandomSource random = context.getRandom();
-        List<Holder.Reference<Miraculous>> allMiraculous = context.getLevel()
+        List<Holder.Reference<Miraculous>> miraculouses = context.getLevel()
                 .holderLookup(MineraculousRegistries.MIRACULOUS)
                 .listElements()
                 .toList();
-        Optional<Holder.Reference<Miraculous>> optional = Util.getRandomSafe(allMiraculous, random);
+        Optional<Holder.Reference<Miraculous>> optional = Util.getRandomSafe(miraculouses, random);
         if (optional.isEmpty()) {
             MineraculousConstants.LOGGER.warn("Couldn't find a compatible miraculous data for {}", stack);
             return stack;

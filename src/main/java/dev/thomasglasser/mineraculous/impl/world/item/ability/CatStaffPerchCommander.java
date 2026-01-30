@@ -31,7 +31,8 @@ public class CatStaffPerchCommander {
         } else {
             boolean yoyoLeashed = user.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE);
             if (!yoyoLeashed) {
-                CatStaffPerchGroundWorker.activateModeAndLaunch(level, user, stack);
+                CatStaffPerchGroundWorker.activateMode(level, user, stack);
+                CatStaffPerchGroundWorker.launchUser(user);
             }
         }
     }
@@ -78,15 +79,20 @@ public class CatStaffPerchCommander {
 
         data = CatStaffPerchGroundWorker.applyGravity(user, data);
         if (data.isModeActive()) {
-            CatStaffPerchGroundWorker.cancelUserFallDamage(user, data);
             CatStaffPerchGroundWorker.alignUserVerticalPosition(user, data);
             CatStaffPerchGroundWorker.constrainUserPosition(user, data);
+            if (CatStaffPerchGroundWorker.shouldCancelFallDamage(user, data)){
+                user.resetFallDistance();
+            }
             if (level.isClientSide()) {
                 signalMovementInputToServer(data);
             } else {
-                data = CatStaffItem.checkForCollisionAndApplyDamage(user, data, data::withEnabled);
                 data = CatStaffPerchGroundWorker.adjustLength(level, user, data);
                 data = CatStaffPerchGroundWorker.transitionState(user, data);
+                if (CatStaffItem.checkForCollision(user)) {
+                    CatStaffItem.applyWallCollisionDamage(user);
+                    data = data.withEnabled(false);
+                }
             }
         }
         originalData.update(user, data);

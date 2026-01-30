@@ -49,11 +49,13 @@ public class CatStaffTravelCommander {
                 if (mode != CatStaffItem.Mode.TRAVEL && user.hasData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF)) {
                     TravelingCatStaffData.remove(user);
                 }
-
                 data = CatStaffTravelGroundWorker.updateSafeFallTicks(user, data);
                 if (data.isModeActive()) {
                     data = data.withHelicopter(false);
-                    data = CatStaffItem.checkForCollisionAndApplyDamage(user, data, data::withEnabled);
+                    if (CatStaffItem.checkForCollision(user)) {
+                        CatStaffItem.applyWallCollisionDamage(user);
+                        data = data.withEnabled(false);
+                    }
                     data = CatStaffTravelGroundWorker.updateStaffExtremities(user, data);
                     if (!data.anchored() && !data.retracting()) {
                         data = CatStaffTravelGroundWorker.increaseStaffLength(level, data);

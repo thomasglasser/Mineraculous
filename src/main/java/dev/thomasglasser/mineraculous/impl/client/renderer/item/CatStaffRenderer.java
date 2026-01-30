@@ -180,7 +180,7 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
 
     public static void renderPerchInWorldSpace(PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick, Entity entity, PerchingCatStaffData perchingData) {
         Vec3 origin = perchingData.staffOrigin();
-        double interpolatedLength = CatStaffPerchGroundWorker.expectedStaffTip(entity, partialTick).y - origin.y;
+        double interpolatedLength = CatStaffPerchGroundWorker.getExpectedStaffTip(entity, partialTick).y - origin.y;
         boolean leaning = perchingData.state() == PerchingCatStaffData.PerchingState.LEAN;
         if (leaning) {
             Vec3 userGroundProjected = perchingData.userPositionBeforeLeanOrRelease().multiply(1, 0, 1).add(0, perchingData.staffOrigin().y, 0);

@@ -128,12 +128,6 @@ public record PerchingCatStaffData(
         return new Vec3(staffOrigin.x, 0, staffOrigin.z);
     }
 
-    public boolean shouldCancelFallDamage() {
-        return state == PerchingState.STAND ||
-                state == PerchingState.LAUNCH ||
-                state == PerchingState.RELEASE;
-    }
-
     public boolean isStaffReleaseable() {
         return state == PerchingCatStaffData.PerchingState.STAND && onGround;
     }

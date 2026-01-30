@@ -411,16 +411,15 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
         }
     }
 
-    public static <T> T checkForCollisionAndApplyDamage(Entity user, T data, Function<Boolean, T> withEnabledFn) {
-        Vec3 vel = user.getDeltaMovement();
-        double speed = vel.length();
-        if (speed > 0.6 && user.horizontalCollision) {
-            float damage = (float) (speed * 10);
-            user.hurt(user.damageSources().flyIntoWall(), damage);
-            user.setDeltaMovement(vel.scale(-0.2));
-            return withEnabledFn.apply(false);
-        }
-        return data;
+    public static boolean checkForCollision(Entity entity) {
+        return entity.getDeltaMovement().length() > 0.6 && entity.horizontalCollision;
+    }
+
+    public static void applyWallCollisionDamage(Entity entity) {
+            Vec3 velocity = entity.getDeltaMovement();
+            float damage = (float) (velocity.length() * 10);
+            entity.hurt(entity.damageSources().flyIntoWall(), damage);
+            entity.setDeltaMovement(velocity.scale(-0.2));
     }
 
     /**

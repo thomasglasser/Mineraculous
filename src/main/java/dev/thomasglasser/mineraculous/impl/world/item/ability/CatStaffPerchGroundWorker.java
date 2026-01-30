@@ -35,7 +35,7 @@ public class CatStaffPerchGroundWorker {
      * @param user
      * @return
      */
-    public static Vec3 expectedStaffTip(Entity user, float partialTick) {
+    public static Vec3 getExpectedStaffTip(Entity user, float partialTick) {
         Vec3 delta = new Vec3(0, user.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET, 0);
         PerchingCatStaffData perchingData = user.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
         PerchingCatStaffData.PerchingState state = perchingData.state();
@@ -58,15 +58,19 @@ public class CatStaffPerchGroundWorker {
      * @param entity The entity using perch mode.
      * @return Returns the expected staff's tip Y coordinate.
      */
-    public static double expectedStaffTipY(Entity entity) {
+    public static double getExpectedStaffTipY(Entity entity) {
         return entity.getY() + entity.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
     }
 
-    protected static void activateModeAndLaunch(Level level, LivingEntity user, ItemStack stack) {
+    protected static void activateMode(Level level, LivingEntity user, ItemStack stack) {
         if (!level.isClientSide()) {
             setUserLaunchingData(user, stack);
         }
-        launchUser(user);
+    }
+
+    protected static void launchUser(Entity user) {
+        user.hurtMarked = true;
+        user.setDeltaMovement(new Vec3(0, LAUNCHING_USER_STRENGTH, 0));
     }
 
     protected static void makeUserReleaseStaff(Entity user, PerchingCatStaffData data) {
@@ -83,17 +87,17 @@ public class CatStaffPerchGroundWorker {
         return data.withGravity(stateHasGravity);
     }
 
-    protected static void cancelUserFallDamage(Entity user, PerchingCatStaffData data) {
+    protected static boolean shouldCancelFallDamage(Entity user, PerchingCatStaffData data) {
         boolean userAboveOrigin = user.getY() + USER_HEAD_CLEARANCE_BLOCKS > data.staffOrigin().y;
-        boolean leaning = data.state() == PerchingCatStaffData.PerchingState.LEAN;
-        if (data.shouldCancelFallDamage() || (leaning && userAboveOrigin)) {
-            user.resetFallDistance();
-        }
+        return data.state() == PerchingCatStaffData.PerchingState.STAND ||
+                data.state() == PerchingCatStaffData.PerchingState.LAUNCH ||
+                data.state() == PerchingCatStaffData.PerchingState.RELEASE ||
+                (data.state() == PerchingCatStaffData.PerchingState.LEAN && userAboveOrigin);
     }
 
     protected static void alignUserVerticalPosition(Entity user, PerchingCatStaffData data) {
         if (user.isNoGravity()) {
-            double verticalPosition = expectedUserY(user, data);
+            double verticalPosition = getExpectedUserY(user, data);
             double positionCorrection = verticalPosition - user.getY();
             Vec3 movement = new Vec3(0, positionCorrection, 0);
             user.move(MoverType.SELF, movement);
@@ -104,7 +108,7 @@ public class CatStaffPerchGroundWorker {
     protected static PerchingCatStaffData adjustLength(Level level, Entity user, PerchingCatStaffData data) {
         BlockPos belowStaff = BlockPos.containing(data.staffOrigin()).below();
         boolean onGround = level.getBlockState(belowStaff).isSolid();
-        double expectedStaffTipY = expectedStaffTipY(user);
+        double expectedStaffTipY = getExpectedStaffTipY(user);
 
         data = data.withGround(onGround);
         if (onGround && data.state() == PerchingCatStaffData.PerchingState.STAND) {
@@ -152,14 +156,9 @@ public class CatStaffPerchGroundWorker {
         return data.withEnabled(false);
     }
 
-    private static double expectedUserY(Entity user, PerchingCatStaffData data) {
+    private static double getExpectedUserY(Entity user, PerchingCatStaffData data) {
         double userHeight = user.getEyeHeight(Pose.STANDING);
         return data.staffTip().y - (userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET);
-    }
-
-    private static void launchUser(Entity user) {
-        user.hurtMarked = true;
-        user.setDeltaMovement(new Vec3(0, LAUNCHING_USER_STRENGTH, 0));
     }
 
     private static void setUserLaunchingData(LivingEntity user, ItemStack stack) {
@@ -189,7 +188,7 @@ public class CatStaffPerchGroundWorker {
     }
 
     private static PerchingCatStaffData getUserStandingData(Entity user, PerchingCatStaffData data) {
-        return data.withStaffTipY(expectedStaffTipY(user))
+        return data.withStaffTipY(getExpectedStaffTipY(user))
                 .withState(PerchingCatStaffData.PerchingState.STAND)
                 .withGravity(false);
     }

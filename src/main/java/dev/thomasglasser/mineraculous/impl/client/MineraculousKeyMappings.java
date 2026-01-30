@@ -1,14 +1,10 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
-import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
-import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.MiraculousSelectionScreen;
 import dev.thomasglasser.mineraculous.api.event.StealEvent;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
@@ -27,16 +23,12 @@ import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.ExtendedKeyMapping;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -98,7 +90,7 @@ public class MineraculousKeyMappings {
     }
 
     private static void selectMiraculous(MiraculousesData data, ExtendedKeyMapping keyMapping) {
-        ImmutableList.Builder<RadialMenuOption> optionsBuilder = new ImmutableList.Builder<>();
+        /*ImmutableList.Builder<RadialMenuOption> optionsBuilder = new ImmutableList.Builder<>();
         Map<RadialMenuOption, Holder<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();
         for (ItemStack stack : CuriosUtils.getAllItems(ClientUtils.getLocalPlayer()).values()) {
             Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
@@ -107,12 +99,12 @@ public class MineraculousKeyMappings {
                 if (key != null) {
                     RadialMenuOption option = new RadialMenuOption() {
                         private Integer color;
-
+        
                         @Override
                         public Component displayName() {
                             return Component.translatable(MineraculousConstants.toLanguageKey(key));
                         }
-
+        
                         @Override
                         public Integer colorOverride() {
                             if (color == null)
@@ -134,7 +126,8 @@ public class MineraculousKeyMappings {
         } else if (options.size() == 1) {
             Holder<Miraculous> miraculous = miraculousOptions.get(options.getFirst());
             TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, data.get(miraculous), true));
-        }
+        }*/
+        Minecraft.getInstance().setScreen(new MiraculousSelectionScreen(keyMapping.getKey().getValue()));
     }
 
     private static void handleActivatePower() {

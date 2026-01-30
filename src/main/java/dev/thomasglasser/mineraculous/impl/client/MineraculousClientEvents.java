@@ -65,13 +65,10 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundRemoteDamagePayloa
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.inventory.MineraculousRecipeBookTypes;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -92,8 +89,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Unit;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
@@ -104,6 +99,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
@@ -125,7 +121,6 @@ import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderNameTagEvent;
-import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.common.util.TriState;
@@ -347,10 +342,6 @@ public class MineraculousClientEvents {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             checkYoyoInput(player);
-            if (Minecraft.getInstance().player.level() != null)
-                for (Player otherPlayer : Minecraft.getInstance().player.level().players()) {
-                    playerPerchRendererMap.computeIfAbsent(otherPlayer.getUUID(), k -> new CatStaffRenderer.PerchRenderer()).tick(otherPlayer);
-                }
         }
     }
 
@@ -418,22 +409,6 @@ public class MineraculousClientEvents {
         }
     }
 
-    private static final Map<UUID, CatStaffRenderer.PerchRenderer> playerPerchRendererMap = new Object2ObjectOpenHashMap<>();
-
-    static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
-        Player player = event.getEntity();
-        PoseStack poseStack = event.getPoseStack();
-        MultiBufferSource bufferSource = event.getMultiBufferSource();
-        int light = event.getPackedLight();
-        float partialTick = event.getPartialTick();
-
-        player.noCulling = true;
-        if (playerPerchRendererMap.containsKey(player.getUUID()))
-            playerPerchRendererMap.get(player.getUUID()).renderPerch(player, poseStack, bufferSource, light, partialTick);
-        CatStaffRenderer.renderTravel(player, poseStack, bufferSource, light, partialTick);
-        player.noCulling = false;
-    }
-
     static void onRenderLevelStage(RenderLevelStageEvent event) {
         AbstractClientPlayer player = Minecraft.getInstance().player;
         RenderLevelStageEvent.Stage stage = event.getStage();
@@ -446,22 +421,20 @@ public class MineraculousClientEvents {
             KwamiRenderer.renderGlowingForm(poseStack, event.getFrustum(), partialTick);
         }
 
-        if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson()) {
+        boolean isFirstPerson = renderDispatcher.options.getCameraType().isFirstPerson();
+
+        if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS) {
+            if (isFirstPerson) {
+                YoyoRopeRenderer.render(poseStack, bufferSource, partialTick);
+            }
+        }
+        if (stage == RenderLevelStageEvent.Stage.AFTER_SKY) {
             int light = renderDispatcher.getPackedLightCoords(player, partialTick);
             poseStack.pushPose();
-            poseStack.translate(0, -1.6d, 0);
-            if (playerPerchRendererMap.containsKey(player.getUUID()))
-                playerPerchRendererMap.get(player.getUUID()).renderPerch(player, poseStack, bufferSource, light, partialTick);
-            CatStaffRenderer.renderTravel(player, poseStack, bufferSource, light, partialTick);
+            Vec3 cameraPos = renderDispatcher.camera.getPosition();
+            poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+            MineraculousClientUtils.renderCatStaffsInWorldSpace(poseStack, bufferSource, light, event.getPartialTick().getGameTimeDeltaPartialTick(true));
             poseStack.popPose();
-
-            if (MineraculousClientUtils.getCameraEntity() instanceof Leashable leashable && leashable.getLeashHolder() instanceof Player holder) {
-                holder.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).map(LeashingLadybugYoyoData::maxRopeLength).ifPresent(maxLength -> {
-                    double y = (leashable instanceof LivingEntity livingLeashed && livingLeashed.isCrouching()) ? -1.2d : -1.6d;
-                    poseStack.translate(0, y, 0);
-                    YoyoRopeRenderer.render((Entity) leashable, holder, maxLength + 1.3d, poseStack, bufferSource, partialTick);
-                });
-            }
         }
     }
 

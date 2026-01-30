@@ -5,17 +5,16 @@ import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.M
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
 
 public class MineraculousMathUtils {
+    public static final Vec3 UP = new Vec3(0, 1, 0);
+    public static final Vec3 NORTH = new Vec3(0, 0, -1);
+    public static final Vec3 EAST = new Vec3(1, 0, 0);
+
     public static Vec3 rotateYaw(Vec3 vec3, double yaw) {
         return new Vec3(vec3.x * Math.cos(yaw) - vec3.z * Math.sin(yaw), vec3.y, vec3.x * Math.sin(yaw) + vec3.z * Math.cos(yaw));
     }
@@ -35,25 +34,26 @@ public class MineraculousMathUtils {
         return t;
     }
 
-    public static Vec3 getMovementVector(LivingEntity livingEntity, boolean... inputs) {
-        boolean front = inputs[0];
-        boolean back = inputs[1];
-        boolean left = inputs[2];
-        boolean right = inputs[3];
-        Vec3 movement = new Vec3(0f, 0f, 0f);
-        if (livingEntity != null) {
-            double yawRad = Math.toRadians(livingEntity.getYRot());
-            Vec3 frontMovement = new Vec3(-Math.sin(yawRad), 0, Math.cos(yawRad)).normalize();
-            Vec3 leftMovement = new Vec3(frontMovement.z, 0, -frontMovement.x).normalize();
-            Vec3 backMovement = frontMovement.scale(-1).normalize();
-            Vec3 rightMovement = leftMovement.scale(-1).normalize();
+    public static Vec2 getHorizontalFacingVector(float yaw) {
+        yaw = (yaw % 360.0f + 360.0f) % 360.0f;
+        float cos = (float) Math.cos(Math.toRadians(yaw));
+        float sin = (float) -Math.sin(Math.toRadians(yaw));
+        return new Vec2(sin, cos).normalized();
+    }
 
-            if (front) movement = movement.add(frontMovement);
-            if (back) movement = movement.add(backMovement);
-            if (left) movement = movement.add(leftMovement);
-            if (right) movement = movement.add(rightMovement);
-            movement = movement.normalize();
-        }
+    public static Vec3 getMovementVector(double yaw, boolean front, boolean back, boolean left, boolean right) {
+        Vec3 movement = new Vec3(0f, 0f, 0f);
+        double yawRad = Math.toRadians(yaw);
+        Vec3 frontMovement = new Vec3(-Math.sin(yawRad), 0, Math.cos(yawRad)).normalize();
+        Vec3 leftMovement = new Vec3(frontMovement.z, 0, -frontMovement.x).normalize();
+        Vec3 backMovement = frontMovement.scale(-1).normalize();
+        Vec3 rightMovement = leftMovement.scale(-1).normalize();
+
+        if (front) movement = movement.add(frontMovement);
+        if (back) movement = movement.add(backMovement);
+        if (left) movement = movement.add(leftMovement);
+        if (right) movement = movement.add(rightMovement);
+        movement = movement.normalize();
         return movement;
     }
 
@@ -70,24 +70,6 @@ public class MineraculousMathUtils {
         }
 
         return points.build();
-    }
-
-    public static void spawnBlockParticles(ServerLevel level, BlockPos pos, SimpleParticleType type, int particleCount) {
-        Vec3 center = pos.getCenter();
-        double startX = center.x;
-        double startY = center.y;
-        double startZ = center.z;
-
-        level.sendParticles(
-                type,
-                startX,
-                startY,
-                startZ,
-                particleCount,
-                0.2,
-                0.2,
-                0.2,
-                0.2);
     }
 
     /**
@@ -125,62 +107,6 @@ public class MineraculousMathUtils {
         }
 
         return points;
-    }
-
-    public static BlockPos findNearestBlockPos(Vec3 pos, Iterable<BlockPos> candidates) {
-        BlockPos best = null;
-        double bestDistSq = Double.POSITIVE_INFINITY;
-        for (BlockPos c : candidates) {
-            double dx = pos.x - (c.getX() + 0.5);
-            double dy = pos.y - (c.getY() + 0.5);
-            double dz = pos.z - (c.getZ() + 0.5);
-            double d2 = dx * dx + dy * dy + dz * dz;
-            if (d2 < bestDistSq) {
-                bestDistSq = d2;
-                best = c;
-            }
-        }
-        return best;
-    }
-
-    public static List<List<BlockPos>> buildRevertLayers(BlockPos origin, Set<BlockPos> validBlocks) {
-        List<List<BlockPos>> layers = new ArrayList<>();
-        Set<BlockPos> remaining = new HashSet<>(validBlocks);
-        if (!remaining.contains(origin)) {
-            return layers;
-        }
-
-        List<BlockPos> current = new ArrayList<>();
-        current.add(origin);
-        remaining.remove(origin);
-        layers.add(ImmutableList.copyOf(current));
-
-        List<int[]> offsets = new ArrayList<>(26);
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                for (int dz = -1; dz <= 1; dz++) {
-                    if (dx == 0 && dy == 0 && dz == 0) continue;
-                    offsets.add(new int[] { dx, dy, dz });
-                }
-            }
-        }
-
-        while (true) {
-            List<BlockPos> nextLayer = new ArrayList<>();
-            for (BlockPos bp : current) {
-                for (int[] off : offsets) {
-                    BlockPos n = bp.offset(off[0], off[1], off[2]);
-                    if (remaining.contains(n)) {
-                        nextLayer.add(n);
-                        remaining.remove(n);
-                    }
-                }
-            }
-            if (nextLayer.isEmpty()) break;
-            layers.add(ImmutableList.copyOf(nextLayer));
-            current = nextLayer;
-        }
-        return layers;
     }
 
     //ALGORITHMS

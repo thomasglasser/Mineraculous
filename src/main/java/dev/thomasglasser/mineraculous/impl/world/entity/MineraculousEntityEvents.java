@@ -31,11 +31,12 @@ import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
+import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchCommander;
+import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelCommander;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugBlockTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugEntityTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetCollector;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -190,15 +191,12 @@ public class MineraculousEntityEvents {
 
     // Ladybug Yoyo
     public static void onLivingFall(LivingFallEvent event) {
-        if (event.getEntity().getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).safeFallTicks() > 0) {
+        Entity entity = event.getEntity();
+        if (entity.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).safeFallTicks() > 0) {
             event.setDamageMultiplier(0);
         }
-
-        if (event.getEntity().getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF).fastDescending()) {
-            event.setDamageMultiplier(0);
-            if (!event.getEntity().level().isClientSide)
-                PerchingCatStaffData.remove(event.getEntity());
-        }
+        CatStaffPerchCommander.entityFall(event);
+        CatStaffTravelCommander.entityFall(event);
     }
 
     public static void onEntityTeleport(EntityTeleportEvent event) {

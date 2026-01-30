@@ -1,0 +1,323 @@
+package dev.thomasglasser.mineraculous.impl.world.item.ability;
+
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
+import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
+import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+
+public class CatStaffPerchGroundWorker {
+    private static final double LAUNCHING_USER_STRENGTH = 2.0;
+    private static final double POSITION_EPSILON = 1e-5;
+    private static final int LEANING_PUSH_SCALE_DIVISOR = 10;
+    private static final double USER_FELL_TOO_MUCH_THRESHOLD = 0.5;
+    private static final double USER_TOO_FAR_THRESHOLD = 1;
+    private static final double USER_HEAD_CLEARANCE_BLOCKS = 1.0;
+
+    /**
+     * Used for rendering purposes only, already lerped.
+     * 
+     * @param user
+     * @return
+     */
+    public static Vec3 getExpectedStaffTip(Entity user, float partialTick) {
+        Vec3 delta = new Vec3(0, user.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET, 0);
+        PerchingCatStaffData perchingData = user.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+        PerchingCatStaffData.PerchingState state = perchingData.state();
+        boolean movingTip = state == PerchingCatStaffData.PerchingState.LAUNCH ||
+                state == PerchingCatStaffData.PerchingState.STAND ||
+                state == PerchingCatStaffData.PerchingState.RELEASE;
+        if (movingTip) {
+            Vec3 oldPos = new Vec3(user.xOld, user.yOld, user.zOld);
+            Vec3 from = oldPos.add(delta);
+            Vec3 to = user.position().add(delta);
+            return from.lerp(to, partialTick);
+        } else {
+            return perchingData.userPositionBeforeLeanOrRelease().add(delta);
+        }
+    }
+
+    /**
+     * Calculates at what Y coordinate the staff's tip (upward extremity) should be.
+     *
+     * @param entity The entity using perch mode.
+     * @return Returns the expected staff's tip Y coordinate.
+     */
+    public static double getExpectedStaffTipY(Entity entity) {
+        return entity.getY() + entity.getEyeHeight(Pose.STANDING) + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
+    }
+
+    protected static void activateMode(Level level, LivingEntity user, ItemStack stack) {
+        if (!level.isClientSide()) {
+            setUserLaunchingData(user, stack);
+        }
+    }
+
+    protected static void launchUser(Entity user) {
+        user.hurtMarked = true;
+        user.setDeltaMovement(new Vec3(0, LAUNCHING_USER_STRENGTH, 0));
+    }
+
+    protected static void makeUserReleaseStaff(Entity user, PerchingCatStaffData data) {
+        data
+                .withState(PerchingCatStaffData.PerchingState.RELEASE)
+                .withGravity(true)
+                .withUserPositionBeforeLeanOrRelease(user.position())
+                .save(user);
+    }
+
+    protected static PerchingCatStaffData applyGravity(Entity user, PerchingCatStaffData data) {
+        boolean stateHasGravity = data.state() != PerchingCatStaffData.PerchingState.STAND;
+        user.setNoGravity(!data.userGravity());
+        return data.withGravity(stateHasGravity);
+    }
+
+    protected static boolean shouldCancelFallDamage(Entity user, PerchingCatStaffData data) {
+        boolean userAboveOrigin = user.getY() + USER_HEAD_CLEARANCE_BLOCKS > data.staffOrigin().y;
+        return data.state() == PerchingCatStaffData.PerchingState.STAND ||
+                data.state() == PerchingCatStaffData.PerchingState.LAUNCH ||
+                data.state() == PerchingCatStaffData.PerchingState.RELEASE ||
+                (data.state() == PerchingCatStaffData.PerchingState.LEAN && userAboveOrigin);
+    }
+
+    protected static void alignUserVerticalPosition(Entity user, PerchingCatStaffData data) {
+        if (user.isNoGravity()) {
+            double verticalPosition = getExpectedUserY(user, data);
+            double positionCorrection = verticalPosition - user.getY();
+            Vec3 movement = new Vec3(0, positionCorrection, 0);
+            user.move(MoverType.SELF, movement);
+            user.hurtMarked = true;
+        }
+    }
+
+    protected static PerchingCatStaffData adjustLength(Level level, Entity user, PerchingCatStaffData data) {
+        BlockPos belowStaff = BlockPos.containing(data.staffOrigin()).below();
+        boolean onGround = level.getBlockState(belowStaff).isSolid();
+        double expectedStaffTipY = getExpectedStaffTipY(user);
+
+        data = data.withGround(onGround);
+        if (onGround && data.state() == PerchingCatStaffData.PerchingState.STAND) {
+            data = applyVerticalInput(user, data);
+            data = fixLengthOverMaxLimit(data);
+        } else if (data.state() != PerchingCatStaffData.PerchingState.LEAN) {
+            data = data.withStaffTipY(expectedStaffTipY);
+        }
+
+        if (!onGround) {
+            data = extendDownward(level, expectedStaffTipY, data);
+        }
+
+        return data;
+    }
+
+    protected static PerchingCatStaffData transitionState(Entity user, PerchingCatStaffData data) {
+        if (data.state() == PerchingCatStaffData.PerchingState.LAUNCH) {
+            data = transitionFromLaunch(user, data);
+        } else if (data.state() == PerchingCatStaffData.PerchingState.RELEASE) {
+            data = transitionFromRelease(user, data);
+        } else if (data.state() == PerchingCatStaffData.PerchingState.LEAN) {
+            data = transitionFromLean(user, data);
+        }
+        return data;
+    }
+
+    protected static void startLeaning(Entity user, PerchingCatStaffData data) {
+        Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user.getYRot());
+        Vec3 push = new Vec3(horizontalFacing.x, 0, horizontalFacing.y);
+        user.setDeltaMovement(push.scale(data.staffLength() / LEANING_PUSH_SCALE_DIVISOR));
+        user.hurtMarked = true;
+        getUserLeaningData(user, data).save(user);
+    }
+
+    protected static void constrainUserPosition(Entity user, PerchingCatStaffData data) {
+        if (data.state() == PerchingCatStaffData.PerchingState.STAND) {
+            constrainUserAroundStaff(user, data);
+        } else if (data.state() == PerchingCatStaffData.PerchingState.LEAN) {
+            anchorUserToStaff(user, data);
+        }
+    }
+
+    private static PerchingCatStaffData disablePerch(PerchingCatStaffData data) {
+        return data.withEnabled(false);
+    }
+
+    private static double getExpectedUserY(Entity user, PerchingCatStaffData data) {
+        double userHeight = user.getEyeHeight(Pose.STANDING);
+        return data.staffTip().y - (userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET);
+    }
+
+    private static void setUserLaunchingData(LivingEntity user, ItemStack stack) {
+        Vec3 staffTipStartup = staffTipStartup(user, !user.onGround());
+        Vec3 staffOriginStartup = staffOriginStartup(user, staffTipStartup);
+        createLaunchingData(user, stack, staffOriginStartup, staffTipStartup).save(user);
+    }
+
+    private static PerchingCatStaffData createLaunchingData(LivingEntity user, ItemStack stack, Vec3 staffOrigin, Vec3 staffTip) {
+        return new PerchingCatStaffData(
+                stack,
+                true,
+                PerchingCatStaffData.PerchingState.LAUNCH,
+                staffOrigin,
+                staffTip,
+                user.position(),
+                false,
+                true,
+                PerchingCatStaffData.VerticalMovement.NEUTRAL,
+                Direction.fromYRot(user.yHeadRot));
+    }
+
+    private static PerchingCatStaffData getUserLeaningData(Entity user, PerchingCatStaffData data) {
+        return data
+                .withState(PerchingCatStaffData.PerchingState.LEAN)
+                .withUserPositionBeforeLeanOrRelease(user.position());
+    }
+
+    private static PerchingCatStaffData getUserStandingData(Entity user, PerchingCatStaffData data) {
+        return data.withStaffTipY(getExpectedStaffTipY(user))
+                .withState(PerchingCatStaffData.PerchingState.STAND)
+                .withGravity(false);
+    }
+
+    private static PerchingCatStaffData transitionFromLaunch(Entity user, PerchingCatStaffData data) {
+        boolean userFalling = user.getDeltaMovement().y < 0;
+        if (userFalling && data.onGround()) {
+            return getUserStandingData(user, data);
+        }
+        boolean userGotTooFar = data.horizontalPosition().subtract(user.getX(), 0, user.getZ()).length() > USER_TOO_FAR_THRESHOLD;
+        if (userGotTooFar) {
+            return disablePerch(data);
+        }
+        return data;
+    }
+
+    private static PerchingCatStaffData transitionFromRelease(Entity user, PerchingCatStaffData data) {
+        boolean userFellTooMuch = user.getY() - data.staffOrigin().y < USER_FELL_TOO_MUCH_THRESHOLD;
+        boolean userGotTooFar = data.horizontalPosition().subtract(user.getX(), 0, user.getZ()).length() > USER_TOO_FAR_THRESHOLD;
+        if (userFellTooMuch || userGotTooFar) {
+            return disablePerch(data);
+        }
+        return data;
+    }
+
+    private static PerchingCatStaffData transitionFromLean(Entity user, PerchingCatStaffData data) {
+        boolean userFellTooMuch = user.getY() + USER_FELL_TOO_MUCH_THRESHOLD < data.staffOrigin().y;
+        boolean userJumped = user.getDeltaMovement().y > 0;
+        boolean userGotTooFar = user.position().subtract(data.staffOrigin()).length() - data.staffLength() > USER_TOO_FAR_THRESHOLD;
+        if (userJumped || userFellTooMuch || user.onGround() || userGotTooFar) {
+            return disablePerch(data);
+        }
+        return data;
+    }
+
+    private static PerchingCatStaffData applyVerticalInput(Entity user, PerchingCatStaffData data) {
+        double yMovement = switch (data.verticalMovement()) {
+            case NEUTRAL -> 0.0;
+            case ASCENDING -> CatStaffItem.USER_VERTICAL_MOVEMENT_SPEED;
+            case DESCENDING -> -CatStaffItem.USER_VERTICAL_MOVEMENT_SPEED;
+        };
+        if (yMovement == 0.0) {
+            return data;
+        }
+
+        double maxLength = MineraculousServerConfig.get().maxToolLength.get();
+        double minLength = CatStaffItem.getMinStaffLength(user);
+        double length = data.staffLength();
+        length += (length + yMovement < maxLength) ? yMovement : (maxLength - length);
+        length = Math.max(minLength, length);
+        return data.withStaffLength(length, true);
+    }
+
+    private static PerchingCatStaffData fixLengthOverMaxLimit(PerchingCatStaffData data) {
+        double length = data.staffLength();
+        double maxLength = MineraculousServerConfig.get().maxToolLength.get();
+        if (length > maxLength) {
+            double delta = Math.min(1, length - maxLength);
+            length -= delta;
+            data = data.withStaffLength(length, true);
+        }
+        return data;
+    }
+
+    private static PerchingCatStaffData extendDownward(Level level, double expectedStaffTipY, PerchingCatStaffData data) {
+        double maxLength = MineraculousServerConfig.get().maxToolLength.get();
+        HitResult result = level.clip(
+                new ClipContext(
+                        data.staffOrigin(),
+                        data.staffOrigin().subtract(0, CatStaffItem.STAFF_GROWTH_SPEED, 0),
+                        ClipContext.Block.COLLIDER,
+                        ClipContext.Fluid.NONE,
+                        CollisionContext.empty()));
+        Vec3 newStaffOrigin = data.withStaffOriginY(result.getLocation().y).staffOrigin();
+        double newLength = expectedStaffTipY - newStaffOrigin.y;
+        if (newLength < maxLength) {
+            data = data.withStaffLength(newLength, false);
+        }
+        return data;
+    }
+
+    private static void constrainUserAroundStaff(Entity user, PerchingCatStaffData data) {
+        Vec3 userHorizontalPosition = new Vec3(user.getX(), 0, user.getZ());
+        Vec3 fromPlayerToStaff = data.horizontalPosition().subtract(userHorizontalPosition);
+        double distance = fromPlayerToStaff.length();
+        boolean shouldConstrain = Math.abs(distance - CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS) > POSITION_EPSILON;
+        if (shouldConstrain) {
+            Vec3 constrain = fromPlayerToStaff
+                    .normalize()
+                    .scale(distance - CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS);
+            user.move(MoverType.SELF, constrain);
+            user.hurtMarked = true;
+        }
+    }
+
+    private static void anchorUserToStaff(Entity user, PerchingCatStaffData data) {
+        Vec3 fromPlayerToOrigin = data.staffOrigin().subtract(user.position());
+        double distance = fromPlayerToOrigin.length();
+        double length = data.staffLength() - user.getEyeHeight(Pose.STANDING) - CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
+        boolean shouldConstrain = Math.abs(distance - length) > POSITION_EPSILON && user.getY() > data.staffOrigin().y;
+        boolean inAir = user.level().getBlockState(BlockPos.containing(user.position())).isAir();
+        if (shouldConstrain && inAir) {
+            Vec3 constrain = fromPlayerToOrigin
+                    .normalize()
+                    .scale(distance - length);
+            user.move(MoverType.SELF, constrain);
+            user.hurtMarked = true;
+        }
+    }
+
+    private static Vec3 staffTipStartup(Entity user, boolean sideways) {
+        Vec3 userPosition = user.position();
+        Vec2 horizontalFacing = MineraculousMathUtils.getHorizontalFacingVector(user.getYRot());
+        Vec3 front = new Vec3(horizontalFacing.x, 0, horizontalFacing.y);
+        Vec3 placement = sideways
+                ? MineraculousMathUtils.UP.cross(front)
+                        .scale((user instanceof Player player && player.getMainArm() == HumanoidArm.RIGHT) ? -1 : 1)
+                        .add(front.scale(CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS))
+                : front;
+        placement = placement.scale(CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS);
+        double userHeight = user.getEyeHeight(Pose.STANDING);
+        return new Vec3(
+                userPosition.x + placement.x,
+                userPosition.y + userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET,
+                userPosition.z + placement.z);
+    }
+
+    private static Vec3 staffOriginStartup(Entity user, Vec3 staffTip) {
+        double userY = user.getY();
+        return new Vec3(staffTip.x, userY, staffTip.z);
+    }
+}

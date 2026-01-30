@@ -1,26 +1,29 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
-import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler;
+import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Vector3f;
 
-public record ServerboundUpdateStaffInputPayload(int input, PerchingCatStaffData perchData) implements ExtendedPacketPayload {
+public record ServerboundUpdateStaffInputPayload(int input) implements ExtendedPacketPayload {
     public static final Type<ServerboundUpdateStaffInputPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_update_staff_input"));
     public static final StreamCodec<ByteBuf, ServerboundUpdateStaffInputPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT, ServerboundUpdateStaffInputPayload::input,
-            PerchingCatStaffData.STREAM_CODEC, ServerboundUpdateStaffInputPayload::perchData,
             ServerboundUpdateStaffInputPayload::new);
 
-    // helpers
+    private static final double LEAN_JUMP_HORIZONTAL_MULTIPLIER = 2.0;
+    private static final double LEAN_JUMP_VERTICAL_MULTIPLIER = 2.0;
+
     public boolean up() {
         return (input & ServerboundUpdateYoyoInputPayload.UP) != 0;
     }
@@ -47,34 +50,38 @@ public record ServerboundUpdateStaffInputPayload(int input, PerchingCatStaffData
 
     @Override
     public void handle(Player player) {
-        boolean isFalling = perchData.isFalling();
-        boolean fastDescending = perchData.fastDescending();
-        if (fastDescending) {
-            player.hurtMarked = true;
-            player.setDeltaMovement(0, player.getDeltaMovement().y, 0);
-        } else {
-            Vector3f initPos = perchData.initPos();
-            int tick = perchData.tick();
-            Vec3 movement = Vec3.ZERO;
-            if (isFalling) {
-                if (jump()) {
-                    PerchingCatStaffData.remove(player);
-                    movement = new Vec3(player.getDeltaMovement().x, 1.5, player.getDeltaMovement().z);
+        PerchingCatStaffData perchingData = player.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+        if (perchingData.isModeActive() && hasInput()) {
+            boolean standing = perchingData.state() == PerchingCatStaffData.PerchingState.STAND;
+            boolean leaning = perchingData.state() == PerchingCatStaffData.PerchingState.LEAN;
+            if (standing) {
+                Vec3 playerToStaffHorizontal = new Vec3(perchingData.staffOrigin().x - player.getX(), 0, perchingData.staffOrigin().z - player.getZ());
+                Vec3 movement = MineraculousMathUtils.getMovementVector(player.getYRot(), up(), down(), left(), right());
+                movement = MineraculousMathUtils.projectOnCircle(playerToStaffHorizontal, movement);
+                if (movement.length() > CatStaffItem.HORIZONTAL_MOVEMENT_THRESHOLD) {
+                    movement = movement.scale(CatStaffItem.HORIZONTAL_MOVEMENT_SCALE);
                 }
-            } else {
-                Vector3f staffPosition = new Vector3f(initPos.x, 0, initPos.z);
-                if (tick > CatStaffPerchHandler.MAX_TICKS && hasInput()) {
-                    Vec3 staffPositionRelativeToThePlayer = new Vec3(staffPosition.x - player.getX(), 0, staffPosition.z - player.getZ());
-                    movement = MineraculousMathUtils.getMovementVector(player, up(), down(), left(), right());
-                    movement = MineraculousMathUtils.projectOnCircle(staffPositionRelativeToThePlayer, movement);
-                    if (movement.length() > CatStaffPerchHandler.MOVEMENT_THRESHOLD)
-                        movement = movement.scale(CatStaffPerchHandler.MOVEMENT_SCALE);
-                }
-            }
-            if (!movement.equals(Vec3.ZERO)) {
+                movement = player.getDeltaMovement().multiply(0, 1, 0).add(movement);
                 player.setDeltaMovement(movement);
                 player.hurtMarked = true;
-                player.resetFallDistance();
+            } else if (leaning && jump()) {
+                BlockPos pos = BlockPos.containing(player.position());
+                boolean isAir = player.level().getBlockState(pos).isAir();
+                if (isAir) {
+                    Vec2 horizontal = MineraculousMathUtils.getHorizontalFacingVector(player.getYRot());
+
+                    // TODO fix magic numbers and find a way to get 32 from server config
+                    double lengthFactor = Math.min(perchingData.staffLength() / 32.0, 1.0);
+                    double jumpFactor = 0.5 + 0.5 * lengthFactor;
+
+                    Vec3 movement = new Vec3(
+                            horizontal.x * LEAN_JUMP_HORIZONTAL_MULTIPLIER * jumpFactor,
+                            LEAN_JUMP_VERTICAL_MULTIPLIER * jumpFactor,
+                            horizontal.y * LEAN_JUMP_HORIZONTAL_MULTIPLIER * jumpFactor);
+                    player.setDeltaMovement(movement);
+                    player.hurtMarked = true;
+                }
+                perchingData.withEnabled(false).save(player);
             }
         }
     }

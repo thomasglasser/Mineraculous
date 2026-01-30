@@ -154,6 +154,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
         add(MineraculousItems.RAW_MACARON.get(), "Raw Macaron");
         add(MineraculousItems.MACARON.get(), "Macaron");
+        add(MineraculousItems.ALMOND.get(), "Almond");
+        add(MineraculousItems.ROASTED_ALMOND.get(), "Roasted Almond");
         add(MineraculousBlocks.HIBISCUS_BUSH.asItem(), "Hibiscus");
 
         add(KwamiItem.CHARGED, "Charged");
@@ -183,6 +185,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousBlocks.CHEESE_POT.get(), "Cheese Pot");
         add(MineraculousBlocks.OVEN.get(), "Oven");
         add(MineraculousBlocks.HIBISCUS_BUSH.get(), "Hibiscus Bush");
+        add(MineraculousBlocks.ALMOND_WOOD_SET, "Almond");
+        add(MineraculousBlocks.ALMOND_LEAVES_SET, "Almond");
 
         cheese(MineraculousItems.CHEESE, MineraculousItems.WAXED_CHEESE, MineraculousBlocks.CHEESE, MineraculousBlocks.WAXED_CHEESE, "Cheese");
         cheese(MineraculousItems.CAMEMBERT, MineraculousItems.WAXED_CAMEMBERT, MineraculousBlocks.CAMEMBERT, MineraculousBlocks.WAXED_CAMEMBERT, "Camembert");

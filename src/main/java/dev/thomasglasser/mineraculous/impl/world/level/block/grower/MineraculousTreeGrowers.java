@@ -2,9 +2,8 @@ package dev.thomasglasser.mineraculous.impl.world.level.block.grower;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.data.worldgen.features.MineraculousTreeFeatures;
-import net.minecraft.world.level.block.grower.TreeGrower;
-
 import java.util.Optional;
+import net.minecraft.world.level.block.grower.TreeGrower;
 
 public class MineraculousTreeGrowers {
     public static final TreeGrower ALMOND = new TreeGrower(MineraculousConstants.modLoc("almond").toString(), 0.1F,

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "mineraculous:block/almond_planks",
+    "side": "mineraculous:block/almond_planks",
+    "top": "mineraculous:block/almond_planks"
+  }
+}

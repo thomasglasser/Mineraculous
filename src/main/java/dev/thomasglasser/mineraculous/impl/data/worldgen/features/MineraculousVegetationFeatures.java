@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.data.worldgen.features;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.data.worldgen.placement.MineraculousTreePlacements;
+import java.util.List;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
@@ -13,8 +14,6 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.WeightedPlacedFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.RandomFeatureConfiguration;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
-
-import java.util.List;
 
 public class MineraculousVegetationFeatures {
     public static final ResourceKey<ConfiguredFeature<?, ?>> TREES_ALMONDS = create("trees_almonds");

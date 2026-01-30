@@ -35,7 +35,6 @@ public class MineraculousBlockStateProvider extends ExtendedBlockStateProvider {
         woodSet(MineraculousBlocks.ALMOND_WOOD_SET);
         leavesSet(MineraculousBlocks.ALMOND_LEAVES_SET);
 
-
         simpleBlock(MineraculousBlocks.CHEESE_POT.get(), models().getExistingFile(blockLoc(MineraculousBlocks.CHEESE_POT)));
         ResourceLocation ovenSide = modBlockLoc("oven_side");
         ResourceLocation ovenBottom = modBlockLoc("oven_bottom");

@@ -2,15 +2,14 @@ package dev.thomasglasser.mineraculous.impl.data.tags;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousBiomeTags;
+import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.BiomeTagsProvider;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.world.level.biome.Biomes;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
-
-import javax.annotation.Nullable;
-import java.util.concurrent.CompletableFuture;
+import org.jetbrains.annotations.Nullable;
 
 public class MineraculousBiomeTagsProvider extends BiomeTagsProvider {
     public MineraculousBiomeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> provider, @Nullable ExistingFileHelper existingFileHelper) {

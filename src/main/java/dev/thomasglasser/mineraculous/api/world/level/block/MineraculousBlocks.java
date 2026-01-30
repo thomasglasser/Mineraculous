@@ -11,11 +11,10 @@ import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import dev.thomasglasser.tommylib.api.world.level.block.BlockUtils;
-import java.util.EnumMap;
-import java.util.function.Supplier;
-
 import dev.thomasglasser.tommylib.api.world.level.block.LeavesSet;
 import dev.thomasglasser.tommylib.api.world.level.block.WoodSet;
+import java.util.EnumMap;
+import java.util.function.Supplier;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
@@ -93,7 +92,6 @@ public class MineraculousBlocks {
     public static LeavesSet registerLeavesSet(String name, TreeGrower treeGrower) {
         return BlockUtils.registerLeavesSet(BLOCKS, name, treeGrower, MineraculousItems.ITEMS);
     }
-
 
     private static <T extends Block> DeferredBlock<T> registerWithSeparatelyNamedItem(String blockName, String itemName, Supplier<T> block) {
         DeferredBlock<T> deferredBlock = register(blockName, block);

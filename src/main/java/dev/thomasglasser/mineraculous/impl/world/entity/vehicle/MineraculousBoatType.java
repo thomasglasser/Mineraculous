@@ -2,13 +2,12 @@ package dev.thomasglasser.mineraculous.impl.world.entity.vehicle;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
+import java.util.function.Supplier;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.fml.common.asm.enumextension.EnumProxy;
-
-import java.util.function.Supplier;
 
 public class MineraculousBoatType {
     public static final EnumProxy<Boat.Type> ALMOND = new EnumProxy<>(Boat.Type.class,

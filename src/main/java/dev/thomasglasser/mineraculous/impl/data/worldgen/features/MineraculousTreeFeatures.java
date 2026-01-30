@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.data.worldgen.features;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
+import java.util.OptionalInt;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
@@ -15,8 +16,6 @@ import net.minecraft.world.level.levelgen.feature.featuresize.TwoLayersFeatureSi
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FancyFoliagePlacer;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.FancyTrunkPlacer;
-
-import java.util.OptionalInt;
 
 public class MineraculousTreeFeatures {
     public static final ResourceKey<ConfiguredFeature<?, ?>> ALMOND = create("almond");

@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.api.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.storage.loot.functions.SetMiraculousRandomlyFunction;
@@ -25,6 +26,7 @@ import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.util.Unit;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -127,6 +129,9 @@ public class MineraculousCoreEvents {
                 name.equals(BuiltInLootTables.OCEAN_RUIN_COLD_ARCHAEOLOGY.location()) ||
                 name.equals(BuiltInLootTables.OCEAN_RUIN_WARM_ARCHAEOLOGY.location())) {
                     addLootToTable(table, LootItem.lootTableItem(MineraculousItems.FAKE_MIRACULOUS).apply(SetMiraculousRandomlyFunction.randomMiraculous()));
+                    for (ArmorItem fakeMiraculousCostume : MineraculousArmors.FAKE_MIRACULOUS.getAllAsItems()) {
+                        addLootToTable(table, LootItem.lootTableItem(fakeMiraculousCostume).apply(SetMiraculousRandomlyFunction.randomMiraculous()));
+                    }
                 }
     }
 

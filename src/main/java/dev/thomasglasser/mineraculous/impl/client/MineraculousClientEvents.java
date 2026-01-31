@@ -69,10 +69,9 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYo
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import java.util.HashSet;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.client.Minecraft;
@@ -271,7 +270,7 @@ public class MineraculousClientEvents {
     private static final int DEFAULT_MACARON_COLOR = 0xFFf9d7a4;
 
     static void onRegisterItemColorHandlers(RegisterColorHandlersEvent.Item event) {
-        Set<ItemLike> miraculousColored = new HashSet<>();
+        ReferenceOpenHashSet<ItemLike> miraculousColored = new ReferenceOpenHashSet<>();
         miraculousColored.addAll(MineraculousArmors.MIRACULOUS.getAllAsItems());
         miraculousColored.addAll(MineraculousArmors.FAKE_MIRACULOUS.getAllAsItems());
         event.register((stack, index) -> index == 0 ? FastColor.ARGB32.opaque(MiraculousItemRenderer.getMiraculousOrDefault(stack).value().color().getValue()) : -1, miraculousColored.toArray(new ItemLike[0]));

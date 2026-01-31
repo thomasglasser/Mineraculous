@@ -205,7 +205,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousCreativeModeTabs.MIRACULOUSES.get(), "Miraculouses");
         add(MineraculousCreativeModeTabs.KAMIKOTIZATION_TOOLS.get(), "Kamikotization Tools");
         add(MineraculousCreativeModeTabs.KAMIKOTIZABLES.get(), "Kamikotizables");
-        add(MineraculousCreativeModeTabs.FAKE_MIRACULOUSES.get(), "Fake Miraculouses");
+        add(MineraculousCreativeModeTabs.FAKE_MIRACULOUSES.get(), "Costumes");
         add(MineraculousCreativeModeTabs.MINERACULOUS.get(), "Mineraculous");
     }
 

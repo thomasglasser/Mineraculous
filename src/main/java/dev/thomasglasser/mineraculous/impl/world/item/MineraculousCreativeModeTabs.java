@@ -81,10 +81,10 @@ public class MineraculousCreativeModeTabs {
             }).displayItems((parameters, output) -> {
                 List<Holder.Reference<Miraculous>> miraculousList = parameters.holders().lookupOrThrow(MineraculousRegistries.MIRACULOUS).listElements().toList();
                 for (Holder.Reference<Miraculous> miraculous : miraculousList) {
+                    output.accept(Miraculous.createFakeMiraculousStack(miraculous));
                     for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
                         output.accept(Miraculous.createItemStack(MineraculousArmors.FAKE_MIRACULOUS.getForSlot(slot), miraculous));
                     }
-                    output.accept(Miraculous.createFakeMiraculousStack(miraculous));
                 }
             }).withSearchBar().withTabsBefore(KAMIKOTIZABLES.getKey()).build());
 

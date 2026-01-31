@@ -69,6 +69,7 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYo
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -98,7 +99,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -141,6 +141,7 @@ public class MineraculousClientEvents {
     static void onFMLClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             CuriosRendererRegistry.register(MineraculousItems.MIRACULOUS.get(), ContextDependentCurioRenderer::new);
+            CuriosRendererRegistry.register(MineraculousItems.FAKE_MIRACULOUS.get(), ContextDependentCurioRenderer::new);
             CuriosRendererRegistry.register(MineraculousItems.CAT_STAFF.get(), ContextDependentCurioRenderer::new);
             CuriosRendererRegistry.register(MineraculousItems.LADYBUG_YOYO.get(), ContextDependentCurioRenderer::new);
             CuriosRendererRegistry.register(MineraculousItems.BUTTERFLY_CANE.get(), ContextDependentCurioRenderer::new);
@@ -269,7 +270,10 @@ public class MineraculousClientEvents {
     private static final int DEFAULT_MACARON_COLOR = 0xFFf9d7a4;
 
     static void onRegisterItemColorHandlers(RegisterColorHandlersEvent.Item event) {
-        event.register((stack, index) -> index == 0 ? FastColor.ARGB32.opaque(MiraculousItemRenderer.getMiraculousOrDefault(stack).value().color().getValue()) : -1, MineraculousArmors.MIRACULOUS.getAllAsItems().toArray(new Item[0]));
+        ReferenceOpenHashSet<ItemLike> miraculousColored = new ReferenceOpenHashSet<>();
+        miraculousColored.addAll(MineraculousArmors.MIRACULOUS.getAllAsItems());
+        miraculousColored.addAll(MineraculousArmors.FAKE_MIRACULOUS.getAllAsItems());
+        event.register((stack, index) -> index == 0 ? FastColor.ARGB32.opaque(MiraculousItemRenderer.getMiraculousOrDefault(stack).value().color().getValue()) : -1, miraculousColored.toArray(new ItemLike[0]));
         event.register((stack, index) -> index == 0 ? DyedItemColor.getOrDefault(stack, DEFAULT_MACARON_COLOR) : -1, MineraculousItems.RAW_MACARON, MineraculousItems.MACARON);
     }
 

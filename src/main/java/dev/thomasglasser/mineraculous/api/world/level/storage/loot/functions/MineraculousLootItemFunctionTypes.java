@@ -11,5 +11,7 @@ public class MineraculousLootItemFunctionTypes {
 
     public static final DeferredHolder<LootItemFunctionType<?>, LootItemFunctionType<DyeRandomlyFunction>> DYE_RANDOMLY = LOOT_ITEM_FUNCTION_TYPES.register("dye_randomly", () -> new LootItemFunctionType<>(DyeRandomlyFunction.CODEC));
 
+    public static final DeferredHolder<LootItemFunctionType<?>, LootItemFunctionType<SetMiraculousRandomlyFunction>> SET_MIRACULOUS_RANDOMLY = LOOT_ITEM_FUNCTION_TYPES.register("set_miraculous_randomly", () -> new LootItemFunctionType<>(SetMiraculousRandomlyFunction.CODEC));
+
     public static void init() {}
 }

@@ -150,6 +150,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousItems.BUTTERFLY_CANE.get(), "Butterfly Cane");
         add(MineraculousItems.MIRACULOUS.get(), "Miraculous");
         add(MineraculousItems.KWAMI.get(), "Kwami");
+        add(MineraculousItems.FAKE_MIRACULOUS.get(), "Miraculous");
         add(MineraculousItems.GREAT_SWORD.get(), "Great Sword");
         add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
         add(MineraculousItems.RAW_MACARON.get(), "Raw Macaron");
@@ -166,6 +167,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Armor
         addSuitArmor(MineraculousArmors.MIRACULOUS, "Miraculous");
+        addSuitArmor(MineraculousArmors.FAKE_MIRACULOUS, "Miraculous");
         addSuitArmor(MineraculousArmors.KAMIKOTIZATION, "Kamikotization");
     }
 
@@ -200,9 +202,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     private void addTabs() {
-        add(MineraculousCreativeModeTabs.MIRACULOUS.get(), "Miraculous");
+        add(MineraculousCreativeModeTabs.MIRACULOUSES.get(), "Miraculouses");
         add(MineraculousCreativeModeTabs.KAMIKOTIZATION_TOOLS.get(), "Kamikotization Tools");
         add(MineraculousCreativeModeTabs.KAMIKOTIZABLES.get(), "Kamikotizables");
+        add(MineraculousCreativeModeTabs.FAKE_MIRACULOUSES.get(), "Costumes");
         add(MineraculousCreativeModeTabs.MINERACULOUS.get(), "Mineraculous");
     }
 

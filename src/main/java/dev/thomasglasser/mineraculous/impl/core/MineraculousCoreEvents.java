@@ -9,8 +9,10 @@ import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.api.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
+import dev.thomasglasser.mineraculous.api.world.level.storage.loot.functions.SetMiraculousRandomlyFunction;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.core.look.LookLoader;
 import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
@@ -24,6 +26,7 @@ import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.util.Unit;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -121,11 +124,21 @@ public class MineraculousCoreEvents {
                     LootItem.lootTableItem(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE),
                     LootItem.lootTableItem(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE),
                     LootItem.lootTableItem(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE));
-        }
+        } else if (name.equals(BuiltInLootTables.UNDERWATER_RUIN_BIG.location()) ||
+                name.equals(BuiltInLootTables.UNDERWATER_RUIN_SMALL.location()) ||
+                name.equals(BuiltInLootTables.OCEAN_RUIN_COLD_ARCHAEOLOGY.location()) ||
+                name.equals(BuiltInLootTables.OCEAN_RUIN_WARM_ARCHAEOLOGY.location())) {
+                    addLootToTable(table, LootItem.lootTableItem(MineraculousItems.FAKE_MIRACULOUS).apply(SetMiraculousRandomlyFunction.randomMiraculous()));
+                    for (ArmorItem fakeMiraculousCostume : MineraculousArmors.FAKE_MIRACULOUS.getAllAsItems()) {
+                        addLootToTable(table, LootItem.lootTableItem(fakeMiraculousCostume).apply(SetMiraculousRandomlyFunction.randomMiraculous()));
+                    }
+                }
     }
 
     public static void addLootToTable(LootTable table, LootPoolEntryContainer.Builder<?>... entries) {
         LootPool main = table.getPool("main");
+        if (main == null)
+            main = table.getPool("pool0");
         if (main != null) {
             ImmutableList.Builder<LootPoolEntryContainer> list = new ImmutableList.Builder<>();
             list.addAll(main.entries);

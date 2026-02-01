@@ -9,7 +9,7 @@ import dev.thomasglasser.mineraculous.api.client.event.CreatePlayerMenuItemEvent
 import dev.thomasglasser.mineraculous.api.client.event.RenderPlayerLikeEvent;
 import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.ExternalMenuScreen;
-import dev.thomasglasser.mineraculous.api.client.gui.screens.MiraculousSelectionScreen;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.MiraculousSelecting;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.tooltip.ClientLabeledItemTagsTooltip;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.look.LookCustomizationScreen;
 import dev.thomasglasser.mineraculous.api.client.look.util.item.MiraculousLookToolClientExtensions;
@@ -132,7 +132,6 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
-import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
@@ -446,20 +445,10 @@ public class MineraculousClientEvents {
 
         if (stage == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
             KwamiRenderer.renderGlowingForm(poseStack, event.getFrustum(), partialTick);
-            if (Minecraft.getInstance().screen instanceof MiraculousSelectionScreen miraculousSelectionScreen) {
-                poseStack.pushPose();
-                MineraculousClientUtils.rotateFacingCamera(poseStack, new Vector3f(0, 0, 0), 0);
-                poseStack.translate(0, 0, 3);
-                float wheelSize = 1;
-                poseStack.scale(wheelSize, wheelSize, wheelSize);
-                miraculousSelectionScreen.renderMiraculous(poseStack, bufferSource);
-            }
         }
 
-        if (stage == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
-            if (Minecraft.getInstance().screen instanceof MiraculousSelectionScreen miraculousSelectionScreen) {
-                miraculousSelectionScreen.render3DElements(poseStack, bufferSource, partialTick);
-            }
+        if (Minecraft.getInstance().screen instanceof MiraculousSelecting miraculousSelectionScreen) {
+            miraculousSelectionScreen.render3dElements(stage, poseStack, bufferSource, partialTick);
         }
 
         if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson()) {

@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.client.gui.screens.MiraculousSelectionScreen;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.MiraculousSelectionScreen2;
 import dev.thomasglasser.mineraculous.api.event.StealEvent;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
@@ -127,7 +127,7 @@ public class MineraculousKeyMappings {
             Holder<Miraculous> miraculous = miraculousOptions.get(options.getFirst());
             TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, data.get(miraculous), true));
         }*/
-        Minecraft.getInstance().setScreen(new MiraculousSelectionScreen(keyMapping.getKey().getValue()));
+        Minecraft.getInstance().setScreen(new MiraculousSelectionScreen2(keyMapping.getKey().getValue()));
     }
 
     private static void handleActivatePower() {

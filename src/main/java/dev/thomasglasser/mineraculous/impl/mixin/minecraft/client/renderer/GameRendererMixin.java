@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.mixin.minecraft.client.renderer;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.mojang.blaze3d.vertex.PoseStack;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.MiraculousSelecting;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
@@ -41,5 +43,15 @@ public abstract class GameRendererMixin {
             boolean renderLevel,
             CallbackInfo ci) {
         MineraculousClientUtils.blitKwamiGlow();
+    }
+
+    @Inject(method = "bobView(Lcom/mojang/blaze3d/vertex/PoseStack;F)V", at = @At("HEAD"), cancellable = true)
+    private void disableViewBobbing(
+            PoseStack poseStack, float partialTicks, CallbackInfo ci) {
+        Player player = this.minecraft.player;
+
+        if (player != null && Minecraft.getInstance().screen instanceof MiraculousSelecting) {
+            ci.cancel();
+        }
     }
 }

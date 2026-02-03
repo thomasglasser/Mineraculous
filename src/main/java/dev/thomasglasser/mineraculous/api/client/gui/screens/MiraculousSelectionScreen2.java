@@ -13,6 +13,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +29,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.joml.Vector3f;
@@ -36,20 +36,26 @@ import org.joml.Vector3f;
 public class MiraculousSelectionScreen2 extends MiraculousSelecting {
     private static final ResourceLocation CIRCLE_TEXTURE = MineraculousConstants.modLoc("textures/gui/sprites/miraculous_selection/circle.png");
     private static final float MAX_CIRCLE_RADIUS = 1;
+    private static final float MAX_VERTICAL_OFFSET = 0.06f;
+    private static final float VERTICAL_OFFSET_SPEED = 0.003f;
 
     protected final int activationKey;
-    private final Map<ResourceKey<Miraculous>, ItemStack> availableMiraculous = new LinkedHashMap<>();
+    private final Map<ResourceKey<Miraculous>, MiraculousOptionData> availableMiraculous = new LinkedHashMap<>();
 
     private float oldCircleRadius = 0;
     private float circleRadius = 0;
     private float wheelRotationAngle = 0;
     private float oldWheelRotationAngle = 0;
+    private float targetWheelRotationAngle = 0;
     private int selectedOptionIndex = 0;
+    private float verticalOffset = 0;
+    private boolean verticalOffsetIncreasing = true;
 
     public MiraculousSelectionScreen2(int activationKey) {
         //super(Component.empty());
         this.activationKey = activationKey;
         updateAvailableMiraculous();
+        updateMiraculousPoweredState();
     }
 
     @Override
@@ -84,10 +90,8 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
         if (circleRadius < MAX_CIRCLE_RADIUS) {
             circleRadius += 0.1f;
         }
-        oldWheelRotationAngle = wheelRotationAngle;
-        float delta = getWheelTargetAngle() - wheelRotationAngle;
-        delta = (float) Math.atan2(Math.sin(delta), Math.cos(delta));
-        wheelRotationAngle += delta * 0.25f;
+        updateWheelRotation();
+        updateMiraculousVerticalOffsets();
     }
 
     @Override
@@ -132,20 +136,13 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
         }
         poseStack.pushPose();
         applyGlobalTransforms(poseStack, partialTick);
-        double angleStep = getAngleStep();
         int i = 0;
-        for (ItemStack miraculous : availableMiraculous.values()) {
-            double angle = i * angleStep;
-            double x = -Math.cos(angle) * 0.89;
-            double y = Math.sin(angle) * 0.89;
+        for (MiraculousOptionData option : availableMiraculous.values()) {
             poseStack.pushPose();
-            poseStack.translate(x, y, -0.4);
-            poseStack.scale(3f, 3f, 3f);
-            poseStack.mulPose(Axis.ZN.rotation((float) angle));
-            poseStack.mulPose(Axis.XN.rotationDegrees(90));
-            poseStack.mulPose(Axis.YP.rotationDegrees(90));
+            poseStack.translate(0, 0, Mth.lerp(partialTick, option.oldVerticalOffset(), option.verticalOffset()));
+            applyMiraculousLocalTransforms(poseStack, i * getAngleStep());
             Minecraft.getInstance().getItemRenderer().renderStatic(
-                    miraculous,
+                    option.stack(),
                     ItemDisplayContext.FIXED,
                     LightTexture.FULL_BRIGHT,
                     0,
@@ -156,28 +153,17 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
             poseStack.popPose();
             i++;
         }
-        poseStack.pushPose();
-        double angle = i * angleStep;
-        double x = -Math.cos(angle) * 0.89;
-        double y = Math.sin(angle) * 0.89;
-        poseStack.pushPose();
+        poseStack.popPose();
+    }
+
+    private void applyMiraculousLocalTransforms(PoseStack poseStack, double angle) {
+        double x = -Math.cos(angle);
+        double y = Math.sin(angle);
         poseStack.translate(x, y, -0.4);
-        poseStack.scale(0.3f, 0.3f, 0.3f);
+        poseStack.scale(3f, 3f, 3f);
         poseStack.mulPose(Axis.ZN.rotation((float) angle));
         poseStack.mulPose(Axis.XN.rotationDegrees(90));
         poseStack.mulPose(Axis.YP.rotationDegrees(90));
-        Minecraft.getInstance().getItemRenderer().renderStatic(
-                Items.BARRIER.getDefaultInstance(),
-                ItemDisplayContext.FIXED,
-                LightTexture.FULL_BRIGHT,
-                0,
-                poseStack,
-                bufferSource,
-                null,
-                0);
-        poseStack.popPose();
-        poseStack.popPose();
-        poseStack.popPose(); //TODO FIX barrier
     }
 
     private void applyGlobalTransforms(PoseStack poseStack, float partialTick) {
@@ -211,7 +197,7 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
                 copy.set(
                         MineraculousDataComponents.POWER_STATE,
                         MiraculousItem.PowerState.HIDDEN);
-                availableMiraculous.put(key, copy);
+                availableMiraculous.put(key, new MiraculousOptionData(copy, 0, 0));
             }
         }
         availableMiraculous.keySet().removeIf(key -> !updated.contains(key));
@@ -221,37 +207,62 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
         boolean left = keyCode == Minecraft.getInstance().options.keyLeft.getKey().getValue();
         boolean right = keyCode == Minecraft.getInstance().options.keyRight.getKey().getValue();
         if (!(left && right) && (left || right)) {
-            selectedOptionIndex += right ? 1 : -1;
-            selectedOptionIndex = selectedOptionIndex > availableMiraculous.size() ? 0 : selectedOptionIndex;
-            selectedOptionIndex = selectedOptionIndex < 0 ? availableMiraculous.size() : selectedOptionIndex;
+            int direction = right ? 1 : -1;
+            targetWheelRotationAngle += direction * getAngleStep();
+            selectedOptionIndex += direction;
+            selectedOptionIndex = selectedOptionIndex >= availableMiraculous.size() ? 0 : selectedOptionIndex;
+            selectedOptionIndex = selectedOptionIndex < 0 ? availableMiraculous.size() - 1 : selectedOptionIndex;
         }
     }
 
     private void updateMiraculousPoweredState() {
-        List<Map.Entry<ResourceKey<Miraculous>, ItemStack>> entries = new ArrayList<>(availableMiraculous.entrySet());
-        for (ItemStack stack : availableMiraculous.values()) {
-            stack.set(
+        List<Map.Entry<ResourceKey<Miraculous>, MiraculousOptionData>> entries = new ArrayList<>(availableMiraculous.entrySet());
+        for (MiraculousOptionData option : availableMiraculous.values()) {
+            option.stack().set(
                     MineraculousDataComponents.POWER_STATE,
                     MiraculousItem.PowerState.HIDDEN);
         }
-        if (isAnyMiraculousSelected()) {
-            ResourceKey<Miraculous> key = entries.get(selectedOptionIndex - 1).getKey();
-            ItemStack selectedStack = availableMiraculous.get(key);
-            selectedStack.set(
-                    MineraculousDataComponents.POWER_STATE,
-                    MiraculousItem.PowerState.POWERED);
+        ResourceKey<Miraculous> key = entries.get(selectedOptionIndex).getKey();
+        ItemStack selectedStack = availableMiraculous.get(key).stack();
+        selectedStack.set(
+                MineraculousDataComponents.POWER_STATE,
+                MiraculousItem.PowerState.POWERED);
+    }
+
+    private void updateMiraculousVerticalOffsets() {
+        int direction = verticalOffsetIncreasing ? 1 : -1;
+        verticalOffset += VERTICAL_OFFSET_SPEED * direction;
+        if (verticalOffset >= MAX_VERTICAL_OFFSET) {
+            verticalOffset = MAX_VERTICAL_OFFSET;
+            verticalOffsetIncreasing = false;
+        } else if (verticalOffset <= -MAX_VERTICAL_OFFSET) {
+            verticalOffset = -MAX_VERTICAL_OFFSET;
+            verticalOffsetIncreasing = true;
+        }
+        Iterator<ResourceKey<Miraculous>> iterator = availableMiraculous.keySet().iterator();
+        int i = 0;
+        while (iterator.hasNext()) {
+            ResourceKey<Miraculous> miraculous = iterator.next();
+            int localDirection = i % 2 == 0 ? 1 : -1;
+            float newOffset = verticalOffset * localDirection;
+            availableMiraculous.computeIfPresent(miraculous, (k, data) -> data.withVerticalOffset(newOffset));
+            i++;
         }
     }
 
-    private boolean isAnyMiraculousSelected() {
-        return selectedOptionIndex != 0;
-    }
-
-    private float getWheelTargetAngle() {
-        return selectedOptionIndex * getAngleStep();
-    }
-
     private float getAngleStep() {
-        return (float) ((Math.PI * 2) / (availableMiraculous.size() + 1));
+        return (float) ((Math.PI * 2) / availableMiraculous.size());
+    }
+
+    private void updateWheelRotation() {
+        oldWheelRotationAngle = wheelRotationAngle;
+        float delta = targetWheelRotationAngle - wheelRotationAngle;
+        wheelRotationAngle += (delta * 0.25f);
+    }
+
+    private record MiraculousOptionData(ItemStack stack, float verticalOffset, float oldVerticalOffset) {
+        public MiraculousOptionData withVerticalOffset(float verticalOffset) {
+            return new MiraculousOptionData(this.stack, verticalOffset, this.verticalOffset);
+        }
     }
 }

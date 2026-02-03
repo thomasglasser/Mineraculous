@@ -129,12 +129,12 @@ public class MineraculousCoreEvents {
                 name.equals(BuiltInLootTables.UNDERWATER_RUIN_SMALL.location()) ||
                 name.equals(BuiltInLootTables.OCEAN_RUIN_COLD_ARCHAEOLOGY.location()) ||
                 name.equals(BuiltInLootTables.OCEAN_RUIN_WARM_ARCHAEOLOGY.location())) {
-                    ReferenceOpenHashSet<LootPoolEntryContainer.Builder<?>> miraculous = new ReferenceOpenHashSet<>();
-                    miraculous.add(LootItem.lootTableItem(MineraculousItems.FAKE_MIRACULOUS).apply(SetMiraculousRandomlyFunction.randomMiraculous()));
+                    ReferenceOpenHashSet<LootPoolEntryContainer.Builder<?>> ruinLoot = new ReferenceOpenHashSet<>();
+                    ruinLoot.add(LootItem.lootTableItem(MineraculousItems.FAKE_MIRACULOUS).apply(SetMiraculousRandomlyFunction.randomMiraculous()));
                     for (ArmorItem fakeMiraculousCostume : MineraculousArmors.FAKE_MIRACULOUS.getAllAsItems()) {
-                        miraculous.add(LootItem.lootTableItem(fakeMiraculousCostume).apply(SetMiraculousRandomlyFunction.randomMiraculous()));
+                        ruinLoot.add(LootItem.lootTableItem(fakeMiraculousCostume).apply(SetMiraculousRandomlyFunction.randomMiraculous()));
                     }
-                    addLootToTable(table, miraculous.toArray(new LootPoolEntryContainer.Builder[0]));
+                    addLootToTable(table, ruinLoot.toArray(new LootPoolEntryContainer.Builder[0]));
                 }
     }
 

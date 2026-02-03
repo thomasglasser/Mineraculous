@@ -42,6 +42,9 @@ public class FakeMiraculousItem extends Item implements ICurioItem, GeoItem {
             if (!stack.has(MineraculousDataComponents.MIRACULOUS)) {
                 stack.set(MineraculousDataComponents.MIRACULOUS, level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null));
             }
+            if (stack.has(MineraculousDataComponents.POWER_STATE) && stack.get(MineraculousDataComponents.POWER_STATE) != MiraculousItem.PowerState.POWERED) {
+                stack.set(MineraculousDataComponents.POWER_STATE, MiraculousItem.PowerState.POWERED);
+            }
         }
     }
 

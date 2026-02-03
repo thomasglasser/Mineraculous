@@ -17,6 +17,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.core.look.LookLoader;
 import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import dev.thomasglasser.tommylib.api.packs.PackInfo;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.nio.file.Path;
 import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
@@ -128,10 +129,12 @@ public class MineraculousCoreEvents {
                 name.equals(BuiltInLootTables.UNDERWATER_RUIN_SMALL.location()) ||
                 name.equals(BuiltInLootTables.OCEAN_RUIN_COLD_ARCHAEOLOGY.location()) ||
                 name.equals(BuiltInLootTables.OCEAN_RUIN_WARM_ARCHAEOLOGY.location())) {
-                    addLootToTable(table, LootItem.lootTableItem(MineraculousItems.FAKE_MIRACULOUS).apply(SetMiraculousRandomlyFunction.randomMiraculous()));
+                    ReferenceOpenHashSet<LootPoolEntryContainer.Builder<?>> miraculous = new ReferenceOpenHashSet<>();
+                    miraculous.add(LootItem.lootTableItem(MineraculousItems.FAKE_MIRACULOUS).apply(SetMiraculousRandomlyFunction.randomMiraculous()));
                     for (ArmorItem fakeMiraculousCostume : MineraculousArmors.FAKE_MIRACULOUS.getAllAsItems()) {
-                        addLootToTable(table, LootItem.lootTableItem(fakeMiraculousCostume).apply(SetMiraculousRandomlyFunction.randomMiraculous()));
+                        miraculous.add(LootItem.lootTableItem(fakeMiraculousCostume).apply(SetMiraculousRandomlyFunction.randomMiraculous()));
                     }
+                    addLootToTable(table, miraculous.toArray(new LootPoolEntryContainer.Builder[0]));
                 }
     }
 

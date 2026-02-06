@@ -71,7 +71,7 @@ public class MineraculousCreativeModeTabs {
         output.acceptAll(set);
     }).withTabsBefore(KAMIKOTIZATION_TOOLS.getKey()).build());
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> COSTUMES = TABS.register("costumes", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(MineraculousConstants.modLoc("fake_miraculouses").toLanguageKey("item_group")))
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> COSTUMES = TABS.register("costumes", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(MineraculousConstants.modLoc("costumes").toLanguageKey("item_group")))
             .icon(() -> {
                 Level level = ClientUtils.getLevel();
                 if (level != null) {

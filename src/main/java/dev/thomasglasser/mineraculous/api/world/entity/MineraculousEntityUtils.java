@@ -14,8 +14,8 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundRefreshDisplayNamePayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
+import dev.thomasglasser.mineraculous.impl.world.item.AbstractMiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -192,7 +192,7 @@ public class MineraculousEntityUtils {
             if (kwami != null)
                 kwami.discard();
             stack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
-            stack.set(MineraculousDataComponents.POWER_STATE, MiraculousItem.PowerState.POWERED);
+            stack.set(MineraculousDataComponents.POWER_STATE, AbstractMiraculousItem.PowerState.POWERED);
             stack.remove(MineraculousDataComponents.REMAINING_TICKS);
             stack.remove(MineraculousDataComponents.KWAMI_ID);
 

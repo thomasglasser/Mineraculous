@@ -6,7 +6,7 @@ import dev.thomasglasser.mineraculous.api.core.look.asset.LookAssetTypeKeys;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
+import dev.thomasglasser.mineraculous.impl.world.item.AbstractMiraculousItem;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -32,7 +32,7 @@ public class HiddenMiraculousLookContext implements LookContext {
 
         ItemStack jewel = Miraculous.createMiraculousStack((Holder<Miraculous>) selected);
         jewel.set(MineraculousDataComponents.OWNER, player.getUUID());
-        jewel.set(MineraculousDataComponents.POWER_STATE, MiraculousItem.PowerState.HIDDEN);
+        jewel.set(MineraculousDataComponents.POWER_STATE, AbstractMiraculousItem.PowerState.HIDDEN);
         CuriosUtils.setStackInFirstValidSlot(player, jewel);
     }
 }

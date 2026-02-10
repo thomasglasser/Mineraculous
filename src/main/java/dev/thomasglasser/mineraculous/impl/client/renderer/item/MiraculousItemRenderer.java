@@ -16,7 +16,7 @@ import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
+import dev.thomasglasser.mineraculous.impl.world.item.AbstractMiraculousItem;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import java.util.UUID;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -65,8 +65,8 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
         return LookUtils.getDefaultLookId(getMiraculousOrDefault(stack).getKey());
     }
 
-    public static Holder<LookContext> getContext(@Nullable MiraculousItem.PowerState powerState) {
-        return powerState == MiraculousItem.PowerState.HIDDEN ? LookContexts.HIDDEN_MIRACULOUS : LookContexts.POWERED_MIRACULOUS;
+    public static Holder<LookContext> getContext(@Nullable AbstractMiraculousItem.PowerState powerState) {
+        return powerState == AbstractMiraculousItem.PowerState.HIDDEN ? LookContexts.HIDDEN_MIRACULOUS : LookContexts.POWERED_MIRACULOUS;
     }
 
     public static @Nullable Look<?> getLook(ItemStack stack, Holder<LookContext> context) {
@@ -113,7 +113,7 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
 
     @Override
     public ResourceLocation getTextureLocation(T animatable) {
-        MiraculousItem.PowerState powerState = getCurrentItemStack().getOrDefault(MineraculousDataComponents.POWER_STATE, MiraculousItem.PowerState.POWERED);
+        AbstractMiraculousItem.PowerState powerState = getCurrentItemStack().getOrDefault(MineraculousDataComponents.POWER_STATE, AbstractMiraculousItem.PowerState.POWERED);
         return switch (powerState) {
             case HIDDEN, POWERED -> getAssetOrDefault(LookAssetTypes.TEXTURE);
             default -> getAssetOrDefault(LookAssetTypes.COUNTDOWN_TEXTURES).get(powerState.frame());

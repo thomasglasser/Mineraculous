@@ -281,6 +281,7 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
         private final double size;
         private final double rotation;
         private double verticalOffset;
+        private double test;
         private Vec3 position;
         private Vec3 oldPosition;
         private boolean reversedOscillation;

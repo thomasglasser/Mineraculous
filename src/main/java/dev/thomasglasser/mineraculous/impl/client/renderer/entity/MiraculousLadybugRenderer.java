@@ -83,7 +83,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
         for (TexturedOutlinedQuad ladybug : texturedOutlinedQuads) {
             // Get nearest and second-nearest tail points
-            Pair<TailPoint, TailPoint> nearPoints = findNearestTwoPoints(ladybug.pos, tailPoints);
+            Pair<TailPoint, TailPoint> nearPoints = findNearestTwoPoints(ladybug.position, tailPoints);
             TailPoint nearest = nearPoints.first;
             TailPoint secondNearest = nearPoints.second;
 
@@ -102,10 +102,10 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
     }
 
     private void constrainLadybug(TexturedOutlinedQuad ladybug, TailPoint nearest, TailPoint secondNearest) {
-        Vec3 position = ladybug.pos;
+        Vec3 position = ladybug.position;
         if (secondNearest == null) {
             if (position.subtract(nearest.position).length() > nearest.radius) {
-                ladybug.pos = position.subtract(nearest.position).normalize().scale(nearest.radius);
+                ladybug.position = position.subtract(nearest.position).normalize().scale(nearest.radius);
             }
         } else {
             Vec3 ab = secondNearest.position.subtract(nearest.position);
@@ -133,7 +133,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
             if (dist > interpRadius) {
                 Vec3 dir = position.subtract(closest).normalize();
-                ladybug.pos = closest.add(dir.scale(Math.random() * 2 * interpRadius - interpRadius));
+                ladybug.position = closest.add(dir.scale(Math.random() * 2 * interpRadius - interpRadius));
             }
         }
     }
@@ -212,39 +212,41 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
     }
 
     private static class TexturedOutlinedQuad {
-        private Vec3 pos; // relative to the entity
+        private Vec3 position; // relative to the entity
         private final double size;
         private double life;
 
-        private TexturedOutlinedQuad(Vec3 pos, double size, double life) {
-            this.pos = pos;
+        private TexturedOutlinedQuad(Vec3 position, double size, double life) {
+            this.position = position;
             this.size = size;
             this.life = life;
         }
 
         private void move(Vec3 vec) {
-            this.pos = pos.add(vec);
+            this.position = position.add(vec);
         }
 
         private void renderOutline(MultiBufferSource multiBufferSource, PoseStack poseStack, double degrees) {
-            MineraculousClientUtils.rotateFacingCamera(poseStack, pos, degrees);
+            poseStack.pushPose();
+            MineraculousClientUtils.rotateFacingCamera(poseStack, position, degrees);
             VertexConsumer ladybug_outline = multiBufferSource.getBuffer(MineraculousRenderTypes.miraculousLadybugOutline());
             double quadSize = size * 0.47 / 0.4;
-            MineraculousClientUtils.vertex(ladybug_outline, poseStack.last(), pos.add(-quadSize, quadSize, 0), 0, 0, LightTexture.FULL_BRIGHT);
-            MineraculousClientUtils.vertex(ladybug_outline, poseStack.last(), pos.add(quadSize, quadSize, 0), 1, 0, LightTexture.FULL_BRIGHT);
-            MineraculousClientUtils.vertex(ladybug_outline, poseStack.last(), pos.add(quadSize, -quadSize, 0), 1, 1, LightTexture.FULL_BRIGHT);
-            MineraculousClientUtils.vertex(ladybug_outline, poseStack.last(), pos.add(-quadSize, -quadSize, 0), 0, 1, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(ladybug_outline, poseStack.last(), position.add(-quadSize, quadSize, 0), 0, 0, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(ladybug_outline, poseStack.last(), position.add(quadSize, quadSize, 0), 1, 0, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(ladybug_outline, poseStack.last(), position.add(quadSize, -quadSize, 0), 1, 1, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(ladybug_outline, poseStack.last(), position.add(-quadSize, -quadSize, 0), 0, 1, LightTexture.FULL_BRIGHT);
             poseStack.popPose();
         }
 
         private void renderBody(MultiBufferSource multiBufferSource, PoseStack poseStack, double degrees) {
-            MineraculousClientUtils.rotateFacingCamera(poseStack, pos, degrees);
+            poseStack.pushPose();
+            MineraculousClientUtils.rotateFacingCamera(poseStack, position, degrees);
             VertexConsumer ladybug = multiBufferSource.getBuffer(MineraculousRenderTypes.miraculousLadybugBody());
             double quadSize = size;
-            MineraculousClientUtils.vertex(ladybug, poseStack.last(), pos.add(-quadSize, quadSize, 0), 0, 0, LightTexture.FULL_BRIGHT);
-            MineraculousClientUtils.vertex(ladybug, poseStack.last(), pos.add(quadSize, quadSize, 0), 1, 0, LightTexture.FULL_BRIGHT);
-            MineraculousClientUtils.vertex(ladybug, poseStack.last(), pos.add(quadSize, -quadSize, 0), 1, 1, LightTexture.FULL_BRIGHT);
-            MineraculousClientUtils.vertex(ladybug, poseStack.last(), pos.add(-quadSize, -quadSize, 0), 0, 1, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(ladybug, poseStack.last(), position.add(-quadSize, quadSize, 0), 0, 0, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(ladybug, poseStack.last(), position.add(quadSize, quadSize, 0), 1, 0, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(ladybug, poseStack.last(), position.add(quadSize, -quadSize, 0), 1, 1, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(ladybug, poseStack.last(), position.add(-quadSize, -quadSize, 0), 0, 1, LightTexture.FULL_BRIGHT);
             poseStack.popPose();
             if (life > 0) life--;
         }

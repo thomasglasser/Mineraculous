@@ -696,7 +696,7 @@ public class MineraculousClientUtils {
 
     public static void rotateFacingCamera(PoseStack poseStack, Vector3f pos, float zDegrees) {
         var camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        poseStack.pushPose();
+        //poseStack.pushPose();
         poseStack.rotateAround(Axis.YP.rotationDegrees(-camera.getYRot()), pos.x, pos.y, pos.z);
         poseStack.rotateAround(Axis.XP.rotationDegrees(camera.getXRot()), pos.x, pos.y, pos.z);
         poseStack.rotateAround(Axis.ZP.rotationDegrees(zDegrees), pos.x, pos.y, pos.z);

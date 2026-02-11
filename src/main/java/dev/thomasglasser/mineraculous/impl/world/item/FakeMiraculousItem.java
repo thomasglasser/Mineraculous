@@ -15,10 +15,7 @@ public class FakeMiraculousItem extends AbstractMiraculousItem {
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
-        if (level instanceof ServerLevel) {
-            if (!stack.has(MineraculousDataComponents.MIRACULOUS)) {
-                stack.set(MineraculousDataComponents.MIRACULOUS, level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null));
-            }
+        if (!level.isClientSide()) {
             if (stack.has(MineraculousDataComponents.POWER_STATE) && stack.get(MineraculousDataComponents.POWER_STATE) != AbstractMiraculousItem.PowerState.POWERED) {
                 stack.set(MineraculousDataComponents.POWER_STATE, AbstractMiraculousItem.PowerState.POWERED);
             }

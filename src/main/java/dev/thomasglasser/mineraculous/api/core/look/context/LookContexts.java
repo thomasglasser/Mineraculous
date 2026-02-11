@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.impl.core.look.context.miraculous.Miraculo
 import dev.thomasglasser.mineraculous.impl.core.look.context.miraculous.MiraculousToolLookContext;
 import dev.thomasglasser.mineraculous.impl.core.look.context.miraculous.PoweredMiraculousLookContext;
 import dev.thomasglasser.mineraculous.impl.core.look.context.miraculous.SpyglassMiraculousToolLookContext;
+import dev.thomasglasser.mineraculous.impl.world.item.armor.MiraculousArmorItem;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import java.util.function.Supplier;

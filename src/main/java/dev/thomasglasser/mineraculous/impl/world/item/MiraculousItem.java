@@ -25,7 +25,7 @@ import top.theillusivec4.curios.api.SlotContext;
 
 public class MiraculousItem extends AbstractMiraculousItem {
     public MiraculousItem(Properties properties) {
-        super(properties.component(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE)
+        super(properties.component(MineraculousDataComponents.POWERED, Unit.INSTANCE)
                 .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
                 .fireResistant());
     }
@@ -34,9 +34,6 @@ public class MiraculousItem extends AbstractMiraculousItem {
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
         if (level instanceof ServerLevel serverLevel) {
-            if (!stack.has(MineraculousDataComponents.MIRACULOUS)) {
-                stack.set(MineraculousDataComponents.MIRACULOUS, level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null));
-            }
             UUID owner = stack.get(MineraculousDataComponents.OWNER);
             if (owner == null || !owner.equals(entity.getUUID())) {
                 stack.set(MineraculousDataComponents.OWNER, entity.getUUID());

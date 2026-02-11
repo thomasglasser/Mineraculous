@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.world.item;
 
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
@@ -44,13 +45,17 @@ public abstract class AbstractMiraculousItem extends Item implements ICurioItem,
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        super.inventoryTick(stack, level, entity, slotId, isSelected);
+    public boolean isFoil(ItemStack stack) {
+        return false;
     }
 
     @Override
-    public boolean isFoil(ItemStack stack) {
-        return false;
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        if (!level.isClientSide()) {
+            if (!stack.has(MineraculousDataComponents.MIRACULOUS)) {
+                stack.set(MineraculousDataComponents.MIRACULOUS, level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null));
+            }
+        }
     }
 
     @Override

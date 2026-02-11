@@ -720,6 +720,16 @@ public class MineraculousClientUtils {
         vertex(vertexConsumer, pose, pos, u, v, light);
     }
 
+    public static void vertex(VertexConsumer vertexConsumer, PoseStack.Pose pose, Vec3 position, float u, float v, int light, int color) {
+        Vector3f pos = position.toVector3f();
+        vertexConsumer.addVertex(pose, pos.x, pos.y, pos.z)
+                .setColor(color)
+                .setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(light)
+                .setNormal(0, 1, 0);
+    }
+
     private record EntityInInventoryQuaternions(Quaternionf horizontal, Quaternionf vertical) {}
 
     private record EntityInInventoryRotations(float yBodyRot, float yRot, float xRot, float yHeadRotO, float yHeadRot) {}

@@ -11,6 +11,8 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,7 +36,7 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.joml.Vector3f;
 
 public class MiraculousSelectionScreen2 extends MiraculousSelecting {
-    private static final ResourceLocation CIRCLE_TEXTURE = MineraculousConstants.modLoc("textures/gui/sprites/miraculous_selection/circle.png");
+    private static final ResourceLocation PARTICLE_TEXTURE = MineraculousConstants.modLoc("textures/gui/sprites/miraculous_selection/particle.png");
     private static final float MAX_CIRCLE_RADIUS = 1;
     private static final float MAX_VERTICAL_OFFSET = 0.06f;
     private static final float VERTICAL_OFFSET_SPEED = 0.003f;
@@ -51,13 +53,14 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
     private float verticalOffset = 0;
     private boolean verticalOffsetIncreasing = true;
 
-    private Set<ParticleQuad> particles;
+    private Set<ParticleQuad> particles = new HashSet<>();
 
     public MiraculousSelectionScreen2(int activationKey) {
         //super(Component.empty());
         this.activationKey = activationKey;
         updateAvailableMiraculous();
         updateMiraculousPoweredState();
+        createParticles();
     }
 
     @Override
@@ -94,6 +97,7 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
         }
         updateWheelRotation();
         updateMiraculousVerticalOffsets();
+        updateParticleColor();
         for (ParticleQuad particle : particles) {
             particle.tick();
         }
@@ -124,18 +128,18 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
     }
 
     private void renderGoldenCircle(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, float partialTick) {
-        /*VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.text(CIRCLE_TEXTURE));
         poseStack.pushPose();
-        applyGlobalTransforms(poseStack, partialTick);
-        PoseStack.Pose pose = poseStack.last();
-        MineraculousClientUtils.vertex(vertexConsumer, pose, new Vec3(-1, 1, 0), 0, 0, LightTexture.FULL_BRIGHT);
-        MineraculousClientUtils.vertex(vertexConsumer, pose, new Vec3(1, 1, 0), 1, 0, LightTexture.FULL_BRIGHT);
-        MineraculousClientUtils.vertex(vertexConsumer, pose, new Vec3(1, -1, 0), 1, 1, LightTexture.FULL_BRIGHT);
-        MineraculousClientUtils.vertex(vertexConsumer, pose, new Vec3(-1, -1, 0), 0, 1, LightTexture.FULL_BRIGHT);
-        poseStack.popPose();*/
+        MineraculousClientUtils.rotateFacingCamera(poseStack, new Vector3f(0, 0, 0), 0);
+        float scale = 0.006f;
+        float wheelSize = getCircleRadius(partialTick);
+        poseStack.scale(scale, scale, scale);
+        poseStack.translate(0, -7, 35);
+        poseStack.scale(1.05f, 1, 1.05f);
+        poseStack.scale(wheelSize, wheelSize, wheelSize);
         for (ParticleQuad particle : particles) {
-            particle.render(bufferSource, poseStack, partialTick);
+            particle.render(bufferSource, poseStack, partialTick, currentParticleColor);
         }
+        poseStack.popPose();
     }
 
     private void renderMiraculous(PoseStack poseStack, MultiBufferSource bufferSource, float partialTick) {
@@ -165,13 +169,14 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
     }
 
     private void applyMiraculousLocalTransforms(PoseStack poseStack, double angle) {
-        double x = -Math.cos(angle);
-        double y = Math.sin(angle);
+        double x = -Math.cos(angle) * 1.16;
+        double y = Math.sin(angle) * 1.16;
         poseStack.translate(x, y, -0.4);
         poseStack.scale(3f, 3f, 3f);
         poseStack.mulPose(Axis.ZN.rotation((float) angle));
         poseStack.mulPose(Axis.XN.rotationDegrees(90));
         poseStack.mulPose(Axis.YP.rotationDegrees(90));
+        poseStack.mulPose(Axis.XP.rotationDegrees(5));
     }
 
     private void applyGlobalTransforms(PoseStack poseStack, float partialTick) {
@@ -223,6 +228,9 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
         }
     }
 
+    private int currentParticleColor = 0xFFFFFFFF;
+    private int targetParticleColor = 0xFFFFFFFF;
+
     private void updateMiraculousPoweredState() {
         List<Map.Entry<ResourceKey<Miraculous>, MiraculousOptionData>> entries = new ArrayList<>(availableMiraculous.entrySet());
         for (MiraculousOptionData option : availableMiraculous.values()) {
@@ -235,6 +243,41 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
         selectedStack.set(
                 MineraculousDataComponents.POWER_STATE,
                 MiraculousItem.PowerState.POWERED);
+        targetParticleColor = selectedStack.get(MineraculousDataComponents.MIRACULOUS)
+                .value()
+                .color()
+                .getValue() | 0xFF000000;
+    }
+
+    private void updateParticleColor() {
+        currentParticleColor = lerpColor(
+                currentParticleColor,
+                targetParticleColor,
+                0.15f);
+    }
+
+    private static int lerpColor(int from, int to, float speed) {
+        int fr = (from >> 16) & 0xFF;
+        int fg = (from >> 8) & 0xFF;
+        int fb = from & 0xFF;
+
+        int tr = (to >> 16) & 0xFF;
+        int tg = (to >> 8) & 0xFF;
+        int tb = to & 0xFF;
+
+        float[] fhsv = Color.RGBtoHSB(fr, fg, fb, null);
+        float[] thsv = Color.RGBtoHSB(tr, tg, tb, null);
+
+        float dh = thsv[0] - fhsv[0];
+        if (dh > 0.5f) dh -= 1f;
+        if (dh < -0.5f) dh += 1f;
+
+        float h = fhsv[0] + dh * speed;
+        float s = Mth.lerp(speed, fhsv[1], thsv[1]);
+        float v = Mth.lerp(speed, fhsv[2], thsv[2]);
+
+        int rgb = Color.HSBtoRGB(h, s, v);
+        return (from & 0xFF000000) | (rgb & 0x00FFFFFF);
     }
 
     private void updateMiraculousVerticalOffsets() {
@@ -268,6 +311,21 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
         wheelRotationAngle += (delta * 0.25f);
     }
 
+    private void createParticles() {
+        final int NUMBER_OF_PARTICLES = 15;
+        final int NUMBER_OF_CIRCLES = 25;
+        for (int i = 0; i < NUMBER_OF_CIRCLES; i++) {
+            double angleStep = Math.PI / (Math.random() * 10);
+            int sign = Math.random() > 0.5 ? -1 : 1;
+            double yOffset = Math.sin(Math.toRadians((double) 180 / Math.max(1, i) * sign));
+            for (int j = 0; j < NUMBER_OF_PARTICLES * (i + 1); j++) {
+                ParticleQuad newQuad = new ParticleQuad(Vec3.ZERO, yOffset, 0.1);
+                newQuad.updateHorizontalPosition(i * 0.46, j * angleStep);
+                particles.add(newQuad);
+            }
+        }
+    }
+
     private record MiraculousOptionData(ItemStack stack, float verticalOffset, float oldVerticalOffset) {
         public MiraculousOptionData withVerticalOffset(float verticalOffset) {
             return new MiraculousOptionData(this.stack, verticalOffset, this.verticalOffset);
@@ -275,23 +333,21 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
     }
 
     private static class ParticleQuad {
-        private static final double OSCILLATION_SPEED = 0.1;
-        private static final double OSCILLATION_AMPLITUDE = 0.5;
+        private static final double OSCILLATION_SPEED = 0.02;
+        private static final double OSCILLATION_AMPLITUDE = 0.8;
 
         private final double size;
-        private final double rotation;
-        private double verticalOffset;
-        private double test;
+        private final double yOffset;
         private Vec3 position;
         private Vec3 oldPosition;
         private boolean reversedOscillation;
 
-        private ParticleQuad(Vec3 position, double rotation, double size) {
+        private ParticleQuad(Vec3 position, double yOffset, double size) {
             this.position = position;
-            this.verticalOffset = Math.random();
+            this.oldPosition = position;
             this.size = size;
-            this.rotation = rotation;
             this.reversedOscillation = Math.random() > 0.5;
+            this.yOffset = yOffset;
         }
 
         private void tick() {
@@ -303,15 +359,21 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
             }
         }
 
-        private void render(MultiBufferSource multiBufferSource, PoseStack poseStack, float partialTick) {
+        private void updateHorizontalPosition(double radius, double angle) {
+            double x = -Math.cos(angle);
+            double z = Math.sin(angle);
+            this.position = new Vec3(x, position.y(), z).scale(radius);
+        }
+
+        private void render(MultiBufferSource multiBufferSource, PoseStack poseStack, float partialTick, int color) {
             poseStack.pushPose();
-            MineraculousClientUtils.rotateFacingCamera(poseStack, position, 0);
-            VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.debugFilledBox());
+            VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.text(PARTICLE_TEXTURE));
+            vertexConsumer.setColor(255, 0, 0, 255);
             Vec3 position = oldPosition.lerp(this.position, partialTick);
-            MineraculousClientUtils.vertex(vertexConsumer, poseStack.last(), position.add(-size, size, 0), 0, 0, LightTexture.FULL_BRIGHT);
-            MineraculousClientUtils.vertex(vertexConsumer, poseStack.last(), position.add(size, size, 0), 1, 0, LightTexture.FULL_BRIGHT);
-            MineraculousClientUtils.vertex(vertexConsumer, poseStack.last(), position.add(size, -size, 0), 1, 1, LightTexture.FULL_BRIGHT);
-            MineraculousClientUtils.vertex(vertexConsumer, poseStack.last(), position.add(-size, -size, 0), 0, 1, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(vertexConsumer, poseStack.last(), position.add(-size, yOffset, size), 0, 0, LightTexture.FULL_BRIGHT, color);
+            MineraculousClientUtils.vertex(vertexConsumer, poseStack.last(), position.add(size, yOffset, size), 1, 0, LightTexture.FULL_BRIGHT, color);
+            MineraculousClientUtils.vertex(vertexConsumer, poseStack.last(), position.add(size, yOffset, -size), 1, 1, LightTexture.FULL_BRIGHT, color);
+            MineraculousClientUtils.vertex(vertexConsumer, poseStack.last(), position.add(-size, yOffset, -size), 0, 1, LightTexture.FULL_BRIGHT, color);
             poseStack.popPose();
         }
     }

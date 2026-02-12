@@ -31,7 +31,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public abstract class AbstractMiraculousItem extends Item implements ICurioItem, GeoItem {
+public class AbstractMiraculousItem extends Item implements ICurioItem, GeoItem {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public AbstractMiraculousItem(Properties properties) {
@@ -51,10 +51,8 @@ public abstract class AbstractMiraculousItem extends Item implements ICurioItem,
 
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        if (!level.isClientSide()) {
-            if (!stack.has(MineraculousDataComponents.MIRACULOUS)) {
-                stack.set(MineraculousDataComponents.MIRACULOUS, level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null));
-            }
+        if (!level.isClientSide() && !stack.has(MineraculousDataComponents.MIRACULOUS)) {
+            stack.set(MineraculousDataComponents.MIRACULOUS, level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null));
         }
     }
 

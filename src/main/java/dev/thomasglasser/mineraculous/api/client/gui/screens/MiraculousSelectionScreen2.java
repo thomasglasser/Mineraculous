@@ -253,7 +253,7 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
         currentParticleColor = lerpColor(
                 currentParticleColor,
                 targetParticleColor,
-                0.15f);
+                0.3f);
     }
 
     private static int lerpColor(int from, int to, float speed) {

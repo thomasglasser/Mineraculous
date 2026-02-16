@@ -43,7 +43,7 @@ public class SelectionGui implements SelectionMenuListener {
         }
     }
 
-    private float getHotbarAlpha() {
+    protected float getHotbarAlpha() {
         long fadeOutProgress = this.lastSelectionTime - Util.getMillis() + SpectatorGui.FADE_OUT_DELAY;
         return Mth.clamp((float) fadeOutProgress / SpectatorGui.FADE_OUT_TIME, 0, 1);
     }

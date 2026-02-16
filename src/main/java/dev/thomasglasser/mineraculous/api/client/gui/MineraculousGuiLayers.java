@@ -16,6 +16,8 @@ public class MineraculousGuiLayers {
     public static final ResourceLocation KAMIKO_HOTBAR = MineraculousConstants.modLoc("kamiko_hotbar");
     /// Renders when in the Kamiko GUI with a {@link dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenuItem} is selected.
     public static final ResourceLocation KAMIKO_TOOLTIP = MineraculousConstants.modLoc("kamiko_tooltip");
+    /// Renders when a client is choosing a tool mode.
+    public static final ResourceLocation TOOL_MODE_HOTBAR = MineraculousConstants.modLoc("tool_mode_hotbar");
 
     private static final Set<ResourceLocation> ALLOWED_SPECTATING_GUI_LAYERS = ObjectOpenHashSet.of(
             MineraculousGuiLayers.REVOKE_BUTTON,

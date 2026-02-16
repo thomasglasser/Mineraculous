@@ -11,6 +11,7 @@ import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.ExternalMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.tooltip.ClientLabeledItemTagsTooltip;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.look.LookCustomizationScreen;
+import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenu;
 import dev.thomasglasser.mineraculous.api.client.look.util.item.MiraculousLookToolClientExtensions;
 import dev.thomasglasser.mineraculous.api.client.particle.FadingParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.FlourishingParticle;
@@ -39,6 +40,8 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.inventory.OvenScreen;
+import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeMenuCategory;
+import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeSelectionGui;
 import dev.thomasglasser.mineraculous.impl.client.look.ClientLookManager;
 import dev.thomasglasser.mineraculous.impl.client.model.BeardModel;
 import dev.thomasglasser.mineraculous.impl.client.model.DerbyHatModel;
@@ -65,6 +68,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundRemoteDamagePayloa
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.inventory.MineraculousRecipeBookTypes;
+import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -316,6 +320,23 @@ public class MineraculousClientEvents {
     // GUI
     static void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAboveAll(MineraculousGuiLayers.STEALING_PROGRESS_BAR, MineraculousGuis::renderStealingProgressBar);
+        event.registerAboveAll(
+                MineraculousGuiLayers.TOOL_MODE_HOTBAR,
+                (guiGraphics, deltaTracker) -> {
+
+                    Minecraft mc = Minecraft.getInstance();
+                    Player player = mc.player;
+                    if (player == null) return;
+
+                    ItemStack stack = player.getMainHandItem();
+                    if (!(stack.getItem() instanceof MiraculousTool)) return;
+
+                    ToolModeSelectionGui gui = new ToolModeSelectionGui(mc,
+                            g -> new SelectionMenu(g, new ToolModeMenuCategory(stack)));
+
+                    gui.renderHotbar(guiGraphics, deltaTracker);
+                });
+
         event.registerAboveAll(MineraculousGuiLayers.REVOKE_BUTTON, MineraculousGuis::renderRevokeButton);
         event.registerAboveAll(MineraculousGuiLayers.KAMIKO_HOTBAR, MineraculousGuis.getKamikoGui()::renderHotbar);
         event.registerAboveAll(MineraculousGuiLayers.KAMIKO_TOOLTIP, MineraculousGuis.getKamikoGui()::renderTooltip);
@@ -371,12 +392,25 @@ public class MineraculousClientEvents {
                 }
             }
         }
+        ItemStack mainHand = Minecraft.getInstance().player.getMainHandItem();
+        if (mainHand.getItem() instanceof MiraculousTool) {
+            for (int i = 0; i < 9; i++) {
+                while (Minecraft.getInstance().options.keyHotbarSlots[i].consumeClick()) {
+                    MineraculousGuis.getToolGui().onHotbarSelected(i);
+                }
+            }
+        }
     }
 
     static void onMouseScrollingInput(InputEvent.MouseScrollingEvent event) {
         if (MineraculousClientUtils.isInKamikoView()) {
             int i = (int) (event.getScrollDeltaY() == 0 ? -event.getScrollDeltaX() : event.getScrollDeltaY());
             MineraculousGuis.getKamikoGui().onMouseScrolled(i);
+        }
+        ItemStack mainHand = Minecraft.getInstance().player.getMainHandItem();
+        if (mainHand.getItem() instanceof MiraculousTool) {
+            int i = (int) (event.getScrollDeltaY() == 0 ? -event.getScrollDeltaX() : event.getScrollDeltaY());
+            MineraculousGuis.getToolGui().onMouseScrolled(i);
         }
     }
 

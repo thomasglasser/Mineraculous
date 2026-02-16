@@ -15,6 +15,7 @@ import dev.thomasglasser.mineraculous.api.world.item.MineraculousTiers;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
+import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeItem;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler;
@@ -26,6 +27,7 @@ import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiPredicate;
@@ -80,7 +82,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, ICurioItem, RadialMenuProvider<CatStaffItem.Mode>, LeftClickListener, ActiveItem {
+public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, ICurioItem, RadialMenuProvider<CatStaffItem.Mode>, LeftClickListener, ActiveItem, MiraculousTool {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final String CONTROLLER_USE = "use_controller";
     public static final String CONTROLLER_EXTEND = "extend_controller";
@@ -428,6 +430,17 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
             triggerAnim(holder, GeoItem.getOrAssignId(stack, (ServerLevel) holder.level()), CONTROLLER_EXTEND, anim);
             holder.level().playSound(null, holder.blockPosition(), sound, holder.getSoundSource(), 1.0F, 1.0F);
         }
+    }
+
+    @Override
+    public List<ToolModeItem> getItemStackToolModes(ItemStack stack) {
+        List<ToolModeItem> modes = new ArrayList<>();
+        for (Mode mode : Mode.valuesList()) {
+            ItemStack newStack = stack.copy();
+            newStack.set(MineraculousDataComponents.CAT_STAFF_MODE, mode);
+            modes.add(new ToolModeItem(newStack));
+        }
+        return modes;
     }
 
     public enum Mode implements RadialMenuOption, StringRepresentable {

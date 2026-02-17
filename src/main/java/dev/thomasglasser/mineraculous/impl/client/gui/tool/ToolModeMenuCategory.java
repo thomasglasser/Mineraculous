@@ -5,6 +5,7 @@ import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenuItem
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -15,7 +16,7 @@ public class ToolModeMenuCategory implements SelectionMenuCategory {
     public ToolModeMenuCategory(ItemStack stack) {
         if (stack.getItem() instanceof MiraculousTool tool) {
 
-            List<ToolModeItem> rawModes = tool.getItemStackToolModes(stack);
+            List<ToolModeItem> rawModes = tool.getToolModes(stack, Minecraft.getInstance().player);
             if (rawModes != null) {
                 this.items = new ArrayList<>(rawModes);
             } else {

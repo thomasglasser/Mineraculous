@@ -56,27 +56,27 @@ public class MineraculousGuis {
     }
 
     public static ToolModeSelectionGui getToolGui() {
+        return toolGui;
+    }
+
+    private static void ensureToolGui(ItemStack stack) {
+        if (toolGui == null) {
+            toolGui = new ToolModeSelectionGui(
+                    Minecraft.getInstance(),
+                    new ToolModeMenuCategory(stack));
+        }
+    }
+
+    public static void renderToolModeHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         Player player = Minecraft.getInstance().player;
-        if (toolGui == null && player != null) {
+        if (player != null) {
             ItemStack stack = player.getMainHandItem();
+            toolGui = null;
             if (stack.getItem() instanceof MiraculousTool) {
-                toolGui = new ToolModeSelectionGui(Minecraft.getInstance(), gui -> new SelectionMenu(gui, new ToolModeMenuCategory(stack)) {
-                    @Override
-                    public void selectSlot(int slot) {
-                        SelectionMenuItem selectionMenuItem = this.getItem(slot);
-                        /*if (selectionMenuItem != SelectionMenu.CLOSE_ITEM && Minecraft.getInstance().level.registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).size() == 0) {
-                            Minecraft.getInstance().player.displayClientMessage(Kamikotization.NO_KAMIKOTIZATIONS, true);
-                        } else {
-                            if (selectionMenuItem == SelectionMenu.CLOSE_ITEM && MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko)
-                                TommyLibServices.NETWORK.sendToServer(new ServerboundSetPlayerAttackTargetPayload(kamiko.getId(), Optional.empty()));
-                            super.selectSlot(slot);
-                        }*/
-                        super.selectSlot(slot);
-                    }
-                });
+                ensureToolGui(stack);
+                toolGui.renderHotbar(guiGraphics, deltaTracker);
             }
         }
-        return toolGui;
     }
 
     public static Button getRevokeButton() {

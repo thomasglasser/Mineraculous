@@ -19,6 +19,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeItem;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
@@ -75,7 +76,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Mode>, ActiveItem, LeftClickListener {
+public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Mode>, ActiveItem, LeftClickListener, MiraculousTool {
     public static final String CONTROLLER_USE = "use_controller";
     public static final String ANIMATION_OPEN_OUT = "open_out";
     public static final String ANIMATION_OPEN_DOWN = "open_down";
@@ -473,6 +474,19 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                 }
             }
         }
+    }
+
+    @Override
+    public List<ToolModeItem> getToolModes(ItemStack stack, Player holder) {
+        ImmutableList.Builder<ToolModeItem> list = new ImmutableList.Builder<>();
+        for (Mode option : Mode.valuesList()) {
+            if (option.isEnabled(stack, holder)) {
+                ItemStack copy = stack.copy();
+                copy.set(MineraculousDataComponents.LADYBUG_YOYO_MODE, option);
+                list.add(new ToolModeItem(copy));
+            }
+        }
+        return list.build();
     }
 
     public enum Mode implements RadialMenuOption, StringRepresentable {

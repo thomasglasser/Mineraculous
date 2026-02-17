@@ -11,7 +11,6 @@ import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.ExternalMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.tooltip.ClientLabeledItemTagsTooltip;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.look.LookCustomizationScreen;
-import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenu;
 import dev.thomasglasser.mineraculous.api.client.look.util.item.MiraculousLookToolClientExtensions;
 import dev.thomasglasser.mineraculous.api.client.particle.FadingParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.FlourishingParticle;
@@ -40,8 +39,6 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.inventory.OvenScreen;
-import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeMenuCategory;
-import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeSelectionGui;
 import dev.thomasglasser.mineraculous.impl.client.look.ClientLookManager;
 import dev.thomasglasser.mineraculous.impl.client.model.BeardModel;
 import dev.thomasglasser.mineraculous.impl.client.model.DerbyHatModel;
@@ -320,23 +317,7 @@ public class MineraculousClientEvents {
     // GUI
     static void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAboveAll(MineraculousGuiLayers.STEALING_PROGRESS_BAR, MineraculousGuis::renderStealingProgressBar);
-        event.registerAboveAll(
-                MineraculousGuiLayers.TOOL_MODE_HOTBAR,
-                (guiGraphics, deltaTracker) -> {
-
-                    Minecraft mc = Minecraft.getInstance();
-                    Player player = mc.player;
-                    if (player == null) return;
-
-                    ItemStack stack = player.getMainHandItem();
-                    if (!(stack.getItem() instanceof MiraculousTool)) return;
-
-                    ToolModeSelectionGui gui = new ToolModeSelectionGui(mc,
-                            g -> new SelectionMenu(g, new ToolModeMenuCategory(stack)));
-
-                    gui.renderHotbar(guiGraphics, deltaTracker);
-                });
-
+        event.registerAboveAll(MineraculousGuiLayers.TOOL_MODE_HOTBAR, MineraculousGuis::renderToolModeHotbar);
         event.registerAboveAll(MineraculousGuiLayers.REVOKE_BUTTON, MineraculousGuis::renderRevokeButton);
         event.registerAboveAll(MineraculousGuiLayers.KAMIKO_HOTBAR, MineraculousGuis.getKamikoGui()::renderHotbar);
         event.registerAboveAll(MineraculousGuiLayers.KAMIKO_TOOLTIP, MineraculousGuis.getKamikoGui()::renderTooltip);

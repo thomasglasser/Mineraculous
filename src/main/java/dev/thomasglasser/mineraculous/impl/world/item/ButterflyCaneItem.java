@@ -17,6 +17,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeItem;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownButterflyCane;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -74,7 +75,7 @@ import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileItem, RadialMenuProvider<ButterflyCaneItem.Mode> {
+public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileItem, RadialMenuProvider<ButterflyCaneItem.Mode>, MiraculousTool {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final String CONTROLLER_USE = "use_controller";
     public static final String ANIMATION_OPEN = "open";
@@ -357,6 +358,19 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
         return slotChanged && super.shouldCauseReequipAnimation(oldStack, newStack, true);
+    }
+
+    @Override
+    public List<ToolModeItem> getToolModes(ItemStack stack, Player holder) {
+        ImmutableList.Builder<ToolModeItem> list = new ImmutableList.Builder<>();
+        for (Mode option : Mode.valuesList()) {
+            if (option.isEnabled(stack, holder)) {
+                ItemStack copy = stack.copy();
+                copy.set(MineraculousDataComponents.BUTTERFLY_CANE_MODE, option);
+                list.add(new ToolModeItem(copy));
+            }
+        }
+        return list.build();
     }
 
     public enum Mode implements RadialMenuOption, StringRepresentable {

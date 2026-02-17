@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
  * Handled by the provided {@link SelectionMenu}.
  */
 public class SelectionGui implements SelectionMenuListener {
-    private final Minecraft minecraft;
+    protected final Minecraft minecraft;
     private final Function<SelectionGui, SelectionMenu> menuFunction;
     private long lastSelectionTime;
     @Nullable
@@ -82,7 +82,7 @@ public class SelectionGui implements SelectionMenuListener {
         RenderSystem.disableBlend();
     }
 
-    private void renderSlot(GuiGraphics guiGraphics, int slot, int x, float y, float alpha, SelectionMenuItem selectionMenuItem) {
+    protected void renderSlot(GuiGraphics guiGraphics, int slot, int x, float y, float alpha, SelectionMenuItem selectionMenuItem) {
         if (selectionMenuItem != SelectionMenu.EMPTY_SLOT) {
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate((float) x, y, 0);

@@ -1,16 +1,22 @@
 package dev.thomasglasser.mineraculous.impl.client.gui.tool;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.thomasglasser.mineraculous.api.client.gui.components.selection.SelectionGui;
 import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenu;
-import java.util.function.Function;
+import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenuItem;
+import dev.thomasglasser.mineraculous.api.client.gui.selection.categories.SelectionPage;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.spectator.SpectatorGui;
 
 public class ToolModeSelectionGui extends SelectionGui {
-    public ToolModeSelectionGui(Minecraft minecraft, Function<SelectionGui, SelectionMenu> menuFunction) {
-        super(minecraft, menuFunction);
+    private final int numberOfOptions;
+
+    public ToolModeSelectionGui(Minecraft minecraft, ToolModeMenuCategory category) {
+        super(minecraft, g -> new SelectionMenu(g, category));
+        this.numberOfOptions = category.getItems().size();
     }
 
     @Override
@@ -29,5 +35,48 @@ public class ToolModeSelectionGui extends SelectionGui {
         poseStack.translate(0, -21, 0);
         super.renderHotbar(guiGraphics, deltaTracker);
         poseStack.popPose();
+    }
+
+    @Override
+    protected void renderPage(GuiGraphics guiGraphics, float alpha, int x, int y, SelectionPage selectionPage) {
+        RenderSystem.enableBlend();
+        //guiGraphics.blitSprite(SpectatorGui.HOTBAR_SPRITE, 182, 22, 0, 0, x - 91, y, 21, 22);
+        /*if (selectionPage.getSelectedSlot() >= 0) {
+            guiGraphics.blitSprite(SpectatorGui.HOTBAR_SELECTION_SPRITE, x - 91 - 1 + selectionPage.getSelectedSlot() * 20, y - 1, 24, 23);
+        }*/
+        guiGraphics.setColor(1, 1, 1, alpha);
+        guiGraphics.pose().pushPose();
+        int slot = Minecraft.getInstance().player.getInventory().selected;
+        guiGraphics.pose().translate(Math.clamp((slot - (numberOfOptions - 1) / 2), 0, 9 - numberOfOptions) * 20f, 0, 0);
+        for (int i = 0; i < numberOfOptions; i++) {
+            if (i == 0) {
+                guiGraphics.blitSprite(SpectatorGui.HOTBAR_SPRITE, 182, 22, 0, 0, x - 91, y, 21, 22);
+            } else if (i == numberOfOptions - 1) {
+                guiGraphics.blitSprite(SpectatorGui.HOTBAR_SPRITE, 182, 22, 161, 0, x - 91 + 20 * (numberOfOptions - 1) + 1, y, 21, 22);
+            } else {
+                guiGraphics.blitSprite(SpectatorGui.HOTBAR_SPRITE, 182, 22, 20 * i + 1, 0, x - 91 + 20 * i + 1, y, 20, 22);
+            }
+        }
+
+        guiGraphics.setColor(1, 1, 1, 1);
+        for (int i = 0; i < numberOfOptions; i++) {
+            this.renderSlot(guiGraphics, i, guiGraphics.guiWidth() / 2 - 90 + i * 20, y + 1f, alpha, selectionPage.getItem(i));
+        }
+        guiGraphics.pose().popPose();
+
+        RenderSystem.disableBlend();
+    }
+
+    @Override
+    protected void renderSlot(GuiGraphics guiGraphics, int slot, int x, float y, float alpha, SelectionMenuItem selectionMenuItem) {
+        if (selectionMenuItem != SelectionMenu.EMPTY_SLOT) {
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate((float) x, y, 0);
+            float shadeColor = selectionMenuItem.isEnabled() ? 1 : 0.25f;
+            guiGraphics.setColor(shadeColor, shadeColor, shadeColor, alpha);
+            selectionMenuItem.renderIcon(guiGraphics, alpha);
+            guiGraphics.setColor(1, 1, 1, 1);
+            guiGraphics.pose().popPose();
+        }
     }
 }

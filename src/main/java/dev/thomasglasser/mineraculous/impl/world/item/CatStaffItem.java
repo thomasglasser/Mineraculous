@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
@@ -15,6 +16,7 @@ import dev.thomasglasser.mineraculous.api.world.item.MineraculousTiers;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
+import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolMode;
 import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeItem;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
@@ -27,7 +29,6 @@ import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiPredicate;
@@ -433,17 +434,19 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     }
 
     @Override
-    public List<ToolModeItem> getItemStackToolModes(ItemStack stack) {
-        List<ToolModeItem> modes = new ArrayList<>();
-        for (Mode mode : Mode.valuesList()) {
-            ItemStack newStack = stack.copy();
-            newStack.set(MineraculousDataComponents.CAT_STAFF_MODE, mode);
-            modes.add(new ToolModeItem(newStack));
+    public List<ToolModeItem> getToolModes(ItemStack stack, Player holder) {
+        ImmutableList.Builder<ToolModeItem> list = new ImmutableList.Builder<>();
+        for (Mode option : Mode.valuesList()) {
+            if (option.isEnabled(stack, holder)) {
+                ItemStack copy = stack.copy();
+                copy.set(MineraculousDataComponents.CAT_STAFF_MODE, option);
+                list.add(new ToolModeItem(copy));
+            }
         }
-        return modes;
+        return list.build();
     }
 
-    public enum Mode implements RadialMenuOption, StringRepresentable {
+    public enum Mode implements RadialMenuOption, StringRepresentable, ToolMode {
         BLOCK,
         PERCH,
         PHONE((stack, player) -> MineraculousConstants.Dependencies.TOMMYTECH.isLoaded()),

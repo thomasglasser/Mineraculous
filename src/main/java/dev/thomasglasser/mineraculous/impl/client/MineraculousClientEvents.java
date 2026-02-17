@@ -376,7 +376,7 @@ public class MineraculousClientEvents {
         ItemStack mainHand = Minecraft.getInstance().player.getMainHandItem();
         if (mainHand.getItem() instanceof MiraculousTool) {
             for (int i = 0; i < 9; i++) {
-                while (Minecraft.getInstance().options.keyHotbarSlots[i].consumeClick()) {
+                while (Minecraft.getInstance().options.keyHotbarSlots[i].consumeClick() && MineraculousGuis.getToolGui() != null) {
                     MineraculousGuis.getToolGui().onHotbarSelected(i);
                 }
             }
@@ -384,14 +384,16 @@ public class MineraculousClientEvents {
     }
 
     static void onMouseScrollingInput(InputEvent.MouseScrollingEvent event) {
+        int i = (int) (event.getScrollDeltaY() == 0 ? -event.getScrollDeltaX() : event.getScrollDeltaY());
         if (MineraculousClientUtils.isInKamikoView()) {
-            int i = (int) (event.getScrollDeltaY() == 0 ? -event.getScrollDeltaX() : event.getScrollDeltaY());
             MineraculousGuis.getKamikoGui().onMouseScrolled(i);
         }
         ItemStack mainHand = Minecraft.getInstance().player.getMainHandItem();
-        if (mainHand.getItem() instanceof MiraculousTool) {
-            int i = (int) (event.getScrollDeltaY() == 0 ? -event.getScrollDeltaX() : event.getScrollDeltaY());
+        if (mainHand.getItem() instanceof MiraculousTool && MineraculousGuis.getToolGui() != null) {
             MineraculousGuis.getToolGui().onMouseScrolled(i);
+        }
+        if (!MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) { // && R not pressed
+            MineraculousGuis.resetToolGui();
         }
     }
 

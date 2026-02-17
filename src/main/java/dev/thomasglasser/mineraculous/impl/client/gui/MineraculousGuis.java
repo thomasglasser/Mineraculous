@@ -59,6 +59,10 @@ public class MineraculousGuis {
         return toolGui;
     }
 
+    public static void resetToolGui() {
+        toolGui = null;
+    }
+
     private static void ensureToolGui(ItemStack stack) {
         if (toolGui == null) {
             toolGui = new ToolModeSelectionGui(
@@ -71,8 +75,7 @@ public class MineraculousGuis {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
             ItemStack stack = player.getMainHandItem();
-            toolGui = null;
-            if (stack.getItem() instanceof MiraculousTool) {
+            if (stack.getItem() instanceof MiraculousTool && MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) {
                 ensureToolGui(stack);
                 toolGui.renderHotbar(guiGraphics, deltaTracker);
             }

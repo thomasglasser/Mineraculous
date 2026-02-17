@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
@@ -29,6 +28,8 @@ import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiPredicate;
@@ -343,7 +344,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
 
     @Override
     public boolean canOpenMenu(ItemStack stack, InteractionHand hand, Player holder) {
-        return Active.isActive(stack);
+        return false;
     }
 
     @Override
@@ -435,7 +436,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
 
     @Override
     public List<ToolModeItem> getToolModes(ItemStack stack, Player holder) {
-        ImmutableList.Builder<ToolModeItem> list = new ImmutableList.Builder<>();
+        List<ToolModeItem> list = new ArrayList<>();
         for (Mode option : Mode.valuesList()) {
             if (option.isEnabled(stack, holder)) {
                 ItemStack copy = stack.copy();
@@ -443,7 +444,10 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
                 list.add(new ToolModeItem(copy));
             }
         }
-        return list.build();
+        list.sort(Comparator.comparing(item -> item.getToolStack()
+                .get(MineraculousDataComponents.CAT_STAFF_MODE)
+                .getSerializedName()));
+        return List.copyOf(list);
     }
 
     public enum Mode implements RadialMenuOption, StringRepresentable, ToolMode {

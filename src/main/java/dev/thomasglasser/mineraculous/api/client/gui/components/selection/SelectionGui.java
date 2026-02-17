@@ -27,7 +27,7 @@ public class SelectionGui implements SelectionMenuListener {
     private final Function<SelectionGui, SelectionMenu> menuFunction;
     private long lastSelectionTime;
     @Nullable
-    private SelectionMenu menu;
+    protected SelectionMenu menu;
 
     public SelectionGui(Minecraft minecraft, Function<SelectionGui, SelectionMenu> menuFunction) {
         this.minecraft = minecraft;

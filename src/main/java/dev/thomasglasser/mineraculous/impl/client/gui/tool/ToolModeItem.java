@@ -15,6 +15,10 @@ public class ToolModeItem implements SelectionMenuItem {
         toolStack = stack.copy();
     }
 
+    public ItemStack getToolStack() {
+        return toolStack;
+    }
+
     @Override
     public void selectItem(SelectionMenu menu) {}
 

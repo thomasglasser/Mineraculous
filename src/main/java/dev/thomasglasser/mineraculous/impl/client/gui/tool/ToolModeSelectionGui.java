@@ -15,7 +15,19 @@ public class ToolModeSelectionGui extends SelectionGui {
     private final int numberOfOptions;
 
     public ToolModeSelectionGui(Minecraft minecraft, ToolModeMenuCategory category) {
-        super(minecraft, g -> new SelectionMenu(g, category));
+        super(minecraft, g -> new SelectionMenu(g, category) {
+            {
+                if (!category.getItems().isEmpty()) {
+                    this.selectedSlot = (category.getItems().size() - 1) / 2;
+                }
+            }
+
+            @Override
+            public void selectSlot(int slot) {
+                slot = Math.min(slot, category.getItems().size() - 1);
+                super.selectSlot(slot);
+            }
+        });
         this.numberOfOptions = category.getItems().size();
     }
 
@@ -41,9 +53,7 @@ public class ToolModeSelectionGui extends SelectionGui {
     protected void renderPage(GuiGraphics guiGraphics, float alpha, int x, int y, SelectionPage selectionPage) {
         RenderSystem.enableBlend();
         //guiGraphics.blitSprite(SpectatorGui.HOTBAR_SPRITE, 182, 22, 0, 0, x - 91, y, 21, 22);
-        /*if (selectionPage.getSelectedSlot() >= 0) {
-            guiGraphics.blitSprite(SpectatorGui.HOTBAR_SELECTION_SPRITE, x - 91 - 1 + selectionPage.getSelectedSlot() * 20, y - 1, 24, 23);
-        }*/
+        //System.out.println(selectionPage.getSelectedSlot());
         guiGraphics.setColor(1, 1, 1, alpha);
         guiGraphics.pose().pushPose();
         int slot = Minecraft.getInstance().player.getInventory().selected;
@@ -56,6 +66,9 @@ public class ToolModeSelectionGui extends SelectionGui {
             } else {
                 guiGraphics.blitSprite(SpectatorGui.HOTBAR_SPRITE, 182, 22, 20 * i + 1, 0, x - 91 + 20 * i + 1, y, 20, 22);
             }
+        }
+        if (selectionPage.getSelectedSlot() >= 0) {
+            guiGraphics.blitSprite(SpectatorGui.HOTBAR_SELECTION_SPRITE, x - 91 - 1 + selectionPage.getSelectedSlot() * 20, y - 1, 24, 23);
         }
 
         guiGraphics.setColor(1, 1, 1, 1);

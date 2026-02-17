@@ -23,6 +23,8 @@ import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownButterf
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiPredicate;
@@ -362,7 +364,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
 
     @Override
     public List<ToolModeItem> getToolModes(ItemStack stack, Player holder) {
-        ImmutableList.Builder<ToolModeItem> list = new ImmutableList.Builder<>();
+        List<ToolModeItem> list = new ArrayList<>();
         for (Mode option : Mode.valuesList()) {
             if (option.isEnabled(stack, holder)) {
                 ItemStack copy = stack.copy();
@@ -370,7 +372,10 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
                 list.add(new ToolModeItem(copy));
             }
         }
-        return list.build();
+        list.sort(Comparator.comparing(item -> item.getToolStack()
+                .get(MineraculousDataComponents.BUTTERFLY_CANE_MODE)
+                .getSerializedName()));
+        return List.copyOf(list);
     }
 
     public enum Mode implements RadialMenuOption, StringRepresentable {

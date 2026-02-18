@@ -372,13 +372,26 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
                 list.add(new ToolModeItem(copy));
             }
         }
-        list.sort(Comparator.comparing(item -> item.getToolStack()
+        list.sort(Comparator.comparing(item -> item.getItemStack()
                 .get(MineraculousDataComponents.BUTTERFLY_CANE_MODE)
                 .getSerializedName()));
         return List.copyOf(list);
     }
 
-    public enum Mode implements RadialMenuOption, StringRepresentable {
+    @Override
+    public ToolMode getToolMode(ItemStack stack) {
+        if (stack.has(MineraculousDataComponents.BUTTERFLY_CANE_MODE)) {
+            return stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
+        }
+        return Mode.BLOCK;
+    }
+
+    @Override
+    public boolean canOpenMenu(ItemStack stack, InteractionHand hand, Player holder) {
+        return false;
+    }
+
+    public enum Mode implements RadialMenuOption, StringRepresentable, ToolMode {
         BLADE,
         BLOCK,
         KAMIKO_STORE((stack, player) -> stack.has(MineraculousDataComponents.OWNER)),

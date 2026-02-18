@@ -8,15 +8,15 @@ import net.minecraft.world.item.ItemStack;
 
 public class ToolModeItem implements SelectionMenuItem {
     protected final Component name;
-    protected final ItemStack toolStack;
+    protected final ItemStack itemStack;
 
     public ToolModeItem(ItemStack stack) {
         name = stack.getDisplayName();
-        toolStack = stack.copy();
+        itemStack = stack.copy();
     }
 
-    public ItemStack getToolStack() {
-        return toolStack;
+    public ItemStack getItemStack() {
+        return itemStack;
     }
 
     @Override
@@ -29,7 +29,7 @@ public class ToolModeItem implements SelectionMenuItem {
 
     @Override
     public void renderIcon(GuiGraphics guiGraphics, float alpha) {
-        guiGraphics.renderItem(toolStack, 2, 2);
+        guiGraphics.renderItem(itemStack, 2, 2);
     }
 
     @Override

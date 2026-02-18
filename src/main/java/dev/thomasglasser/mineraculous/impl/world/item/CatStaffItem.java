@@ -15,7 +15,6 @@ import dev.thomasglasser.mineraculous.api.world.item.MineraculousTiers;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
-import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolMode;
 import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeItem;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
@@ -444,10 +443,18 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
                 list.add(new ToolModeItem(copy));
             }
         }
-        list.sort(Comparator.comparing(item -> item.getToolStack()
+        list.sort(Comparator.comparing(item -> item.getItemStack()
                 .get(MineraculousDataComponents.CAT_STAFF_MODE)
                 .getSerializedName()));
         return List.copyOf(list);
+    }
+
+    @Override
+    public ToolMode getToolMode(ItemStack stack) {
+        if (stack.has(MineraculousDataComponents.CAT_STAFF_MODE)) {
+            return stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
+        }
+        return Mode.BLOCK;
     }
 
     public enum Mode implements RadialMenuOption, StringRepresentable, ToolMode {

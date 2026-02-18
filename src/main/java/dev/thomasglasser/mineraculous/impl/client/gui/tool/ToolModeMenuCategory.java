@@ -15,14 +15,23 @@ public class ToolModeMenuCategory implements SelectionMenuCategory {
 
     public ToolModeMenuCategory(ItemStack stack) {
         if (stack.getItem() instanceof MiraculousTool tool) {
-
             List<ToolModeItem> rawModes = tool.getToolModes(stack, Minecraft.getInstance().player);
             if (rawModes != null) {
-                this.items = new ArrayList<>(rawModes);
+                List<ToolModeItem> modes = new ArrayList<>(rawModes);
+                int numberOfOptions = modes.size();
+                int selectedSlot = numberOfOptions / 2;
+
+                while (tool.getToolMode(modes.get(selectedSlot).getItemStack()) != tool.getToolMode(stack)) {
+                    ToolModeItem lastItem = modes.get(numberOfOptions - 1);
+                    for (int i = numberOfOptions - 1; i > 0; i--) {
+                        modes.set(i, modes.get(i - 1));
+                    }
+                    modes.set(0, lastItem);
+                }
+                this.items = new ArrayList<>(modes);
             } else {
                 this.items = List.of();
             }
-
         } else {
             this.items = List.of();
         }

@@ -18,7 +18,7 @@ public class ToolModeSelectionGui extends SelectionGui {
         super(minecraft, g -> new SelectionMenu(g, category) {
             {
                 if (!category.getItems().isEmpty()) {
-                    this.selectedSlot = (category.getItems().size() - 1) / 2;
+                    this.selectedSlot = category.getItems().size() / 2;
                 }
             }
 

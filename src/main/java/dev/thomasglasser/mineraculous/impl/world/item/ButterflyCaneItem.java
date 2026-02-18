@@ -387,6 +387,13 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
     }
 
     @Override
+    public void setToolMode(ItemStack stack, ToolMode rawMode) {
+        if (rawMode instanceof Mode mode) {
+            stack.set(MineraculousDataComponents.BUTTERFLY_CANE_MODE, mode);
+        }
+    }
+
+    @Override
     public boolean canOpenMenu(ItemStack stack, InteractionHand hand, Player holder) {
         return false;
     }

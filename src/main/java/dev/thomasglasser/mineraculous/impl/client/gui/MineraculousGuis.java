@@ -63,21 +63,28 @@ public class MineraculousGuis {
         toolGui = null;
     }
 
+    private static ToolModeSelectionGui createToolGui(ItemStack stack) {
+        return new ToolModeSelectionGui(
+                Minecraft.getInstance(),
+                new ToolModeMenuCategory(stack));
+    }
+
     private static void ensureToolGui(ItemStack stack) {
         if (toolGui == null) {
-            toolGui = new ToolModeSelectionGui(
-                    Minecraft.getInstance(),
-                    new ToolModeMenuCategory(stack));
+            toolGui = createToolGui(stack);
         }
     }
 
     public static void renderToolModeHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
-            ItemStack stack = player.getMainHandItem();
-            if (stack.getItem() instanceof MiraculousTool && MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) {
+            ItemStack stack = player.getInventory().getSelected();
+            if (stack.getItem() instanceof MiraculousTool tool && tool.canOpenToolModeMenu(stack) && MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) {
                 ensureToolGui(stack);
                 toolGui.renderHotbar(guiGraphics, deltaTracker);
+            } else if (toolGui != null) {
+                toolGui.closeGui();
+                toolGui = createToolGui(stack);
             }
         }
     }

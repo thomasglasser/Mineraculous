@@ -8,11 +8,13 @@ import net.minecraft.world.item.ItemStack;
 public interface MiraculousTool {
     List<ToolModeItem> getToolModes(ItemStack stack, Player holder);
 
-    default ToolModeItem getToolModeItem(ItemStack stack) {
-        return new ToolModeItem(stack);
+    default boolean canOpenToolModeMenu(ItemStack stack) {
+        return true;
     }
 
     ToolMode getToolMode(ItemStack stack);
+
+    void setToolMode(ItemStack stack, ToolMode mode);
 
     interface ToolMode {
 

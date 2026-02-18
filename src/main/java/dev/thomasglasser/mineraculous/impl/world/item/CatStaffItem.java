@@ -457,6 +457,18 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
         return Mode.BLOCK;
     }
 
+    @Override
+    public boolean canOpenToolModeMenu(ItemStack stack) {
+        return Active.isActive(stack);
+    }
+
+    @Override
+    public void setToolMode(ItemStack stack, ToolMode rawMode) {
+        if (rawMode instanceof Mode mode) {
+            stack.set(MineraculousDataComponents.CAT_STAFF_MODE, mode);
+        }
+    }
+
     public enum Mode implements RadialMenuOption, StringRepresentable, ToolMode {
         BLOCK,
         PERCH,

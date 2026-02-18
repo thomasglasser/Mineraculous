@@ -6,10 +6,15 @@ import dev.thomasglasser.mineraculous.api.client.gui.components.selection.Select
 import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenu;
 import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenuItem;
 import dev.thomasglasser.mineraculous.api.client.gui.selection.categories.SelectionPage;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundSetMiraculousToolMode;
+import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 public class ToolModeSelectionGui extends SelectionGui {
     private final int numberOfOptions;
@@ -29,6 +34,40 @@ public class ToolModeSelectionGui extends SelectionGui {
             }
         });
         this.numberOfOptions = category.getItems().size();
+    }
+
+    @Override
+    public void onMouseScrolled(int amount) {
+        if (this.isMenuActive()) {
+            int i = this.menu.getSelectedSlot() + amount;
+            if (i == -1) {
+                i = numberOfOptions - 1;
+            }
+            if (i == numberOfOptions) {
+                i = 0;
+            }
+            this.menu.selectSlot(i);
+        }
+    }
+
+    @Override
+    public void onMenuClosed(SelectionMenu menu) {
+        SelectionMenuItem selectedItem = menu.getSelectedItem();
+        Player player = Minecraft.getInstance().player;
+        if (selectedItem instanceof ToolModeItem toolModeItem) {
+            ItemStack selectedToolStackCopy = toolModeItem.getItemStack();
+            ItemStack toolStack = player.getInventory().getSelected();
+            if (toolStack.getItem() instanceof MiraculousTool tool) {
+                tool.setToolMode(toolStack, tool.getToolMode(selectedToolStackCopy));
+            }
+            TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousToolMode(selectedToolStackCopy));
+        }
+        super.onMenuClosed(menu);
+    }
+
+    public void closeGui() {
+        if (this.menu != null)
+            this.menu.exit();
     }
 
     @Override

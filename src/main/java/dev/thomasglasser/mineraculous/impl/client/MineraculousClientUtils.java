@@ -47,6 +47,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPay
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.KamikotizedMinion;
+import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -425,6 +426,15 @@ public class MineraculousClientUtils {
     public static boolean isInKamikoView() {
         LocalPlayer player = Minecraft.getInstance().player;
         return player != null && !player.isSpectator() && player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).spectatingId().isPresent() && MineraculousClientUtils.getCameraEntity() instanceof Kamiko && MineraculousGuis.getKamikoGui() != null;
+    }
+
+    public static boolean isSelectingToolMode() {
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            ItemStack stack = player.getInventory().getSelected();
+            return stack.getItem() instanceof MiraculousTool tool && tool.canOpenToolModeMenu(stack) && MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown();
+        }
+        return false;
     }
 
     // Rendering

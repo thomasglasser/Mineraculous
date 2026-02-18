@@ -390,7 +390,8 @@ public class MineraculousClientEvents {
         }
         ItemStack mainHand = Minecraft.getInstance().player.getMainHandItem();
         if (mainHand.getItem() instanceof MiraculousTool && MineraculousGuis.getToolGui() != null) {
-            MineraculousGuis.getToolGui().onMouseScrolled(i);
+            MineraculousGuis.getToolGui().onMouseScrolled(-i);
+            event.setCanceled(true);
         }
         if (!MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) { // && R not pressed
             MineraculousGuis.resetToolGui();

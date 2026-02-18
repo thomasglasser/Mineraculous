@@ -502,6 +502,18 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
         return Mode.BLOCK;
     }
 
+    @Override
+    public boolean canOpenToolModeMenu(ItemStack stack) {
+        return Active.isActive(stack);
+    }
+
+    @Override
+    public void setToolMode(ItemStack stack, ToolMode rawMode) {
+        if (rawMode instanceof Mode mode) {
+            stack.set(MineraculousDataComponents.LADYBUG_YOYO_MODE, mode);
+        }
+    }
+
     public enum Mode implements RadialMenuOption, StringRepresentable, ToolMode {
         BLOCK,
         LASSO,

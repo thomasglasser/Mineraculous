@@ -376,7 +376,7 @@ public class MineraculousClientEvents {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
             ItemStack mainHand = player.getMainHandItem();
-            if (mainHand.getItem() instanceof MiraculousTool) {
+            if (mainHand.getItem() instanceof MiraculousTool && MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) {
                 for (int i = 0; i < 9; i++) {
                     while (Minecraft.getInstance().options.keyHotbarSlots[i].consumeClick() && MineraculousGuis.getToolGui() != null) {
                         MineraculousGuis.getToolGui().onHotbarSelected(i);

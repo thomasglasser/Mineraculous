@@ -21,9 +21,12 @@ public class ToolModeMenuCategory implements SelectionMenuCategory {
                 int numberOfOptions = modes.size();
                 int selectedSlot = numberOfOptions / 2;
 
-                while (tool.getToolMode(modes.get(selectedSlot).getItemStack()) != tool.getToolMode(stack)) {
+                int rotations = 0;
+                while (tool.getToolMode(modes.get(selectedSlot).getItemStack()) != tool.getToolMode(stack) && rotations < modes.size()) {
                     java.util.Collections.rotate(modes, 1);
+                    rotations++;
                 }
+
                 this.items = new ArrayList<>(modes);
             } else {
                 this.items = List.of();

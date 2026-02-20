@@ -111,20 +111,18 @@ public class ToolModeSelectionGui extends SelectionGui {
         }
 
         guiGraphics.setColor(1, 1, 1, 1);
+        Player player = Minecraft.getInstance().player;
         for (int i = 0; i < numberOfOptions; i++) {
             this.renderSlot(guiGraphics, i, guiGraphics.guiWidth() / 2 - 90 + i * 20, y + 1f, alpha, selectionPage.getItem(i));
-            if (selectionPage.getSelectedSlot() == i) {
-                Player player = Minecraft.getInstance().player;
-                if (player != null && selectionPage.getItem(i) instanceof ToolModeItem toolModeItem) {
-                    ItemStack stack = player.getInventory().getSelected();
-                    if (stack.getItem() instanceof MiraculousTool miraculousTool) {
-                        Component component = miraculousTool.getToolMode((toolModeItem.getItemStack())).displayName();
-                        int xOffset = Minecraft.getInstance().font.width(component) / 2;
-                        int xString = guiGraphics.guiWidth() / 2 - 90 + numberOfOptions * 10 - xOffset;
-                        guiGraphics.pose().pushPose();
-                        guiGraphics.drawStringWithBackdrop(Minecraft.getInstance().font, component, xString, y - 12, 0, 0xFFF5F5F5);
-                        guiGraphics.pose().popPose();
-                    }
+            if (player != null && selectionPage.getSelectedSlot() == i && selectionPage.getItem(i) instanceof ToolModeItem toolModeItem) {
+                ItemStack stack = player.getInventory().getSelected();
+                if (stack.getItem() instanceof MiraculousTool miraculousTool) {
+                    Component component = miraculousTool.getToolMode((toolModeItem.getItemStack())).displayName();
+                    int xOffset = Minecraft.getInstance().font.width(component) / 2;
+                    int xString = guiGraphics.guiWidth() / 2 - 90 + numberOfOptions * 10 - xOffset;
+                    guiGraphics.pose().pushPose();
+                    guiGraphics.drawStringWithBackdrop(Minecraft.getInstance().font, component, xString, y - 12, 0, 0xFFF5F5F5);
+                    guiGraphics.pose().popPose();
                 }
             }
         }

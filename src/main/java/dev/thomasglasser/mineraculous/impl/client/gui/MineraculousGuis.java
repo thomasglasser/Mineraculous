@@ -14,7 +14,6 @@ import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeSelectionGui;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetPlayerAttackTargetPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
 import net.minecraft.client.DeltaTracker;
@@ -79,7 +78,7 @@ public class MineraculousGuis {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
             ItemStack stack = player.getInventory().getSelected();
-            if (stack.getItem() instanceof MiraculousTool tool && tool.canOpenToolModeMenu(stack) && MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) {
+            if (MineraculousClientUtils.isSelectingToolMode()) {
                 ensureToolGui(stack);
                 toolGui.renderHotbar(guiGraphics, deltaTracker);
             } else if (toolGui != null) {

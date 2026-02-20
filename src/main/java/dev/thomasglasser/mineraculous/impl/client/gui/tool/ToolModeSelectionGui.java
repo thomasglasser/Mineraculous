@@ -9,7 +9,6 @@ import dev.thomasglasser.mineraculous.api.client.gui.selection.categories.Select
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetMiraculousToolMode;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.List;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -59,17 +58,18 @@ public class ToolModeSelectionGui extends SelectionGui {
         if (selectedItem instanceof ToolModeItem toolModeItem) {
             ItemStack selectedToolStackCopy = toolModeItem.getItemStack();
             ItemStack toolStack = player.getInventory().getSelected();
+            TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousToolMode(selectedToolStackCopy));
             if (toolStack.getItem() instanceof MiraculousTool tool) {
                 tool.setToolMode(toolStack, tool.getToolMode(selectedToolStackCopy));
             }
-            TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousToolMode(selectedToolStackCopy));
         }
         super.onMenuClosed(menu);
     }
 
     public void closeGui() {
-        if (this.menu != null)
+        if (this.menu != null) {
             this.menu.exit();
+        }
     }
 
     @Override
@@ -114,8 +114,9 @@ public class ToolModeSelectionGui extends SelectionGui {
         for (int i = 0; i < numberOfOptions; i++) {
             this.renderSlot(guiGraphics, i, guiGraphics.guiWidth() / 2 - 90 + i * 20, y + 1f, alpha, selectionPage.getItem(i));
             if (selectionPage.getSelectedSlot() == i) {
-                if (selectionPage.getItem(i) instanceof ToolModeItem toolModeItem) {
-                    ItemStack stack = Minecraft.getInstance().player.getInventory().getSelected();
+                Player player = Minecraft.getInstance().player;
+                if (player != null && selectionPage.getItem(i) instanceof ToolModeItem toolModeItem) {
+                    ItemStack stack = player.getInventory().getSelected();
                     if (stack.getItem() instanceof MiraculousTool miraculousTool) {
                         Component component = miraculousTool.getToolMode((toolModeItem.getItemStack())).displayName();
                         int xOffset = Minecraft.getInstance().font.width(component) / 2;

@@ -84,7 +84,7 @@ public class MineraculousGuis {
                 toolGui.renderHotbar(guiGraphics, deltaTracker);
             } else if (toolGui != null) {
                 toolGui.closeGui();
-                toolGui = createToolGui(stack);
+                resetToolGui();
             }
         }
     }

@@ -373,11 +373,14 @@ public class MineraculousClientEvents {
                 }
             }
         }
-        ItemStack mainHand = Minecraft.getInstance().player.getMainHandItem();
-        if (mainHand.getItem() instanceof MiraculousTool) {
-            for (int i = 0; i < 9; i++) {
-                while (Minecraft.getInstance().options.keyHotbarSlots[i].consumeClick() && MineraculousGuis.getToolGui() != null) {
-                    MineraculousGuis.getToolGui().onHotbarSelected(i);
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            ItemStack mainHand = player.getMainHandItem();
+            if (mainHand.getItem() instanceof MiraculousTool) {
+                for (int i = 0; i < 9; i++) {
+                    while (Minecraft.getInstance().options.keyHotbarSlots[i].consumeClick() && MineraculousGuis.getToolGui() != null) {
+                        MineraculousGuis.getToolGui().onHotbarSelected(i);
+                    }
                 }
             }
         }
@@ -393,7 +396,7 @@ public class MineraculousClientEvents {
             MineraculousGuis.getToolGui().onMouseScrolled(-i);
             event.setCanceled(true);
         }
-        if (!MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) { // && R not pressed
+        if (!MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) {
             MineraculousGuis.resetToolGui();
         }
     }

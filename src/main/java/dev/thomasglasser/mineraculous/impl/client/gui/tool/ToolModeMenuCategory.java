@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class ToolModeMenuCategory implements SelectionMenuCategory {
     private final List<SelectionMenuItem> items;
-    public static final Component TARGET_PROMPT = Component.translatable("kamiko_menu.teleport.prompt");
+    public static final Component PROMPT = Component.translatable("gui.mineraculous.tool_mode.prompt");
 
     public ToolModeMenuCategory(ItemStack stack) {
         if (stack.getItem() instanceof MiraculousTool tool) {
@@ -22,11 +22,7 @@ public class ToolModeMenuCategory implements SelectionMenuCategory {
                 int selectedSlot = numberOfOptions / 2;
 
                 while (tool.getToolMode(modes.get(selectedSlot).getItemStack()) != tool.getToolMode(stack)) {
-                    ToolModeItem lastItem = modes.get(numberOfOptions - 1);
-                    for (int i = numberOfOptions - 1; i > 0; i--) {
-                        modes.set(i, modes.get(i - 1));
-                    }
-                    modes.set(0, lastItem);
+                    java.util.Collections.rotate(modes, 1);
                 }
                 this.items = new ArrayList<>(modes);
             } else {
@@ -44,6 +40,6 @@ public class ToolModeMenuCategory implements SelectionMenuCategory {
 
     @Override
     public Component getPrompt() {
-        return TARGET_PROMPT;
+        return PROMPT;
     }
 }

@@ -30,11 +30,10 @@ public abstract class GuiMixin {
         return original && !(this.minecraft.screen instanceof RadialMenuScreen);
     }
 
-    @ModifyVariable(method = "renderSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;I)V", at = @At(value = "STORE", ordinal = 0), ordinal = 3 // <- this may need adjustment
-    )
+    @ModifyVariable(method = "renderSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;I)V", at = @At(value = "STORE", ordinal = 0), ordinal = 3)
     private int modifySelectedItemY(int k) {
         if (MineraculousClientUtils.isSelectingToolMode()) {
-            return k - 24; // move up 24 pixels
+            return k - 24;
         }
 
         return k;

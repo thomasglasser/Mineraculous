@@ -38,6 +38,7 @@ import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.Kam
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.PerformerKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.recipebook.OvenRecipeBookComponent;
+import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeMenuCategory;
 import dev.thomasglasser.mineraculous.impl.data.MineraculousDataGenerators;
 import dev.thomasglasser.mineraculous.impl.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.impl.plugins.jade.OvenProvider;
@@ -293,6 +294,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Miraculous Data
         add(MiraculousData.KWAMI_NOT_FOUND, "%s Kwami not found in the world.");
+
+        // Miraculous Tool Mode Gui
+        add(ToolModeMenuCategory.PROMPT, "Select a tool mode");
 
         // Kamiko Gui
         add(KamikoTargetPlayerMenuCategory.TARGET_PROMPT, "Select a player to target");

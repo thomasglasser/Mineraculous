@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public interface MiraculousTool {
     List<ToolModeItem> getToolModes(ItemStack stack, Player holder);
@@ -15,9 +16,11 @@ public interface MiraculousTool {
 
     ToolMode getToolMode(ItemStack stack);
 
-    void setToolMode(ItemStack stack, ToolMode mode);
+    void setToolMode(ItemStack stack, ToolMode mode, @Nullable Player holder);
 
     interface ToolMode {
         Component displayName();
+
+        boolean isEnabled(ItemStack stack, Player holder);
     }
 }

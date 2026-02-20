@@ -19,7 +19,7 @@ public record ServerboundSetMiraculousToolMode(ItemStack selectedToolCopy) imple
     public void handle(Player player) {
         ItemStack itemStack = player.getInventory().getSelected();
         if (itemStack.getItem() instanceof MiraculousTool tool) {
-            tool.setToolMode(itemStack, tool.getToolMode(selectedToolCopy));
+            tool.setToolMode(itemStack, tool.getToolMode(selectedToolCopy), player);
         }
     }
 

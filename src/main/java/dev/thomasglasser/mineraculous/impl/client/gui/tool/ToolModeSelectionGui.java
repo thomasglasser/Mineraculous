@@ -60,7 +60,7 @@ public class ToolModeSelectionGui extends SelectionGui {
             ItemStack toolStack = player.getInventory().getSelected();
             TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousToolMode(selectedToolStackCopy));
             if (toolStack.getItem() instanceof MiraculousTool tool) {
-                tool.setToolMode(toolStack, tool.getToolMode(selectedToolStackCopy));
+                tool.setToolMode(toolStack, tool.getToolMode(selectedToolStackCopy), player);
             }
         }
         super.onMenuClosed(menu);

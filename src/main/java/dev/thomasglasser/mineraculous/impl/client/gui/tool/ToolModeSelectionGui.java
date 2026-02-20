@@ -9,10 +9,12 @@ import dev.thomasglasser.mineraculous.api.client.gui.selection.categories.Select
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetMiraculousToolMode;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.List;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -91,8 +93,6 @@ public class ToolModeSelectionGui extends SelectionGui {
     @Override
     protected void renderPage(GuiGraphics guiGraphics, float alpha, int x, int y, SelectionPage selectionPage) {
         RenderSystem.enableBlend();
-        //guiGraphics.blitSprite(SpectatorGui.HOTBAR_SPRITE, 182, 22, 0, 0, x - 91, y, 21, 22);
-        //System.out.println(selectionPage.getSelectedSlot());
         guiGraphics.setColor(1, 1, 1, alpha);
         guiGraphics.pose().pushPose();
         int slot = Minecraft.getInstance().player.getInventory().selected;
@@ -113,6 +113,19 @@ public class ToolModeSelectionGui extends SelectionGui {
         guiGraphics.setColor(1, 1, 1, 1);
         for (int i = 0; i < numberOfOptions; i++) {
             this.renderSlot(guiGraphics, i, guiGraphics.guiWidth() / 2 - 90 + i * 20, y + 1f, alpha, selectionPage.getItem(i));
+            if (selectionPage.getSelectedSlot() == i) {
+                if (selectionPage.getItem(i) instanceof ToolModeItem toolModeItem) {
+                    ItemStack stack = Minecraft.getInstance().player.getInventory().getSelected();
+                    if (stack.getItem() instanceof MiraculousTool miraculousTool) {
+                        Component component = miraculousTool.getToolMode((toolModeItem.getItemStack())).displayName();
+                        int xOffset = Minecraft.getInstance().font.width(component) / 2;
+                        int xString = guiGraphics.guiWidth() / 2 - 90 + numberOfOptions * 10 - xOffset;
+                        guiGraphics.pose().pushPose();
+                        guiGraphics.drawStringWithBackdrop(Minecraft.getInstance().font, component, xString, y - 12, 0, 0xFFF5F5F5);
+                        guiGraphics.pose().popPose();
+                    }
+                }
+            }
         }
         guiGraphics.pose().popPose();
 

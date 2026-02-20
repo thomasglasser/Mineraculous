@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.world.item;
 
 import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeItem;
 import java.util.List;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -17,6 +18,6 @@ public interface MiraculousTool {
     void setToolMode(ItemStack stack, ToolMode mode);
 
     interface ToolMode {
-
+        Component displayName();
     }
 }

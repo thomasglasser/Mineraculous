@@ -33,9 +33,8 @@ public abstract class GuiMixin {
     @ModifyVariable(method = "renderSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;I)V", at = @At(value = "STORE", ordinal = 0), ordinal = 3 // <- this may need adjustment
     )
     private int modifySelectedItemY(int k) {
-        // --- YOUR CONDITION HERE ---
         if (MineraculousClientUtils.isSelectingToolMode()) {
-            return k - 12; // move up 24 pixels
+            return k - 24; // move up 24 pixels
         }
 
         return k;

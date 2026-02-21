@@ -78,7 +78,7 @@ public class MiraculousItem extends AbstractMiraculousItem {
                         MineraculousConstants.LOGGER.error("Kwami could not be created for entity {}", entity.getName().plainCopy().getString());
                     }
                 }
-                data.equip(new CuriosData(slotContext)).save(miraculous, entity);
+                data.equip(miraculousId, new CuriosData(slotContext)).save(miraculous, entity);
             }
         }
     }

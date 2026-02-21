@@ -254,7 +254,7 @@ public class MineraculousEntityUtils {
     }
 
     public static @Nullable KwamiLike findKwami(LivingEntity entity, MiraculousData data) {
-        UUID kwamiId = data.curiosData().map(curiosData -> CuriosUtils.getStackInSlot(entity, curiosData).get(MineraculousDataComponents.KWAMI_ID)).orElse(null);
+        UUID kwamiId = data.equippedMiraculous().map(equippedMiraculous -> equippedMiraculous.getMiraculous(entity)).map(stack -> stack.get(MineraculousDataComponents.KWAMI_ID)).orElse(null);
         if (kwamiId == null)
             return null;
         return findKwami(entity, kwamiId);

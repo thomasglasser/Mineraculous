@@ -28,8 +28,12 @@ public record ServerboundPutMiraculousToolInHandPayload(Holder<Miraculous> mirac
         if (player.getMainHandItem().isEmpty()) {
             MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous);
             if (data.transformed()) {
-                data.curiosData().ifPresent(miraculousCuriosData -> {
-                    ItemStack miraculousStack = CuriosUtils.getStackInSlot(player, miraculousCuriosData);
+                data.equippedMiraculous().ifPresent(equippedMiraculous -> {
+                    ItemStack miraculousStack = equippedMiraculous.getMiraculous(player);
+                    if (miraculousStack == null) {
+                        MineraculousConstants.LOGGER.error("Tried to put miraculous tool in hand, but miraculous is invalid");
+                        return;
+                    }
                     UUID miraculousId = miraculousStack.get(MineraculousDataComponents.MIRACULOUS_ID);
                     if (miraculousId != null) {
                         ItemStack defaultTool = miraculous.value().tool();

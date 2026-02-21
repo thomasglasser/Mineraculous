@@ -663,6 +663,13 @@ public record MiraculousData(LookData lookData, Optional<EquippedMiraculous> equ
                 CuriosData.STREAM_CODEC, EquippedMiraculous::curiosData,
                 EquippedMiraculous::new);
 
+        /**
+         * Gets the miraculous stack from the provided entity's Curios slot,
+         * ensuring it matches the target id.
+         * 
+         * @param entity The entity to get the miraculous stack from
+         * @return The validated miraculous stack, or null if invalid
+         */
         public @Nullable ItemStack getMiraculous(LivingEntity entity) {
             ItemStack stack = CuriosUtils.getStackInSlot(entity, curiosData);
             if (matches(stack)) {
@@ -671,6 +678,13 @@ public record MiraculousData(LookData lookData, Optional<EquippedMiraculous> equ
             return null;
         }
 
+        /**
+         * Sets the miraculous stack in the provided entity's Curios slot,
+         * ensuring it matches the target id.
+         * 
+         * @param entity  The entity to set the miraculous stack in
+         * @param updated The updated miraculous stack
+         */
         public void updateMiraculous(LivingEntity entity, ItemStack updated) {
             if (!matches(updated)) {
                 MineraculousConstants.LOGGER.error("Tried to update a miraculous with a different miraculous id");
@@ -684,6 +698,12 @@ public record MiraculousData(LookData lookData, Optional<EquippedMiraculous> equ
             }
         }
 
+        /**
+         * Checks if the provided stack matches the target id.
+         * 
+         * @param stack The stack to check
+         * @return Whether the stack matches the target id
+         */
         public boolean matches(ItemStack stack) {
             return miraculousId.equals(stack.get(MineraculousDataComponents.MIRACULOUS_ID));
         }

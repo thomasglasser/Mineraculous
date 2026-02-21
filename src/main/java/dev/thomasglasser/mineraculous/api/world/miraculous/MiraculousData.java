@@ -331,7 +331,6 @@ public record MiraculousData(LookData lookData, Optional<EquippedMiraculous> equ
         }
     }
 
-    /// TODO for Tommy: Please fix the curios data not being properly handled because sets the power state component no matter what item goes in the slot </3
     @ApiStatus.Internal
     public void tick(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous) {
         transformationState.ifPresentOrElse(state -> state.remainingFrames().ifPresent(frames -> {

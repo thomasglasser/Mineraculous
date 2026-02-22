@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
@@ -14,20 +15,20 @@ import dev.thomasglasser.mineraculous.api.world.item.MineraculousTiers;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
-import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeItem;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownButterflyCane;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiPredicate;
+import java.util.function.Supplier;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Position;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -60,7 +61,6 @@ import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
-import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -73,7 +73,7 @@ import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileItem, MiraculousTool {
+public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileItem, MiraculousTool<ButterflyCaneItem.Mode> {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final String CONTROLLER_USE = "use_controller";
     public static final String ANIMATION_OPEN = "open";
@@ -300,64 +300,46 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
     }
 
     @Override
-    public List<ToolModeItem> getToolModes(ItemStack stack, Player holder) {
-        List<ToolModeItem> list = new ArrayList<>();
-        for (Mode option : Mode.valuesList()) {
-            if (option.isEnabled(stack, holder)) {
-                ItemStack copy = stack.copy();
-                copy.set(MineraculousDataComponents.BUTTERFLY_CANE_MODE, option);
-                list.add(new ToolModeItem(copy));
+    public List<Mode> getToolModes(ItemStack stack, InteractionHand hand, Player holder) {
+        return FluentIterable.from(Mode.valuesList()).toSortedList(Comparator.comparing(Mode::getSerializedName));
+    }
+
+    @Override
+    public Supplier<DataComponentType<Mode>> getToolModeComponentType(ItemStack stack, InteractionHand hand, Player holder) {
+        return MineraculousDataComponents.BUTTERFLY_CANE_MODE;
+    }
+
+    @Override
+    public void onModeChanged(ItemStack stack, InteractionHand hand, Player holder, Mode oldMode, Mode newMode) {
+        if (holder != null && holder.level() instanceof ServerLevel level) {
+            String anim = null;
+            boolean hasNoStoredEntities = false;
+            UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
+            if (ownerId != null) {
+                Entity owner = level.getEntities().get(ownerId);
+                hasNoStoredEntities = owner != null && !owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE);
             }
-        }
-        list.sort(Comparator.comparing(item -> item.getItemStack()
-                .get(MineraculousDataComponents.BUTTERFLY_CANE_MODE)
-                .getSerializedName()));
-        return List.copyOf(list);
-    }
-
-    @Override
-    public ToolMode getToolMode(ItemStack stack) {
-        if (stack.has(MineraculousDataComponents.BUTTERFLY_CANE_MODE)) {
-            return stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
-        }
-        return Mode.BLOCK;
-    }
-
-    @Override
-    public void setToolMode(ItemStack stack, ToolMode rawMode, @Nullable Player holder) {
-        Mode old = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
-        if (rawMode instanceof Mode selected) {
-            stack.set(MineraculousDataComponents.BUTTERFLY_CANE_MODE, selected);
-            if (holder != null && holder.level() instanceof ServerLevel level) {
-                String anim = null;
-                boolean hasNoStoredEntities = false;
-                UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
-                if (ownerId != null) {
-                    Entity owner = level.getEntities().get(ownerId);
-                    hasNoStoredEntities = owner != null && !owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE);
-                }
-                if (selected == Mode.BLADE) {
-                    if ((old == Mode.KAMIKO_STORE && hasNoStoredEntities) || old == Mode.SPYGLASS || old == Mode.PHONE)
-                        anim = ANIMATION_CLOSE_AND_UNSHEATHE;
-                    else
-                        anim = ANIMATION_UNSHEATHE;
-                } else if ((selected == Mode.KAMIKO_STORE && hasNoStoredEntities) || selected == Mode.SPYGLASS || selected == Mode.PHONE) {
-                    if (old == Mode.BLADE)
-                        anim = ANIMATION_SHEATHE_AND_OPEN;
-                    else
-                        anim = ANIMATION_OPEN;
-                } else if ((old == Mode.KAMIKO_STORE && hasNoStoredEntities) || old == Mode.SPYGLASS || old == Mode.PHONE)
-                    anim = ANIMATION_CLOSE;
-                else if (old == Mode.BLADE)
-                    anim = ANIMATION_SHEATHE;
-                if (anim != null) {
-                    triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_USE, anim);
-                }
+            if (newMode == Mode.BLADE) {
+                if ((oldMode == Mode.KAMIKO_STORE && hasNoStoredEntities) || oldMode == Mode.SPYGLASS || oldMode == Mode.PHONE)
+                    anim = ANIMATION_CLOSE_AND_UNSHEATHE;
+                else
+                    anim = ANIMATION_UNSHEATHE;
+            } else if ((newMode == Mode.KAMIKO_STORE && hasNoStoredEntities) || newMode == Mode.SPYGLASS || newMode == Mode.PHONE) {
+                if (oldMode == Mode.BLADE)
+                    anim = ANIMATION_SHEATHE_AND_OPEN;
+                else
+                    anim = ANIMATION_OPEN;
+            } else if ((oldMode == Mode.KAMIKO_STORE && hasNoStoredEntities) || oldMode == Mode.SPYGLASS || oldMode == Mode.PHONE)
+                anim = ANIMATION_CLOSE;
+            else if (oldMode == Mode.BLADE)
+                anim = ANIMATION_SHEATHE;
+            if (anim != null) {
+                triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_USE, anim);
             }
         }
     }
 
-    public enum Mode implements StringRepresentable, ToolMode {
+    public enum Mode implements ToolMode {
         BLADE,
         BLOCK,
         KAMIKO_STORE((stack, player) -> stack.has(MineraculousDataComponents.OWNER)),
@@ -403,6 +385,17 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
 
         public static Mode of(String name) {
             return valueOf(name.toUpperCase());
+        }
+
+        @Override
+        public ResourceLocation getIcon() {
+            return switch (this) {
+                case BLADE -> ResourceLocation.withDefaultNamespace("textures/mob_effect/strength.png");
+                case SPYGLASS -> ResourceLocation.withDefaultNamespace("textures/mob_effect/invisibility.png");
+                case KAMIKO_STORE -> ResourceLocation.withDefaultNamespace("textures/mob_effect/glowing.png");
+                case THROW -> ResourceLocation.withDefaultNamespace("textures/mob_effect/levitation.png");
+                default -> ResourceLocation.withDefaultNamespace("textures/mob_effect/absorption.png");
+            };
         }
     }
 }

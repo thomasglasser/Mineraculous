@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
+import com.google.common.collect.FluentIterable;
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
@@ -10,7 +11,6 @@ import dev.thomasglasser.mineraculous.api.world.item.LeftClickListener;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousTiers;
-import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeItem;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelHandler;
@@ -20,12 +20,13 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaff
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiPredicate;
+import java.util.function.Supplier;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -72,7 +73,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, ICurioItem, LeftClickListener, ActiveItem, MiraculousTool {
+public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, ICurioItem, LeftClickListener, ActiveItem, MiraculousTool<CatStaffItem.Mode> {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final String CONTROLLER_USE = "use_controller";
     public static final String CONTROLLER_EXTEND = "extend_controller";
@@ -366,62 +367,44 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     }
 
     @Override
-    public List<ToolModeItem> getToolModes(ItemStack stack, Player holder) {
-        List<ToolModeItem> list = new ArrayList<>();
-        for (Mode option : Mode.valuesList()) {
-            if (option.isEnabled(stack, holder)) {
-                ItemStack copy = stack.copy();
-                copy.set(MineraculousDataComponents.CAT_STAFF_MODE, option);
-                list.add(new ToolModeItem(copy));
-            }
-        }
-        list.sort(Comparator.comparing(item -> item.getItemStack()
-                .get(MineraculousDataComponents.CAT_STAFF_MODE)
-                .getSerializedName()));
-        return List.copyOf(list);
+    public List<Mode> getToolModes(ItemStack stack, InteractionHand hand, Player holder) {
+        return FluentIterable.from(Mode.valuesList()).toSortedList(Comparator.comparing(Mode::getSerializedName));
     }
 
     @Override
-    public ToolMode getToolMode(ItemStack stack) {
-        if (stack.has(MineraculousDataComponents.CAT_STAFF_MODE)) {
-            return stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
-        }
-        return Mode.BLOCK;
-    }
-
-    @Override
-    public boolean canOpenToolModeMenu(ItemStack stack) {
+    public boolean canOpenToolModeMenu(ItemStack stack, Player holder) {
         return Active.isActive(stack);
     }
 
     @Override
-    public void setToolMode(ItemStack stack, ToolMode rawMode, @Nullable Player holder) {
-        Mode old = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
-        if (rawMode instanceof Mode selected) {
-            stack.set(MineraculousDataComponents.CAT_STAFF_MODE, selected);
-            if (holder != null && holder.level() instanceof ServerLevel level) {
-                String anim = null;
-                SoundEvent sound = null;
-                if (selected == Mode.PHONE || selected == Mode.SPYGLASS) {
-                    if (old == Mode.PHONE || old == Mode.SPYGLASS)
-                        anim = ANIMATION_OPEN;
-                    else {
-                        anim = ANIMATION_RETRACT_AND_OPEN;
-                        sound = MineraculousSoundEvents.CAT_STAFF_RETRACT.get();
-                    }
-                } else if (old == Mode.PHONE || old == Mode.SPYGLASS) {
-                    anim = ANIMATION_CLOSE_AND_EXTEND;
-                    sound = MineraculousSoundEvents.CAT_STAFF_EXTEND.get();
+    public Supplier<DataComponentType<Mode>> getToolModeComponentType(ItemStack stack, InteractionHand hand, Player holder) {
+        return MineraculousDataComponents.CAT_STAFF_MODE;
+    }
+
+    @Override
+    public void onModeChanged(ItemStack stack, InteractionHand hand, Player holder, Mode oldMode, Mode newMode) {
+        if (holder != null && holder.level() instanceof ServerLevel level) {
+            String anim = null;
+            SoundEvent sound = null;
+            if (newMode == Mode.PHONE || newMode == Mode.SPYGLASS) {
+                if (oldMode == Mode.PHONE || oldMode == Mode.SPYGLASS)
+                    anim = ANIMATION_OPEN;
+                else {
+                    anim = ANIMATION_RETRACT_AND_OPEN;
+                    sound = MineraculousSoundEvents.CAT_STAFF_RETRACT.get();
                 }
-                if (anim != null)
-                    triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_EXTEND, anim);
-                if (sound != null)
-                    level.playSound(null, holder.blockPosition(), sound, holder.getSoundSource(), 1.0F, 1.0F);
+            } else if (oldMode == Mode.PHONE || oldMode == Mode.SPYGLASS) {
+                anim = ANIMATION_CLOSE_AND_EXTEND;
+                sound = MineraculousSoundEvents.CAT_STAFF_EXTEND.get();
             }
+            if (anim != null)
+                triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_EXTEND, anim);
+            if (sound != null)
+                level.playSound(null, holder.blockPosition(), sound, holder.getSoundSource(), 1.0F, 1.0F);
         }
     }
 
-    public enum Mode implements StringRepresentable, ToolMode {
+    public enum Mode implements ToolMode {
         BLOCK,
         PERCH,
         PHONE((stack, player) -> MineraculousConstants.Dependencies.TOMMYTECH.isLoaded()),
@@ -467,6 +450,17 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
 
         public static Mode of(String name) {
             return valueOf(name.toUpperCase());
+        }
+
+        @Override
+        public ResourceLocation getIcon() {
+            return switch (this) {
+                case PERCH -> ResourceLocation.withDefaultNamespace("textures/mob_effect/jump_boost.png");
+                case SPYGLASS -> ResourceLocation.withDefaultNamespace("textures/mob_effect/invisibility.png");
+                case THROW -> ResourceLocation.withDefaultNamespace("textures/mob_effect/levitation.png");
+                case TRAVEL -> ResourceLocation.withDefaultNamespace("textures/mob_effect/speed.png");
+                default -> ResourceLocation.withDefaultNamespace("textures/mob_effect/absorption.png");
+            };
         }
     }
 }

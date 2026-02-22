@@ -51,7 +51,7 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundSetMiraculousLookDataPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetMiraculousLookDataPayload.CODEC),
             new PayloadInfo<>(ServerboundRequestLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRequestLookPayload.CODEC),
             new PayloadInfo<>(ServerboundSendLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSendLookPayload.CODEC),
-            new PayloadInfo<>(ServerboundSetMiraculousToolMode.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetMiraculousToolMode.CODEC),
+            new PayloadInfo<>(ServerboundSetMiraculousToolModePayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetMiraculousToolModePayload.CODEC),
 
             // Clientbound
             new PayloadInfo<>(ClientboundToggleNightVisionShaderPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundToggleNightVisionShaderPayload.CODEC),

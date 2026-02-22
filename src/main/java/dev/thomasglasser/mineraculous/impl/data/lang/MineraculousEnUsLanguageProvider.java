@@ -125,12 +125,6 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(mode.displayName(), name);
     }
 
-    protected <T extends Enum<T> & RadialMenuOption> void addRadialMenuOptions(T[] options) {
-        for (T option : options) {
-            add(option.displayName(), capitalize(option.name()));
-        }
-    }
-
     protected <T extends Enum<T> & MiraculousTool.ToolMode> void addMiraculousToolModes(T[] options) {
         for (T option : options) {
             add(option.displayName(), capitalize(option.name()));
@@ -307,7 +301,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousData.KWAMI_NOT_FOUND, "%s Kwami not found in the world.");
 
         // Miraculous Tool Mode Gui
-        add(ToolModeMenuCategory.PROMPT, "Select a tool mode");
+        add(ToolModeMenuCategory.SELECT, "Select a tool mode");
 
         // Kamiko Gui
         add(KamikoTargetPlayerMenuCategory.TARGET_PROMPT, "Select a player to target");

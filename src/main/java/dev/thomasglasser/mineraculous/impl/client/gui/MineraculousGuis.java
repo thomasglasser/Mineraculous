@@ -23,6 +23,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -59,18 +60,16 @@ public class MineraculousGuis {
     }
 
     public static void resetToolGui() {
+        if (toolGui != null)
+            toolGui.closeGui();
         toolGui = null;
     }
 
-    private static ToolModeSelectionGui createToolGui(ItemStack stack) {
-        return new ToolModeSelectionGui(
-                Minecraft.getInstance(),
-                new ToolModeMenuCategory(stack));
-    }
-
-    private static void ensureToolGui(ItemStack stack) {
+    public static void createToolGui(ItemStack stack, InteractionHand hand, Player player) {
         if (toolGui == null) {
-            toolGui = createToolGui(stack);
+            toolGui = new ToolModeSelectionGui(
+                    Minecraft.getInstance(),
+                    new ToolModeMenuCategory(stack, hand, player));
         }
     }
 
@@ -78,11 +77,9 @@ public class MineraculousGuis {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
             ItemStack stack = player.getInventory().getSelected();
-            if (MineraculousClientUtils.isSelectingToolMode()) {
-                ensureToolGui(stack);
+            if (MineraculousClientUtils.isSelectingToolMode() && toolGui != null) {
                 toolGui.renderHotbar(guiGraphics, deltaTracker);
             } else if (toolGui != null) {
-                toolGui.closeGui();
                 resetToolGui();
             }
         }

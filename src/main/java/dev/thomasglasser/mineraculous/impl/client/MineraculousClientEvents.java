@@ -397,7 +397,7 @@ public class MineraculousClientEvents {
             event.setCanceled(true);
         }
         if (!MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) {
-            MineraculousGuis.resetToolGui();
+            MineraculousClientUtils.closeToolModeMenu();
         }
     }
 

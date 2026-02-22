@@ -6,7 +6,7 @@ import dev.thomasglasser.mineraculous.api.client.gui.components.selection.Select
 import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenu;
 import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenuItem;
 import dev.thomasglasser.mineraculous.api.client.gui.selection.categories.SelectionPage;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundSetMiraculousToolMode;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundSetMiraculousToolModePayload;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.client.DeltaTracker;
@@ -14,11 +14,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 public class ToolModeSelectionGui extends SelectionGui {
-    private final int numberOfOptions;
+    private final int optionCount;
 
     public ToolModeSelectionGui(Minecraft minecraft, ToolModeMenuCategory category) {
         super(minecraft, g -> new SelectionMenu(g, category) {
@@ -30,11 +31,10 @@ public class ToolModeSelectionGui extends SelectionGui {
 
             @Override
             public void selectSlot(int slot) {
-                slot = Math.min(slot, category.getItems().size() - 1);
-                super.selectSlot(slot);
+                super.selectSlot(Math.min(slot, category.getItems().size() - 1));
             }
         });
-        this.numberOfOptions = category.getItems().size();
+        this.optionCount = category.getItems().size();
     }
 
     @Override
@@ -42,9 +42,8 @@ public class ToolModeSelectionGui extends SelectionGui {
         if (this.isMenuActive()) {
             int i = this.menu.getSelectedSlot() + amount;
             if (i == -1) {
-                i = numberOfOptions - 1;
-            }
-            if (i == numberOfOptions) {
+                i = optionCount - 1;
+            } else if (i == optionCount) {
                 i = 0;
             }
             this.menu.selectSlot(i);
@@ -55,12 +54,11 @@ public class ToolModeSelectionGui extends SelectionGui {
     public void onMenuClosed(SelectionMenu menu) {
         SelectionMenuItem selectedItem = menu.getSelectedItem();
         Player player = Minecraft.getInstance().player;
-        if (selectedItem instanceof ToolModeItem toolModeItem) {
-            ItemStack selectedToolStackCopy = toolModeItem.getItemStack();
+        if (selectedItem instanceof ToolModeMenuItem toolModeMenuItem) {
             ItemStack toolStack = player.getInventory().getSelected();
-            TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousToolMode(selectedToolStackCopy));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousToolModePayload(toolStack, toolModeMenuItem.getToolMode().getSerializedName()));
             if (toolStack.getItem() instanceof MiraculousTool tool) {
-                tool.setToolMode(toolStack, tool.getToolMode(selectedToolStackCopy), player);
+                tool.setToolMode(toolStack, InteractionHand.MAIN_HAND, player, toolModeMenuItem.getToolMode());
             }
         }
         super.onMenuClosed(menu);
@@ -96,12 +94,12 @@ public class ToolModeSelectionGui extends SelectionGui {
         guiGraphics.setColor(1, 1, 1, alpha);
         guiGraphics.pose().pushPose();
         int slot = Minecraft.getInstance().player.getInventory().selected;
-        guiGraphics.pose().translate(Math.clamp((slot - (numberOfOptions - 1) / 2), 0, 9 - numberOfOptions) * 20f, 0, 0);
-        for (int i = 0; i < numberOfOptions; i++) {
+        guiGraphics.pose().translate(Math.clamp((slot - (optionCount - 1) / 2), 0, 9 - optionCount) * 20f, 0, 0);
+        for (int i = 0; i < optionCount; i++) {
             if (i == 0) {
                 guiGraphics.blitSprite(SpectatorGui.HOTBAR_SPRITE, 182, 22, 0, 0, x - 91, y, 21, 22);
-            } else if (i == numberOfOptions - 1) {
-                guiGraphics.blitSprite(SpectatorGui.HOTBAR_SPRITE, 182, 22, 161, 0, x - 91 + 20 * (numberOfOptions - 1) + 1, y, 21, 22);
+            } else if (i == optionCount - 1) {
+                guiGraphics.blitSprite(SpectatorGui.HOTBAR_SPRITE, 182, 22, 161, 0, x - 91 + 20 * (optionCount - 1) + 1, y, 21, 22);
             } else {
                 guiGraphics.blitSprite(SpectatorGui.HOTBAR_SPRITE, 182, 22, 20 * i + 1, 0, x - 91 + 20 * i + 1, y, 20, 22);
             }
@@ -112,14 +110,14 @@ public class ToolModeSelectionGui extends SelectionGui {
 
         guiGraphics.setColor(1, 1, 1, 1);
         Player player = Minecraft.getInstance().player;
-        for (int i = 0; i < numberOfOptions; i++) {
+        for (int i = 0; i < optionCount; i++) {
             this.renderSlot(guiGraphics, i, guiGraphics.guiWidth() / 2 - 90 + i * 20, y + 1f, alpha, selectionPage.getItem(i));
-            if (player != null && selectionPage.getSelectedSlot() == i && selectionPage.getItem(i) instanceof ToolModeItem toolModeItem) {
+            if (player != null && selectionPage.getSelectedSlot() == i && selectionPage.getItem(i) instanceof ToolModeMenuItem toolModeMenuItem) {
                 ItemStack stack = player.getInventory().getSelected();
-                if (stack.getItem() instanceof MiraculousTool miraculousTool) {
-                    Component component = miraculousTool.getToolMode((toolModeItem.getItemStack())).displayName();
+                if (stack.getItem() instanceof MiraculousTool) {
+                    Component component = toolModeMenuItem.getToolMode().displayName();
                     int xOffset = Minecraft.getInstance().font.width(component) / 2;
-                    int xString = guiGraphics.guiWidth() / 2 - 90 + numberOfOptions * 10 - xOffset;
+                    int xString = guiGraphics.guiWidth() / 2 - 90 + optionCount * 10 - xOffset;
                     guiGraphics.pose().pushPose();
                     guiGraphics.drawStringWithBackdrop(Minecraft.getInstance().font, component, xString, y - 12, 0, 0xFFF5F5F5);
                     guiGraphics.pose().popPose();

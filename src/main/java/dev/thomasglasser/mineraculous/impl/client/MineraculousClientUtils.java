@@ -47,7 +47,6 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPay
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.KamikotizedMinion;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -125,6 +124,7 @@ public class MineraculousClientUtils {
     private static final String KWAMI_GLOW_SHADER_STRENGTH_UNIFORM = "BlurSigma";
 
     private static boolean wasJumping = false;
+    private static boolean isToolModeMenuOpen = false;
 
     private static PostChain kwamiEffect;
     private static RenderTarget kwamiTarget;
@@ -429,12 +429,17 @@ public class MineraculousClientUtils {
     }
 
     public static boolean isSelectingToolMode() {
-        Player player = Minecraft.getInstance().player;
-        if (player != null) {
-            ItemStack stack = player.getInventory().getSelected();
-            return stack.getItem() instanceof MiraculousTool tool && tool.canOpenToolModeMenu(stack) && MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown();
-        }
-        return false;
+        return isToolModeMenuOpen;
+    }
+
+    public static void openToolModeMenu(ItemStack stack, InteractionHand hand, Player player) {
+        isToolModeMenuOpen = true;
+        MineraculousGuis.createToolGui(stack, hand, player);
+    }
+
+    public static void closeToolModeMenu() {
+        isToolModeMenuOpen = false;
+        MineraculousGuis.resetToolGui();
     }
 
     // Rendering

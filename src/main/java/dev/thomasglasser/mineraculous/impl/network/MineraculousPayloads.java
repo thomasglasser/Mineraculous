@@ -29,7 +29,7 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundStartKamikotizationTransformationPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundStartKamikotizationTransformationPayload.CODEC),
             new PayloadInfo<>(ServerboundPutMiraculousToolInHandPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundPutMiraculousToolInHandPayload.CODEC),
             new PayloadInfo<>(ServerboundPutKamikotizationToolInHandPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundPutKamikotizationToolInHandPayload.CODEC),
-            new PayloadInfo<>(ServerboundEquipToolPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundEquipToolPayload.CODEC),
+            new PayloadInfo<>(ServerboundEquipHeldToolPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundEquipHeldToolPayload.CODEC),
             new PayloadInfo<>(ServerboundTriggerKamikotizationAdvancementsPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundTriggerKamikotizationAdvancementsPayload.CODEC),
             new PayloadInfo<>(ServerboundRenounceMiraculousPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRenounceMiraculousPayload.CODEC),
             new PayloadInfo<>(ServerboundUpdateSpecialPlayerDataPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateSpecialPlayerDataPayload.CODEC),

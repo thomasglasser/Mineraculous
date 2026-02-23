@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
 import dev.thomasglasser.mineraculous.api.core.look.metadata.LookMetadataType;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
+import dev.thomasglasser.mineraculous.api.world.item.toolmode.ToolMode;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetType;
 import net.minecraft.core.Registry;
 import net.neoforged.neoforge.registries.RegistryBuilder;
@@ -12,14 +13,14 @@ import org.jetbrains.annotations.ApiStatus;
 public class MineraculousBuiltInRegistries {
     /// The static registry for {@link MineraculousRegistries#ABILITY_SERIALIZER}.
     public static final Registry<MapCodec<? extends Ability>> ABILITY_SERIALIZER = new RegistryBuilder<>(MineraculousRegistries.ABILITY_SERIALIZER).create();
-    /// The static registry for {@link MineraculousRegistries#}.
-    // TODO for tommy.
     /// The static registry for {@link MineraculousRegistries#MIRACULOUS_LADYBUG_TARGET_TYPE}.
     public static final Registry<MiraculousLadybugTargetType<?>> MIRACULOUS_LADYBUG_TARGET_TYPE = new RegistryBuilder<>(MineraculousRegistries.MIRACULOUS_LADYBUG_TARGET_TYPE).sync(true).create();
     /// The static registry for {@link MineraculousRegistries#LOOK_CONTEXT}.
     public static final Registry<LookContext> LOOK_CONTEXT = new RegistryBuilder<>(MineraculousRegistries.LOOK_CONTEXT).sync(true).create();
     /// The static registry for {@link MineraculousRegistries#LOOK_METADATA_TYPE}.
     public static final Registry<LookMetadataType<?>> LOOK_METADATA_TYPE = new RegistryBuilder<>(MineraculousRegistries.LOOK_METADATA_TYPE).sync(true).create();
+    /// The static registry for {@link MineraculousRegistries#TOOL_MODE}.
+    public static final Registry<ToolMode> TOOL_MODE = new RegistryBuilder<>(MineraculousRegistries.TOOL_MODE).create();
 
     @ApiStatus.Internal
     public static void init() {}

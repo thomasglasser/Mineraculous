@@ -31,6 +31,7 @@ import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.item.crafting.MineraculousRecipeTypes;
+import dev.thomasglasser.mineraculous.api.world.item.toolmode.ModeTool;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
@@ -65,7 +66,6 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundRemoteDamagePayloa
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.inventory.MineraculousRecipeBookTypes;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -376,7 +376,7 @@ public class MineraculousClientEvents {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
             ItemStack mainHand = player.getMainHandItem();
-            if (mainHand.getItem() instanceof MiraculousTool && MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) {
+            if (mainHand.getItem() instanceof ModeTool && MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) {
                 for (int i = 0; i < 9; i++) {
                     while (Minecraft.getInstance().options.keyHotbarSlots[i].consumeClick() && MineraculousGuis.getToolGui() != null) {
                         MineraculousGuis.getToolGui().onHotbarSelected(i);
@@ -392,7 +392,7 @@ public class MineraculousClientEvents {
             MineraculousGuis.getKamikoGui().onMouseScrolled(i);
         }
         ItemStack mainHand = Minecraft.getInstance().player.getMainHandItem();
-        if (mainHand.getItem() instanceof MiraculousTool && MineraculousGuis.getToolGui() != null) {
+        if (mainHand.getItem() instanceof ModeTool && MineraculousGuis.getToolGui() != null) {
             MineraculousGuis.getToolGui().onMouseScrolled(-i);
             event.setCanceled(true);
         }

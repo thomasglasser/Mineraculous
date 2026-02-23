@@ -19,6 +19,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.npc.MineraculousVillagerP
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.api.world.item.toolmode.ModeTool;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
@@ -53,7 +54,6 @@ import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiFoods;
@@ -121,11 +121,11 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(option.displayName(), name);
     }
 
-    protected void add(MiraculousTool.ToolMode mode, String name) {
+    protected void add(ModeTool.ToolMode mode, String name) {
         add(mode.displayName(), name);
     }
 
-    protected <T extends Enum<T> & MiraculousTool.ToolMode> void addMiraculousToolModes(T[] options) {
+    protected <T extends Enum<T> & ModeTool.ToolMode> void addMiraculousToolModes(T[] options) {
         for (T option : options) {
             add(option.displayName(), capitalize(option.name()));
         }

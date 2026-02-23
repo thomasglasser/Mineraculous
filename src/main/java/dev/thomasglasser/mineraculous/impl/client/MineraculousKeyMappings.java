@@ -24,7 +24,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundToggleNightVisionP
 import dev.thomasglasser.mineraculous.impl.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoLengthPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
+import dev.thomasglasser.mineraculous.api.world.item.toolmode.ModeTool;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.ExtendedKeyMapping;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -186,18 +186,12 @@ public class MineraculousKeyMappings {
 
     private static boolean consumeToolBehaviour(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (stack.getItem() instanceof RadialMenuProvider<?> provider) {
-            if (MineraculousClientUtils.tryOpenRadialMenuScreenFromProvider(hand, stack, provider)) {
-                return true;
-            } else if (provider.handleSecondaryKeyBehavior(stack, hand, player)) {
-                return true;
-            }
-        } else if (stack.getItem() instanceof MiraculousTool<?> miraculousTool) {
-            if (miraculousTool.canOpenToolModeMenu(stack, player)) {
+        if (stack.getItem() instanceof ModeTool<?> modeTool) {
+            if (modeTool.canChangeToolMode(stack, hand, player)) {
                 MineraculousClientUtils.openToolModeMenu(stack, hand, player);
                 return true;
             } else {
-                miraculousTool.onModeMenuFailedToOpen(hand);
+                modeTool.onFailedToolModeChange(, );
                 return true;
             }
         }

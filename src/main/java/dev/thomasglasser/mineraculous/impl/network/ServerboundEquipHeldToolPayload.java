@@ -11,11 +11,11 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-public record ServerboundEquipToolPayload(InteractionHand hand) implements ExtendedPacketPayload {
-    public static final Type<ServerboundEquipToolPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_equip_tool"));
-    public static final StreamCodec<ByteBuf, ServerboundEquipToolPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8.map(InteractionHand::valueOf, InteractionHand::name), ServerboundEquipToolPayload::hand,
-            ServerboundEquipToolPayload::new);
+public record ServerboundEquipHeldToolPayload(InteractionHand hand) implements ExtendedPacketPayload {
+    public static final Type<ServerboundEquipHeldToolPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_equip_held_tool"));
+    public static final StreamCodec<ByteBuf, ServerboundEquipHeldToolPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8.map(InteractionHand::valueOf, InteractionHand::name), ServerboundEquipHeldToolPayload::hand,
+            ServerboundEquipHeldToolPayload::new);
 
     // ON SERVER
     @Override

@@ -1,12 +1,10 @@
 package dev.thomasglasser.mineraculous.api.core.component;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.world.item.toolmode.ToolMode;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
-import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
-import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
-import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.item.component.EatingItem;
@@ -61,10 +59,8 @@ public class MineraculousDataComponents {
     /// The eating data of a {@link dev.thomasglasser.mineraculous.impl.world.item.KwamiItem}.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<EatingItem>> EATING_ITEM = DATA_COMPONENTS.register("eating_item", EatingItem.STREAM_CODEC, EatingItem.CODEC, true);
 
-    // Miraculous Tools
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<LadybugYoyoItem.Mode>> LADYBUG_YOYO_MODE = DATA_COMPONENTS.register("ladybug_yoyo_mode", LadybugYoyoItem.Mode.STREAM_CODEC, LadybugYoyoItem.Mode.CODEC, true);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<CatStaffItem.Mode>> CAT_STAFF_MODE = DATA_COMPONENTS.register("cat_staff_mode", CatStaffItem.Mode.STREAM_CODEC, CatStaffItem.Mode.CODEC, true);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ButterflyCaneItem.Mode>> BUTTERFLY_CANE_MODE = DATA_COMPONENTS.register("butterfly_cane_mode", ButterflyCaneItem.Mode.STREAM_CODEC, ButterflyCaneItem.Mode.CODEC, true);
+    // Tools
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ToolMode>> TOOL_MODE = DATA_COMPONENTS.register("tool_mode", ToolMode.STREAM_CODEC, ToolMode.CODEC, true);
 
     // Abilities
     /// A {@link UUID} registered to {@link dev.thomasglasser.mineraculous.api.world.level.storage.ItemReversionData} for ability reversion.

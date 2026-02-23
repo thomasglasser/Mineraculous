@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
+import dev.thomasglasser.mineraculous.api.world.item.toolmode.ModeTool;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -27,8 +27,8 @@ public record ServerboundSetMiraculousToolModePayload(ItemStack stack, String mo
         } else {
             hand = InteractionHand.OFF_HAND;
         }
-        if (stack.getItem() instanceof MiraculousTool<?> tool)
-            tool.getToolModes(stack, hand, player).stream()
+        if (stack.getItem() instanceof ModeTool<?> tool)
+            tool.getAllowedToolModes(stack, player).stream()
                     .filter(m -> m.getSerializedName().equals(modeId))
                     .findFirst()
                     .ifPresent(mode -> {
@@ -37,8 +37,8 @@ public record ServerboundSetMiraculousToolModePayload(ItemStack stack, String mo
     }
 
     @SuppressWarnings("unchecked")
-    private <M extends MiraculousTool.ToolMode> void applyMode(MiraculousTool<M> tool, ItemStack stack, InteractionHand hand, Player player, MiraculousTool.ToolMode mode) {
-        tool.setToolMode(stack, hand, player, (M) mode);
+    private <M extends ModeTool.ToolMode> void applyMode(ModeTool<M> tool, ItemStack stack, InteractionHand hand, Player player, ModeTool.ToolMode mode) {
+        tool.setToolMode(stack, (M) mode);
     }
 
     @Override

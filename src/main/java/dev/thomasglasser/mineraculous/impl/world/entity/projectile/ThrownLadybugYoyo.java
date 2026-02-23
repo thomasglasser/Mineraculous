@@ -9,12 +9,14 @@ import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSer
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.api.world.item.toolmode.ModeTool;
+import dev.thomasglasser.mineraculous.api.world.item.toolmode.ToolMode;
+import dev.thomasglasser.mineraculous.api.world.item.toolmode.ToolModes;
 import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
-import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
@@ -24,6 +26,7 @@ import java.util.UUID;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -59,7 +62,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     public static final float MIN_MAX_ROPE_LENGTH = 1.5f;
 
-    private static final EntityDataAccessor<Optional<LadybugYoyoItem.Mode>> DATA_MODE = SynchedEntityData.defineId(ThrownLadybugYoyo.class, MineraculousEntityDataSerializers.OPTIONAL_LADYBUG_YOYO_MODE.get());
+    private static final EntityDataAccessor<Optional<ToolMode>> DATA_MODE = SynchedEntityData.defineId(ThrownLadybugYoyo.class, MineraculousEntityDataSerializers.OPTIONAL_TOOL_MODE.get());
     private static final EntityDataAccessor<Boolean> DATA_IS_RECALLING = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> DATA_MAX_ROPE_LENGTH = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Direction> DATA_INITIAL_DIRECTION = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.DIRECTION);
@@ -76,7 +79,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         setBaseDamage(8);
     }
 
-    public ThrownLadybugYoyo(LivingEntity owner, Level level, ItemStack pickupItemStack, @Nullable LadybugYoyoItem.Mode mode) {
+    public ThrownLadybugYoyo(LivingEntity owner, Level level, ItemStack pickupItemStack, @Nullable ToolMode mode) {
         super(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), owner, level, pickupItemStack, pickupItemStack);
         noCulling = true;
         setBaseDamage(8);
@@ -106,11 +109,11 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         builder.define(DATA_HAND, 0);
     }
 
-    public @Nullable LadybugYoyoItem.Mode getMode() {
+    public @Nullable ToolMode getToolMode() {
         return entityData.get(DATA_MODE).orElse(null);
     }
 
-    public void setMode(@Nullable LadybugYoyoItem.Mode mode) {
+    public void setMode(@Nullable ToolMode mode) {
         entityData.set(DATA_MODE, Optional.ofNullable(mode));
     }
 
@@ -274,7 +277,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 && level().dimension() == owner.level().dimension()
                 && stack.is(MineraculousItems.LADYBUG_YOYO)
                 && Active.isActive(stack)
-                && (getMode() == null || getMode() == stack.get(MineraculousDataComponents.LADYBUG_YOYO_MODE));
+                && (getToolMode() == null || getToolMode() == ModeTool.getToolMode(stack));
         if (!remain) {
             discard();
         }
@@ -283,7 +286,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     @Nullable
     @Override
     protected EntityHitResult findHitEntity(Vec3 startVec, Vec3 endVec) {
-        if (getMode() == LadybugYoyoItem.Mode.TRAVEL || dealtDamage)
+        if (getToolMode() == ToolModes.TRAVEL || dealtDamage)
             return null;
         EntityHitResult result = super.findHitEntity(startVec, endVec);
         if (result == null) {
@@ -297,7 +300,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     protected void onHitEntity(EntityHitResult result) {
         Entity entity = result.getEntity();
         Entity owner = getOwner();
-        LadybugYoyoItem.Mode mode = getMode();
+        ToolMode mode = getToolMode();
         if (mode == null) {
             float damage = (float) getBaseDamage();
             DamageSource damagesource = damageSources().arrow(this, owner == null ? this : owner);
@@ -324,7 +327,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
             }
             recall();
         } else if (level() instanceof ServerLevel level) {
-            if (mode == LadybugYoyoItem.Mode.PURIFY) {
+            if (mode == ToolModes.PURIFY) {
                 EntityReversionData entityData = EntityReversionData.get(level);
                 if (entityData.isConvertedOrCopied(entity.getUUID())) {
                     UUID ownerId = getPickupItemStackOrigin().get(MineraculousDataComponents.OWNER);
@@ -345,7 +348,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                         }
                     }
                 }
-            } else if (mode == LadybugYoyoItem.Mode.LASSO && owner != null && entity instanceof Leashable leashable) {
+            } else if (mode == ToolModes.LASSO && owner != null && entity instanceof Leashable leashable) {
                 if (leashable.getLeashHolder() != owner && !entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE)) {
                     if (leashable.isLeashed()) {
                         leashable.dropLeash(true, true);
@@ -362,7 +365,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
 
     @Override
     protected boolean canHitEntity(Entity target) {
-        if (getMode() == null && !target.canBeHitByProjectile() && !(target instanceof ItemEntity)) {
+        if (getToolMode() == null && !target.canBeHitByProjectile() && !(target instanceof ItemEntity)) {
             return false;
         } else {
             Entity entity = this.getOwner();
@@ -378,7 +381,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     protected void onHitBlock(BlockHitResult result) {
         super.onHitBlock(result);
         if (!level().isClientSide) {
-            if (getMode() != LadybugYoyoItem.Mode.TRAVEL) {
+            if (getToolMode() != ToolModes.TRAVEL) {
                 recall();
             }
         }
@@ -409,16 +412,16 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        if (compound.contains("Mode"))
-            setMode(LadybugYoyoItem.Mode.valueOf(compound.getString("Mode")));
+        if (compound.contains("ToolMode"))
+            setMode(ToolMode.CODEC.parse(NbtOps.INSTANCE, compound.get("ToolMode")).getOrThrow());
         this.dealtDamage = compound.getBoolean("DealtDamage");
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-        if (getMode() != null)
-            compound.putString("Mode", this.getMode().name());
+        if (getToolMode() != null)
+            compound.put("ToolMode", ToolMode.CODEC.encodeStart(NbtOps.INSTANCE, getToolMode()).getOrThrow());
         compound.putBoolean("DealtDamage", this.dealtDamage);
     }
 
@@ -430,7 +433,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 0, state -> {
-            if (getMode() == LadybugYoyoItem.Mode.PURIFY)
+            if (getToolMode() == ToolModes.PURIFY)
                 return state.setAndContinue(DefaultAnimations.IDLE);
             return PlayState.STOP;
         }));

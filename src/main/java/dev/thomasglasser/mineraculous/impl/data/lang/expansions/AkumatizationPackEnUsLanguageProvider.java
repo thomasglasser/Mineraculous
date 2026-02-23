@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.api.world.item.toolmode.ModeTool;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
@@ -16,7 +17,6 @@ import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
 import dev.thomasglasser.tommylib.api.data.lang.EnUsOverrideLanguageProvider;
 import net.minecraft.data.PackOutput;
 
@@ -47,7 +47,7 @@ public class AkumatizationPackEnUsLanguageProvider extends EnUsOverrideLanguageP
         add(option.displayName(), name);
     }
 
-    protected void add(MiraculousTool.ToolMode toolMode, String name) {
+    protected void add(ModeTool.ToolMode toolMode, String name) {
         add(toolMode.displayName(), name);
     }
 

@@ -6,15 +6,14 @@ import dev.thomasglasser.mineraculous.api.client.gui.components.selection.Select
 import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenu;
 import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenuItem;
 import dev.thomasglasser.mineraculous.api.client.gui.selection.categories.SelectionPage;
+import dev.thomasglasser.mineraculous.api.world.item.toolmode.ModeTool;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetMiraculousToolModePayload;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -57,8 +56,8 @@ public class ToolModeSelectionGui extends SelectionGui {
         if (selectedItem instanceof ToolModeMenuItem toolModeMenuItem) {
             ItemStack toolStack = player.getInventory().getSelected();
             TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousToolModePayload(toolStack, toolModeMenuItem.getToolMode().getSerializedName()));
-            if (toolStack.getItem() instanceof MiraculousTool tool) {
-                tool.setToolMode(toolStack, InteractionHand.MAIN_HAND, player, toolModeMenuItem.getToolMode());
+            if (toolStack.getItem() instanceof ModeTool tool) {
+                tool.setToolMode(toolStack, toolModeMenuItem.getToolMode());
             }
         }
         super.onMenuClosed(menu);
@@ -114,7 +113,7 @@ public class ToolModeSelectionGui extends SelectionGui {
             this.renderSlot(guiGraphics, i, guiGraphics.guiWidth() / 2 - 90 + i * 20, y + 1f, alpha, selectionPage.getItem(i));
             if (player != null && selectionPage.getSelectedSlot() == i && selectionPage.getItem(i) instanceof ToolModeMenuItem toolModeMenuItem) {
                 ItemStack stack = player.getInventory().getSelected();
-                if (stack.getItem() instanceof MiraculousTool) {
+                if (stack.getItem() instanceof ModeTool) {
                     Component component = toolModeMenuItem.getToolMode().displayName();
                     int xOffset = Minecraft.getInstance().font.width(component) / 2;
                     int xString = guiGraphics.guiWidth() / 2 - 90 + optionCount * 10 - xOffset;

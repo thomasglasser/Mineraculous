@@ -1,8 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.mojang.serialization.Codec;
+import com.google.common.collect.ImmutableSet;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
@@ -10,36 +9,27 @@ import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
-import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousTiers;
+import dev.thomasglasser.mineraculous.api.world.item.toolmode.ModeTool;
+import dev.thomasglasser.mineraculous.api.world.item.toolmode.ToolMode;
+import dev.thomasglasser.mineraculous.api.world.item.toolmode.ToolModes;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownButterflyCane;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import io.netty.buffer.ByteBuf;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import java.util.Comparator;
-import java.util.List;
 import java.util.UUID;
-import java.util.function.BiPredicate;
-import java.util.function.Supplier;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Position;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -61,6 +51,7 @@ import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -73,7 +64,7 @@ import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileItem, MiraculousTool<ButterflyCaneItem.Mode> {
+public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileItem, ModeTool {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final String CONTROLLER_USE = "use_controller";
     public static final String ANIMATION_OPEN = "open";
@@ -89,6 +80,8 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
     private static final RawAnimation SHEATHE_AND_OPEN = RawAnimation.begin().then("attack.sheathe", Animation.LoopType.PLAY_ONCE).thenPlay("misc.open");
     private static final RawAnimation UNSHEATHE = RawAnimation.begin().thenPlay("attack.unsheathe");
     private static final RawAnimation CLOSE_AND_UNSHEATHE = RawAnimation.begin().then("misc.close", Animation.LoopType.PLAY_ONCE).thenPlay("attack.unsheathe");
+
+    private static final ImmutableSet<ToolMode> TOOL_MODES = ImmutableSet.of(ToolModes.BLADE, ToolModes.BLOCK, ToolModes.KAMIKO_STORE, ToolModes.PHONE, ToolModes.SPYGLASS, ToolModes.THROW);
 
     private static final ItemAttributeModifiers BLADE = ItemAttributeModifiers.builder()
             .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 15, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
@@ -115,12 +108,12 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
                 if (stack.has(MineraculousDataComponents.BLOCKING))
                     return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
                 else {
-                    Mode mode = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
-                    if (mode == Mode.BLADE)
+                    ToolMode mode = ModeTool.getToolMode(stack);
+                    if (mode == ToolModes.BLADE)
                         return state.setAndContinue(DefaultAnimations.IDLE);
-                    else if (mode == Mode.PHONE || mode == Mode.SPYGLASS)
+                    else if (mode == ToolModes.PHONE || mode == ToolModes.SPYGLASS)
                         return state.setAndContinue(OPEN);
-                    else if (mode == Mode.KAMIKO_STORE) {
+                    else if (mode == ToolModes.KAMIKO_STORE) {
                         boolean hasNoStoredEntities = true;
                         Level level = ClientUtils.getLevel();
                         UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
@@ -163,7 +156,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity interactionTarget, InteractionHand usedHand) {
         UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
-        if (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE) == Mode.KAMIKO_STORE && interactionTarget instanceof Kamiko kamiko && ownerId != null) {
+        if (ModeTool.getToolMode(stack) == ToolModes.KAMIKO_STORE && interactionTarget instanceof Kamiko kamiko && ownerId != null) {
             Entity caneOwner = player.level().getEntities().get(ownerId);
             if (caneOwner != null) {
                 MiraculousesData miraculousesData = caneOwner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
@@ -189,12 +182,12 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (stack.has(MineraculousDataComponents.BUTTERFLY_CANE_MODE.get())) {
-            Mode mode = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE.get());
+        ToolMode mode = ModeTool.getToolMode(stack);
+        if (mode != null) {
             UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
-            if (mode == Mode.BLOCK || mode == Mode.THROW || mode == Mode.BLADE) {
+            if (mode == ToolModes.BLOCK || mode == ToolModes.THROW || mode == ToolModes.BLADE) {
                 player.startUsingItem(hand);
-            } else if (mode == Mode.SPYGLASS) {
+            } else if (mode == ToolModes.SPYGLASS) {
                 level.playSound(null, player, SoundEvents.SPYGLASS_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
                 player.startUsingItem(hand);
             } else if (ownerId != null) {
@@ -203,7 +196,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
                     MiraculousesData miraculousesData = caneOwner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
                     Holder<Miraculous> storingKey = miraculousesData.getFirstTransformedIn(MiraculousTags.CAN_USE_BUTTERFLY_CANE);
                     MiraculousData storingData = miraculousesData.get(storingKey);
-                    if (mode == Mode.KAMIKO_STORE && level instanceof ServerLevel serverLevel && storingData != null) {
+                    if (mode == ToolModes.KAMIKO_STORE && level instanceof ServerLevel serverLevel && storingData != null) {
                         ImmutableList<CompoundTag> stored = storingData.storedEntities();
                         if (!stored.isEmpty()) {
                             Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(serverLevel);
@@ -234,8 +227,8 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
 
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeLeft) {
-        Mode mode = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
-        if (mode == Mode.THROW || mode == Mode.BLADE) {
+        ToolMode mode = ModeTool.getToolMode(stack);
+        if (mode == ToolModes.THROW || mode == ToolModes.BLADE) {
             int i = this.getUseDuration(stack, livingEntity) - timeLeft;
             if (i >= 10) {
                 if (!level.isClientSide) {
@@ -267,29 +260,31 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        Mode mode = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
-        return switch (mode) {
-            case BLOCK -> UseAnim.BLOCK;
-            case BLADE, THROW -> UseAnim.SPEAR;
-            case SPYGLASS -> UseAnim.SPYGLASS;
-            case null, default -> UseAnim.NONE;
-        };
+        ToolMode mode = ModeTool.getToolMode(stack);
+        if (mode == ToolModes.BLOCK)
+            return UseAnim.BLOCK;
+        else if (mode == ToolModes.BLADE || mode == ToolModes.THROW)
+            return UseAnim.SPEAR;
+        else if (mode == ToolModes.SPYGLASS)
+            return UseAnim.SPYGLASS;
+        return UseAnim.NONE;
     }
 
     @Override
     public boolean canPerformAction(ItemStack stack, ItemAbility itemAbility) {
-        Mode mode = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
-        return switch (mode) {
-            case BLOCK -> itemAbility == ItemAbilities.SHIELD_BLOCK;
-            case THROW -> itemAbility == ItemAbilities.TRIDENT_THROW;
-            case SPYGLASS -> itemAbility == ItemAbilities.SPYGLASS_SCOPE;
-            case null, default -> false;
-        };
+        ToolMode mode = ModeTool.getToolMode(stack);
+        if (mode == ToolModes.BLOCK)
+            return itemAbility == ItemAbilities.SHIELD_BLOCK;
+        else if (mode == ToolModes.THROW)
+            return itemAbility == ItemAbilities.TRIDENT_THROW;
+        else if (mode == ToolModes.SPYGLASS)
+            return itemAbility == ItemAbilities.SPYGLASS_SCOPE;
+        return false;
     }
 
     @Override
     public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack) {
-        if (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE) == Mode.BLADE)
+        if (ModeTool.getToolMode(stack) == ToolModes.BLADE)
             return BLADE;
         return COVERED;
     }
@@ -300,17 +295,19 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
     }
 
     @Override
-    public List<Mode> getToolModes(ItemStack stack, InteractionHand hand, Player holder) {
-        return FluentIterable.from(Mode.valuesList()).toSortedList(Comparator.comparing(Mode::getSerializedName));
+    public ImmutableSet<ToolMode> getToolModes(ItemStack stack, InteractionHand hand, Player holder) {
+        return TOOL_MODES;
     }
 
     @Override
-    public Supplier<DataComponentType<Mode>> getToolModeComponentType(ItemStack stack, InteractionHand hand, Player holder) {
-        return MineraculousDataComponents.BUTTERFLY_CANE_MODE;
+    public boolean isEnabled(ToolMode mode, ItemStack stack, InteractionHand hand, Player holder) {
+        if (mode == ToolModes.KAMIKO_STORE && !stack.has(MineraculousDataComponents.OWNER))
+            return false;
+        return mode != ToolModes.PHONE || MineraculousConstants.Dependencies.TOMMYTECH.isLoaded();
     }
 
     @Override
-    public void onModeChanged(ItemStack stack, InteractionHand hand, Player holder, Mode oldMode, Mode newMode) {
+    public void onModeChanged(ItemStack stack, InteractionHand hand, Player holder, @Nullable ToolMode oldMode, @Nullable ToolMode newMode) {
         if (holder != null && holder.level() instanceof ServerLevel level) {
             String anim = null;
             boolean hasNoStoredEntities = false;
@@ -319,83 +316,23 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
                 Entity owner = level.getEntities().get(ownerId);
                 hasNoStoredEntities = owner != null && !owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE);
             }
-            if (newMode == Mode.BLADE) {
-                if ((oldMode == Mode.KAMIKO_STORE && hasNoStoredEntities) || oldMode == Mode.SPYGLASS || oldMode == Mode.PHONE)
+            if (newMode == ToolModes.BLADE) {
+                if ((oldMode == ToolModes.KAMIKO_STORE && hasNoStoredEntities) || oldMode == ToolModes.SPYGLASS || oldMode == ToolModes.PHONE)
                     anim = ANIMATION_CLOSE_AND_UNSHEATHE;
                 else
                     anim = ANIMATION_UNSHEATHE;
-            } else if ((newMode == Mode.KAMIKO_STORE && hasNoStoredEntities) || newMode == Mode.SPYGLASS || newMode == Mode.PHONE) {
-                if (oldMode == Mode.BLADE)
+            } else if ((newMode == ToolModes.KAMIKO_STORE && hasNoStoredEntities) || newMode == ToolModes.SPYGLASS || newMode == ToolModes.PHONE) {
+                if (oldMode == ToolModes.BLADE)
                     anim = ANIMATION_SHEATHE_AND_OPEN;
                 else
                     anim = ANIMATION_OPEN;
-            } else if ((oldMode == Mode.KAMIKO_STORE && hasNoStoredEntities) || oldMode == Mode.SPYGLASS || oldMode == Mode.PHONE)
+            } else if ((oldMode == ToolModes.KAMIKO_STORE && hasNoStoredEntities) || oldMode == ToolModes.SPYGLASS || oldMode == ToolModes.PHONE)
                 anim = ANIMATION_CLOSE;
-            else if (oldMode == Mode.BLADE)
+            else if (oldMode == ToolModes.BLADE)
                 anim = ANIMATION_SHEATHE;
             if (anim != null) {
                 triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_USE, anim);
             }
-        }
-    }
-
-    public enum Mode implements ToolMode {
-        BLADE,
-        BLOCK,
-        KAMIKO_STORE((stack, player) -> stack.has(MineraculousDataComponents.OWNER)),
-        PHONE((stack, player) -> MineraculousConstants.Dependencies.TOMMYTECH.isLoaded()),
-        SPYGLASS,
-        THROW;
-
-        public static final Codec<Mode> CODEC = StringRepresentable.fromEnum(Mode::values);
-        public static final StreamCodec<ByteBuf, Mode> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(Mode::of, Mode::getSerializedName);
-
-        private static final List<Mode> VALUES_LIST = new ReferenceArrayList<>(values());
-
-        private final BiPredicate<ItemStack, Player> enabledPredicate;
-        private final Component displayName;
-
-        Mode() {
-            this((stack, player) -> true);
-        }
-
-        Mode(BiPredicate<ItemStack, Player> enabledPredicate) {
-            this.enabledPredicate = enabledPredicate;
-            this.displayName = Component.translatable(MineraculousItems.BUTTERFLY_CANE.getId().toLanguageKey("mode", getSerializedName()));
-        }
-
-        @Override
-        public Component displayName() {
-            return displayName;
-        }
-
-        @Override
-        public boolean isEnabled(ItemStack stack, Player holder) {
-            return enabledPredicate.test(stack, holder);
-        }
-
-        @Override
-        public String getSerializedName() {
-            return name().toLowerCase();
-        }
-
-        public static List<Mode> valuesList() {
-            return VALUES_LIST;
-        }
-
-        public static Mode of(String name) {
-            return valueOf(name.toUpperCase());
-        }
-
-        @Override
-        public ResourceLocation getIcon() {
-            return switch (this) {
-                case BLADE -> ResourceLocation.withDefaultNamespace("textures/mob_effect/strength.png");
-                case SPYGLASS -> ResourceLocation.withDefaultNamespace("textures/mob_effect/invisibility.png");
-                case KAMIKO_STORE -> ResourceLocation.withDefaultNamespace("textures/mob_effect/glowing.png");
-                case THROW -> ResourceLocation.withDefaultNamespace("textures/mob_effect/levitation.png");
-                default -> ResourceLocation.withDefaultNamespace("textures/mob_effect/absorption.png");
-            };
         }
     }
 }

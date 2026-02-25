@@ -12,14 +12,6 @@ import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import java.awt.Color;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.LightTexture;
@@ -34,6 +26,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.joml.Vector3f;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class MiraculousSelectionScreen2 extends MiraculousSelecting {
     private static final ResourceLocation PARTICLE_TEXTURE = MineraculousConstants.modLoc("textures/gui/sprites/miraculous_selection/particle.png");
@@ -230,7 +230,7 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
     private void updateSelectedOption(int keyCode) {
         boolean left = keyCode == Minecraft.getInstance().options.keyLeft.getKey().getValue();
         boolean right = keyCode == Minecraft.getInstance().options.keyRight.getKey().getValue();
-        if (!(left && right) && (left || right)) {
+        if (left ^ right) {
             int direction = right ? 1 : -1;
             targetWheelRotationAngle += direction * getAngleStep();
             selectedOptionIndex += direction;
@@ -251,11 +251,10 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
         ResourceKey<Miraculous> key = entries.get(selectedOptionIndex).getKey();
         ItemStack selectedStack = availableMiraculous.get(key).stack();
         selectedStack.set(MineraculousDataComponents.POWER_STATE, MiraculousItem.PowerState.POWERED);
-        targetParticleColor =
-                selectedStack.get(MineraculousDataComponents.MIRACULOUS)
-                    .value()
-                    .color()
-                    .getValue()
+        targetParticleColor = selectedStack.get(MineraculousDataComponents.MIRACULOUS)
+                .value()
+                .color()
+                .getValue()
                 | 0xFF000000;
     }
 

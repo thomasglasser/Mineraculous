@@ -9,10 +9,10 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
+import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
-
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -52,11 +52,12 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
     private int selectedOptionIndex = 0;
     private float verticalOffset = 0;
     private boolean verticalOffsetIncreasing = true;
+    private int currentParticleColor = 0xFFFFFFFF;
+    private int targetParticleColor = 0xFFFFFFFF;
 
     private Set<ParticleQuad> particles = new HashSet<>();
 
     public MiraculousSelectionScreen2(int activationKey) {
-        //super(Component.empty());
         this.activationKey = activationKey;
         updateAvailableMiraculous();
         updateMiraculousPoweredState();
@@ -123,19 +124,13 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
             renderMiraculous(poseStack, bufferSource, partialTick);
         }
         if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS) {
-            renderGoldenCircle(poseStack, bufferSource, partialTick);
+            renderParticleSurface(poseStack, bufferSource, partialTick);
         }
     }
 
-    private void renderGoldenCircle(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, float partialTick) {
+    private void renderParticleSurface(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, float partialTick) {
         poseStack.pushPose();
-        MineraculousClientUtils.rotateFacingCamera(poseStack, new Vector3f(0, 0, 0), 0);
-        float scale = 0.006f;
-        float wheelSize = getCircleRadius(partialTick);
-        poseStack.scale(scale, scale, scale);
-        poseStack.translate(0, -7, 35);
-        poseStack.scale(1.05f, 1, 1.05f);
-        poseStack.scale(wheelSize, wheelSize, wheelSize);
+        applyParticlesTransforms(poseStack, partialTick);
         for (ParticleQuad particle : particles) {
             particle.render(bufferSource, poseStack, partialTick, currentParticleColor);
         }
@@ -147,12 +142,12 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
             return;
         }
         poseStack.pushPose();
-        applyGlobalTransforms(poseStack, partialTick);
-        int i = 0;
+        applyMiraculousTransforms(poseStack, partialTick);
+        int optionCount = 0;
         for (MiraculousOptionData option : availableMiraculous.values()) {
             poseStack.pushPose();
             poseStack.translate(0, 0, Mth.lerp(partialTick, option.oldVerticalOffset(), option.verticalOffset()));
-            applyMiraculousLocalTransforms(poseStack, i * getAngleStep());
+            applyMiraculousLocalTransforms(poseStack, optionCount * getAngleStep());
             Minecraft.getInstance().getItemRenderer().renderStatic(
                     option.stack(),
                     ItemDisplayContext.FIXED,
@@ -163,35 +158,53 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
                     null,
                     0);
             poseStack.popPose();
-            i++;
+            optionCount++;
         }
         poseStack.popPose();
     }
 
-    private void applyMiraculousLocalTransforms(PoseStack poseStack, double angle) {
-        double x = -Math.cos(angle) * 1.16;
-        double y = Math.sin(angle) * 1.16;
-        poseStack.translate(x, y, -0.4);
-        poseStack.scale(3f, 3f, 3f);
-        poseStack.mulPose(Axis.ZN.rotation((float) angle));
-        poseStack.mulPose(Axis.XN.rotationDegrees(90));
-        poseStack.mulPose(Axis.YP.rotationDegrees(90));
-        poseStack.mulPose(Axis.XP.rotationDegrees(5));
+    private void applyParticlesTransforms(PoseStack poseStack, float partialTick) {
+        final float SCALE = 0.006f;
+        final double Y_TRANSLATION = -7;
+        final double Z_TRANSLATION = 35;
+        final float WIDTH_DISTORTION_FACTOR = 1.05f;
+        float wheelSize = getCircleRadius(partialTick);
+        MineraculousClientUtils.rotateFacingCamera(poseStack, new Vector3f(0, 0, 0), 0);
+        poseStack.scale(SCALE, SCALE, SCALE);
+        poseStack.translate(0, Y_TRANSLATION, Z_TRANSLATION);
+        poseStack.scale(wheelSize * WIDTH_DISTORTION_FACTOR, wheelSize, wheelSize * WIDTH_DISTORTION_FACTOR);
     }
 
-    private void applyGlobalTransforms(PoseStack poseStack, float partialTick) {
-        MineraculousClientUtils.rotateFacingCamera(poseStack, new Vector3f(0, 0, 0), 0);
-        float scale = 0.089f;
+    private void applyMiraculousTransforms(PoseStack poseStack, float partialTick) {
+        final float SCALE = 0.089f;
+        final float TILT_DEGREES = 89;
+        final double Y_TRANSLATION = -0.05;
+        final double Z_TRANSLATION = 0.24;
         float wheelSize = getCircleRadius(partialTick);
         float angleStep = getAngleStep();
         float lastAngleOption = (float) (availableMiraculous.size() * angleStep + Math.PI / 2);
         float interpolatedAngle = Mth.lerp(partialTick, oldWheelRotationAngle, wheelRotationAngle);
-        poseStack.translate(0, -0.05, 0.24);
+        MineraculousClientUtils.rotateFacingCamera(poseStack, new Vector3f(0, 0, 0), 0);
+        poseStack.translate(0, Y_TRANSLATION, Z_TRANSLATION);
         poseStack.scale(wheelSize, wheelSize, wheelSize);
-        poseStack.scale(scale, scale, scale);
-        poseStack.mulPose(Axis.XP.rotationDegrees(89));
+        poseStack.scale(SCALE, SCALE, SCALE);
+        poseStack.mulPose(Axis.XP.rotationDegrees(TILT_DEGREES));
         poseStack.mulPose(Axis.ZP.rotation(lastAngleOption));
         poseStack.mulPose(Axis.ZP.rotation(interpolatedAngle));
+    }
+
+    private void applyMiraculousLocalTransforms(PoseStack poseStack, double angle) {
+        final double RADIUS = 1.16;
+        final double Z_TRANSLATION = -0.4;
+        final float SCALE = 3f;
+        double x = -Math.cos(angle) * RADIUS;
+        double y = Math.sin(angle) * RADIUS;
+        poseStack.translate(x, y, Z_TRANSLATION);
+        poseStack.scale(SCALE, SCALE, SCALE);
+        poseStack.mulPose(Axis.ZN.rotation((float) angle));
+        poseStack.mulPose(Axis.XN.rotationDegrees(90));
+        poseStack.mulPose(Axis.YP.rotationDegrees(90));
+        poseStack.mulPose(Axis.XP.rotationDegrees(5));
     }
 
     private float getCircleRadius(float partialTick) {
@@ -207,10 +220,8 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
             updated.add(key);
             if (!availableMiraculous.containsKey(key)) {
                 ItemStack copy = stack.copy();
-                copy.set(
-                        MineraculousDataComponents.POWER_STATE,
-                        MiraculousItem.PowerState.HIDDEN);
-                availableMiraculous.put(key, new MiraculousOptionData(copy, 0, 0));
+                copy.set(MineraculousDataComponents.POWER_STATE, MiraculousItem.PowerState.HIDDEN);
+                availableMiraculous.put(key, new MiraculousOptionData(copy, false, 0, 0));
             }
         }
         availableMiraculous.keySet().removeIf(key -> !updated.contains(key));
@@ -228,56 +239,32 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
         }
     }
 
-    private int currentParticleColor = 0xFFFFFFFF;
-    private int targetParticleColor = 0xFFFFFFFF;
-
     private void updateMiraculousPoweredState() {
         List<Map.Entry<ResourceKey<Miraculous>, MiraculousOptionData>> entries = new ArrayList<>(availableMiraculous.entrySet());
         for (MiraculousOptionData option : availableMiraculous.values()) {
             option.stack().set(
                     MineraculousDataComponents.POWER_STATE,
-                    MiraculousItem.PowerState.HIDDEN);
+                    option.chosen
+                            ? MiraculousItem.PowerState.POWERED
+                            : MiraculousItem.PowerState.HIDDEN);
         }
         ResourceKey<Miraculous> key = entries.get(selectedOptionIndex).getKey();
         ItemStack selectedStack = availableMiraculous.get(key).stack();
-        selectedStack.set(
-                MineraculousDataComponents.POWER_STATE,
-                MiraculousItem.PowerState.POWERED);
-        targetParticleColor = selectedStack.get(MineraculousDataComponents.MIRACULOUS)
-                .value()
-                .color()
-                .getValue() | 0xFF000000;
+        selectedStack.set(MineraculousDataComponents.POWER_STATE, MiraculousItem.PowerState.POWERED);
+        targetParticleColor =
+                selectedStack.get(MineraculousDataComponents.MIRACULOUS)
+                    .value()
+                    .color()
+                    .getValue()
+                | 0xFF000000;
     }
 
     private void updateParticleColor() {
-        currentParticleColor = lerpColor(
+        final float TRANSITION_SPEED = 0.3f;
+        currentParticleColor = MineraculousMathUtils.lerpColor(
                 currentParticleColor,
                 targetParticleColor,
-                0.3f);
-    }
-
-    private static int lerpColor(int from, int to, float speed) {
-        int fr = (from >> 16) & 0xFF;
-        int fg = (from >> 8) & 0xFF;
-        int fb = from & 0xFF;
-
-        int tr = (to >> 16) & 0xFF;
-        int tg = (to >> 8) & 0xFF;
-        int tb = to & 0xFF;
-
-        float[] fhsv = Color.RGBtoHSB(fr, fg, fb, null);
-        float[] thsv = Color.RGBtoHSB(tr, tg, tb, null);
-
-        float dh = thsv[0] - fhsv[0];
-        if (dh > 0.5f) dh -= 1f;
-        if (dh < -0.5f) dh += 1f;
-
-        float h = fhsv[0] + dh * speed;
-        float s = Mth.lerp(speed, fhsv[1], thsv[1]);
-        float v = Mth.lerp(speed, fhsv[2], thsv[2]);
-
-        int rgb = Color.HSBtoRGB(h, s, v);
-        return (from & 0xFF000000) | (rgb & 0x00FFFFFF);
+                TRANSITION_SPEED);
     }
 
     private void updateMiraculousVerticalOffsets() {
@@ -326,9 +313,9 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
         }
     }
 
-    private record MiraculousOptionData(ItemStack stack, float verticalOffset, float oldVerticalOffset) {
+    private record MiraculousOptionData(ItemStack stack, boolean chosen, float verticalOffset, float oldVerticalOffset) {
         public MiraculousOptionData withVerticalOffset(float verticalOffset) {
-            return new MiraculousOptionData(this.stack, verticalOffset, this.verticalOffset);
+            return new MiraculousOptionData(this.stack, this.chosen, verticalOffset, this.verticalOffset);
         }
     }
 

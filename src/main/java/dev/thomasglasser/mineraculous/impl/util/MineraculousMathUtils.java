@@ -2,6 +2,8 @@ package dev.thomasglasser.mineraculous.impl.util;
 
 import com.google.common.collect.ImmutableList;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTarget;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,6 +13,7 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
@@ -127,64 +130,32 @@ public class MineraculousMathUtils {
         return points;
     }
 
-    public static BlockPos findNearestBlockPos(Vec3 pos, Iterable<BlockPos> candidates) {
-        BlockPos best = null;
-        double bestDistSq = Double.POSITIVE_INFINITY;
-        for (BlockPos c : candidates) {
-            double dx = pos.x - (c.getX() + 0.5);
-            double dy = pos.y - (c.getY() + 0.5);
-            double dz = pos.z - (c.getZ() + 0.5);
-            double d2 = dx * dx + dy * dy + dz * dz;
-            if (d2 < bestDistSq) {
-                bestDistSq = d2;
-                best = c;
-            }
-        }
-        return best;
+    public static int lerpColor(int from, int to, float speed) {
+        int fr = (from >> 16) & 0xFF;
+        int fg = (from >> 8) & 0xFF;
+        int fb = from & 0xFF;
+
+        int tr = (to >> 16) & 0xFF;
+        int tg = (to >> 8) & 0xFF;
+        int tb = to & 0xFF;
+
+        float[] fhsv = Color.RGBtoHSB(fr, fg, fb, null);
+        float[] thsv = Color.RGBtoHSB(tr, tg, tb, null);
+
+        float dh = thsv[0] - fhsv[0];
+        if (dh > 0.5f) dh -= 1f;
+        if (dh < -0.5f) dh += 1f;
+
+        float h = fhsv[0] + dh * speed;
+        float s = Mth.lerp(speed, fhsv[1], thsv[1]);
+        float v = Mth.lerp(speed, fhsv[2], thsv[2]);
+
+        int rgb = Color.HSBtoRGB(h, s, v);
+        return (from & 0xFF000000) | (rgb & 0x00FFFFFF);
     }
 
-    public static List<List<BlockPos>> buildRevertLayers(BlockPos origin, Set<BlockPos> validBlocks) {
-        List<List<BlockPos>> layers = new ArrayList<>();
-        Set<BlockPos> remaining = new HashSet<>(validBlocks);
-        if (!remaining.contains(origin)) {
-            return layers;
-        }
-
-        List<BlockPos> current = new ArrayList<>();
-        current.add(origin);
-        remaining.remove(origin);
-        layers.add(ImmutableList.copyOf(current));
-
-        List<int[]> offsets = new ArrayList<>(26);
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                for (int dz = -1; dz <= 1; dz++) {
-                    if (dx == 0 && dy == 0 && dz == 0) continue;
-                    offsets.add(new int[] { dx, dy, dz });
-                }
-            }
-        }
-
-        while (true) {
-            List<BlockPos> nextLayer = new ArrayList<>();
-            for (BlockPos bp : current) {
-                for (int[] off : offsets) {
-                    BlockPos n = bp.offset(off[0], off[1], off[2]);
-                    if (remaining.contains(n)) {
-                        nextLayer.add(n);
-                        remaining.remove(n);
-                    }
-                }
-            }
-            if (nextLayer.isEmpty()) break;
-            layers.add(ImmutableList.copyOf(nextLayer));
-            current = nextLayer;
-        }
-        return layers;
-    }
-
-    //ALGORITHMS
-    //GREEDY TSP
+    // ALGORITHMS
+    // GREEDY TSP
     public static List<MiraculousLadybugTarget<?>> sortTargets(Collection<MiraculousLadybugTarget<?>> targets, Vec3 startTarget) {
         List<MiraculousLadybugTarget<?>> toVisit = new ArrayList<>(targets);
         List<MiraculousLadybugTarget<?>> ordered = new ArrayList<>();

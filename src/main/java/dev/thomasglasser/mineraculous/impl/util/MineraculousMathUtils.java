@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.impl.util;
 
 import com.google.common.collect.ImmutableList;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTarget;
-
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collection;

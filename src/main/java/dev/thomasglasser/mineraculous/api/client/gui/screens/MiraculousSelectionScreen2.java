@@ -101,7 +101,10 @@ public class MiraculousSelectionScreen2 extends MiraculousSelecting {
                             data.verticalOffset(),
                             data.oldVerticalOffset()));
             int count = availableMiraculous.size() - getChosenCount();
-            selectedOptionIndex = Mth.clamp(selectedOptionIndex, 0, Math.max(0, count - 1));
+            selectedOptionIndex--;
+            if (selectedOptionIndex < 0) {
+                selectedOptionIndex = count - 1;
+            }
             updateMiraculousPoweredState();
         }
         return super.mouseClicked(mouseX, mouseY, button);

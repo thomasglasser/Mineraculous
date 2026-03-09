@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.api.client.look.util.renderer.ThrownMiraculousToolLookRenderer;
 import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
+import dev.thomasglasser.mineraculous.impl.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import net.minecraft.client.Minecraft;
@@ -48,7 +49,7 @@ public class ThrownLadybugYoyoRenderer<T extends ThrownLadybugYoyo> extends GeoE
             if (projectilePlayer == Minecraft.getInstance().player && Minecraft.getInstance().getEntityRenderDispatcher().options.getCameraType().isFirstPerson()) {
                 playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(offHand, partialTick);
             } else {
-                playerHandPos = MineraculousClientUtils.getHumanoidEntityHandPos(projectilePlayer, offHand, partialTick, 0.15f, -0.75, 0.35f);
+                playerHandPos = MineraculousClientEvents.getHandPos(projectilePlayer.getUUID());
             }
             maxLength = animatable.getMaxRopeLength();
             Vec3 projectilePos = animatable.getPosition(partialTick);

@@ -74,12 +74,15 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.HttpTexture;
@@ -103,6 +106,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import top.theillusivec4.curios.common.inventory.CurioSlot;
@@ -657,6 +661,35 @@ public class MineraculousClientUtils {
             return livingEntity.getEyePosition(partialTick).add(-cosRot * armOffset - sinRot * frontOffsetScaled, (double) crouchOffset + heightOffset * (double) scale, -sinRot * armOffset + cosRot * frontOffsetScaled);
         }
         return Vec3.ZERO;
+    }
+
+    public static Vec3 getHandPos(Player player, PlayerRenderer renderer, PoseStack poseStack, boolean offhand) {
+        PlayerModel<AbstractClientPlayer> model = renderer.getModel();
+
+        HumanoidArm arm = offhand
+                ? player.getMainArm().getOpposite()
+                : player.getMainArm();
+
+        ModelPart armPart = arm == HumanoidArm.RIGHT ? model.rightArm : model.leftArm;
+
+        poseStack.pushPose();
+
+        // move to shoulder
+        model.body.translateAndRotate(poseStack);
+
+        // apply arm transform
+        armPart.translateAndRotate(poseStack);
+
+        PoseStack.Pose pose = poseStack.last();
+
+        Matrix4f matrix = pose.pose();
+
+        //negative z
+        Vec3 pos = new Vec3(matrix.m01(), 0.9-matrix.m22(), matrix.m12()); //WORKS WHILE FACING NEGATIVE Z (NORTH AKA 180 ROT DEGS)
+
+        poseStack.popPose();
+
+        return pos;
     }
 
     public record InputState(boolean front, boolean back, boolean left, boolean right, boolean jump) {

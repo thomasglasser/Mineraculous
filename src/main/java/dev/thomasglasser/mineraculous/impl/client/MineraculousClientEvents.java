@@ -91,6 +91,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Leashable;
@@ -104,6 +105,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
@@ -350,6 +352,7 @@ public class MineraculousClientEvents {
             if (Minecraft.getInstance().player.level() != null)
                 for (Player otherPlayer : Minecraft.getInstance().player.level().players()) {
                     playerPerchRendererMap.computeIfAbsent(otherPlayer.getUUID(), k -> new CatStaffRenderer.PerchRenderer()).tick(otherPlayer);
+                    playerAccurateHandPositionMap.computeIfAbsent(otherPlayer.getUUID(), k -> Vec3.ZERO);
                 }
         }
     }
@@ -419,13 +422,26 @@ public class MineraculousClientEvents {
     }
 
     private static final Map<UUID, CatStaffRenderer.PerchRenderer> playerPerchRendererMap = new Object2ObjectOpenHashMap<>();
+    private static final Map<UUID, Vec3> playerAccurateHandPositionMap = new Object2ObjectOpenHashMap<>();
+
+    public static Vec3 getHandPos(UUID id) {
+        return playerAccurateHandPositionMap.get(id);
+    }
 
     static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
         Player player = event.getEntity();
         PoseStack poseStack = event.getPoseStack();
+        PlayerRenderer renderer = event.getRenderer();
         MultiBufferSource bufferSource = event.getMultiBufferSource();
         int light = event.getPackedLight();
         float partialTick = event.getPartialTick();
+
+        Vec3  hand = MineraculousClientUtils.getHandPos(player, renderer, poseStack, false);
+        hand = hand.add(MineraculousClientUtils.getHumanoidEntityHandPos(player, false, partialTick, -0.3f, -0.85, 0.35f));
+        float walkAnim = player.walkAnimation.speed(partialTick);
+        float walkPos = player.walkAnimation.position(partialTick);
+         float walkBob = Mth.sin(walkPos) * 0.07F * walkAnim;
+        playerAccurateHandPositionMap.put(player.getUUID(), hand);
 
         player.noCulling = true;
         if (playerPerchRendererMap.containsKey(player.getUUID()))

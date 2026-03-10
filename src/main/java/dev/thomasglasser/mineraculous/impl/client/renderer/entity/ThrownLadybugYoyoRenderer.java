@@ -49,7 +49,7 @@ public class ThrownLadybugYoyoRenderer<T extends ThrownLadybugYoyo> extends GeoE
             if (projectilePlayer == Minecraft.getInstance().player && Minecraft.getInstance().getEntityRenderDispatcher().options.getCameraType().isFirstPerson()) {
                 playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(offHand, partialTick);
             } else {
-                playerHandPos = MineraculousClientEvents.getHandPos(projectilePlayer.getUUID());
+                playerHandPos = MineraculousClientEvents.getYoyoRopePosition(projectilePlayer.getUUID());
             }
             maxLength = animatable.getMaxRopeLength();
             Vec3 projectilePos = animatable.getPosition(partialTick);

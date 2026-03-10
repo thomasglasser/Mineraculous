@@ -664,50 +664,6 @@ public class MineraculousClientUtils {
         return Vec3.ZERO;
     }
 
-    public static Vec3 getHandPos(Player player, PlayerRenderer renderer, PoseStack poseStack, boolean offhand, float partialTick) {
-        PlayerModel<AbstractClientPlayer> model = renderer.getModel();
-
-        HumanoidArm arm = offhand
-                ? player.getMainArm().getOpposite()
-                : player.getMainArm();
-
-        ModelPart armPart = arm == HumanoidArm.RIGHT ? model.rightArm : model.leftArm;
-
-        poseStack.pushPose();
-
-        poseStack.pushPose();
-        model.body.translateAndRotate(poseStack);
-        armPart.translateAndRotate(poseStack);
-        poseStack.mulPose(Axis.YN.rotationDegrees(player.getPreciseBodyRotation(partialTick)));
-        poseStack.mulPose(Axis.XP.rotationDegrees(180));
-        armPart.render(poseStack, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.entityCutoutNoCull(Minecraft.getInstance().player.getSkin().texture())), LightTexture.FULL_BRIGHT, 1);
-
-        float x = -poseStack.last().pose().m01();
-        float y = poseStack.last().pose().m21();
-        poseStack.popPose();
-
-        // move to shoulder
-        poseStack.translate(0, 1.45, 0);
-        poseStack.mulPose(Axis.YN.rotationDegrees(player.getPreciseBodyRotation(partialTick)));
-        poseStack.mulPose(Axis.XP.rotationDegrees(180));
-
-        // apply arm transform
-
-        armPart.render(poseStack, Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.entityCutoutNoCull(Minecraft.getInstance().player.getSkin().texture())), LightTexture.FULL_BRIGHT, 1);
-
-        PoseStack.Pose pose = poseStack.last();
-
-        Matrix4f matrix = pose.pose();
-
-        //negative z
-        //Vec3 pos = new Vec3(matrix.m01(), matrix.m21(), matrix.m12()); //WORKS WHILE FACING NEGATIVE Z (NORTH AKA 180 ROT DEGS)
-        Vec3 pos = new Vec3(x, 0, matrix.m03());
-
-        poseStack.popPose();
-
-        return pos;
-    }
-
     public record InputState(boolean front, boolean back, boolean left, boolean right, boolean jump) {
         public int packInputs() {
             int bits = 0;

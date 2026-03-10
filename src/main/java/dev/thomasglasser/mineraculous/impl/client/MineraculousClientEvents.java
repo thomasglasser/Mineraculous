@@ -354,7 +354,6 @@ public class MineraculousClientEvents {
             if (Minecraft.getInstance().player.level() != null)
                 for (Player otherPlayer : Minecraft.getInstance().player.level().players()) {
                     playerPerchRendererMap.computeIfAbsent(otherPlayer.getUUID(), k -> new CatStaffRenderer.PerchRenderer()).tick(otherPlayer);
-                    playerAccurateHandPositionMap.computeIfAbsent(otherPlayer.getUUID(), k -> Vec3.ZERO);
                 }
         }
     }
@@ -424,10 +423,12 @@ public class MineraculousClientEvents {
     }
 
     private static final Map<UUID, CatStaffRenderer.PerchRenderer> playerPerchRendererMap = new Object2ObjectOpenHashMap<>();
-    private static final Map<UUID, Vec3> playerAccurateHandPositionMap = new Object2ObjectOpenHashMap<>();
+    private static final Map<UUID, Vec3> playerAccurateRightHandPositionMap = new Object2ObjectOpenHashMap<>();
+    private static final Map<UUID, Vec3> playerAccurateLeftHandPositionMap = new Object2ObjectOpenHashMap<>();
 
-    public static Vec3 getYoyoRopePosition(UUID id) {
-        return playerAccurateHandPositionMap.get(id);
+    public static Vec3 getYoyoRopePosition(UUID id, boolean left) {
+        if (left) return playerAccurateLeftHandPositionMap.get(id);
+        return playerAccurateRightHandPositionMap.get(id);
     }
 
     static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
@@ -438,7 +439,8 @@ public class MineraculousClientEvents {
         int light = event.getPackedLight();
         float partialTick = event.getPartialTick();
 
-        updateYoyoArmPosition(poseStack, player, renderer, partialTick);
+        updateYoyoArmPosition(poseStack, player, renderer, partialTick, HumanoidArm.RIGHT);
+        updateYoyoArmPosition(poseStack, player, renderer, partialTick, HumanoidArm.LEFT);
 
         player.noCulling = true;
         if (playerPerchRendererMap.containsKey(player.getUUID()))
@@ -447,18 +449,22 @@ public class MineraculousClientEvents {
         player.noCulling = false;
     }
 
-    private static void updateYoyoArmPosition(PoseStack poseStack, Player player, PlayerRenderer renderer, float partialTick) {
+    private static void updateYoyoArmPosition(PoseStack poseStack, Player player, PlayerRenderer renderer, float partialTick, HumanoidArm arm) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YN.rotationDegrees(player.getPreciseBodyRotation(partialTick)));
-        renderer.getModel().translateToHand(HumanoidArm.RIGHT, poseStack);
+        renderer.getModel().translateToHand(arm, poseStack);
         poseStack.mulPose(Axis.XP.rotationDegrees(180));
-        poseStack.translate(-0.03F, 0, -0.5F);
+        int sign = arm == HumanoidArm.RIGHT ? -1 : 1;
+        poseStack.translate(sign * 0.03F, 0, -0.5F);
         Matrix4f matrix = poseStack.last().pose();
-        Vector4f localPos = new Vector4f(0,-0.7f,0,1);
+        Vector4f localPos = new Vector4f(0, -0.7f, 0, 1);
         localPos.mul(matrix);
         Vec3 worldPos = new Vec3(localPos.x, localPos.y, localPos.z);
         worldPos = worldPos.add(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
-        playerAccurateHandPositionMap.put(player.getUUID(), worldPos);
+        if (arm == HumanoidArm.RIGHT)
+            playerAccurateRightHandPositionMap.put(player.getUUID(), worldPos);
+        else
+            playerAccurateLeftHandPositionMap.put(player.getUUID(), worldPos);
         poseStack.popPose();
     }
 

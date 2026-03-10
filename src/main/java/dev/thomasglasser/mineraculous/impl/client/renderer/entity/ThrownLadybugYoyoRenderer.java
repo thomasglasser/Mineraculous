@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -49,7 +50,9 @@ public class ThrownLadybugYoyoRenderer<T extends ThrownLadybugYoyo> extends GeoE
             if (projectilePlayer == Minecraft.getInstance().player && Minecraft.getInstance().getEntityRenderDispatcher().options.getCameraType().isFirstPerson()) {
                 playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(offHand, partialTick);
             } else {
-                playerHandPos = MineraculousClientEvents.getYoyoRopePosition(projectilePlayer.getUUID());
+                HumanoidArm mainArm = projectilePlayer.getMainArm();
+                boolean isLeftHand = offHand ? mainArm != HumanoidArm.LEFT : mainArm == HumanoidArm.LEFT;
+                playerHandPos = MineraculousClientEvents.getYoyoRopePosition(projectilePlayer.getUUID(), isLeftHand);
             }
             maxLength = animatable.getMaxRopeLength();
             Vec3 projectilePos = animatable.getPosition(partialTick);

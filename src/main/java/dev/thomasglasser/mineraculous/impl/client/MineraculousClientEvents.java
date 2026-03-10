@@ -80,7 +80,9 @@ import net.minecraft.client.particle.FlyStraightTowardsParticle;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
@@ -91,9 +93,9 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
-import net.minecraft.util.Mth;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -133,6 +135,8 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
@@ -436,12 +440,22 @@ public class MineraculousClientEvents {
         int light = event.getPackedLight();
         float partialTick = event.getPartialTick();
 
-        Vec3  hand = MineraculousClientUtils.getHandPos(player, renderer, poseStack, false);
-        hand = hand.add(MineraculousClientUtils.getHumanoidEntityHandPos(player, false, partialTick, -0.3f, -0.85, 0.35f));
-        float walkAnim = player.walkAnimation.speed(partialTick);
-        float walkPos = player.walkAnimation.position(partialTick);
-         float walkBob = Mth.sin(walkPos) * 0.07F * walkAnim;
-        playerAccurateHandPositionMap.put(player.getUUID(), hand);
+
+        poseStack.pushPose();
+        poseStack.mulPose(Axis.YN.rotationDegrees(player.getPreciseBodyRotation(partialTick)));
+        renderer.getModel().translateToHand(HumanoidArm.RIGHT, poseStack);
+        poseStack.mulPose(Axis.XP.rotationDegrees(180));
+
+        poseStack.translate(-0.03F, 0, -0.5F);
+
+
+        Matrix4f m = poseStack.last().pose();
+        Vector4f p = new Vector4f(0,-0.7f,0,1);
+        p.mul(m);
+        Vec3 q = new Vec3(p.x, p.y, p.z);
+        q = q.add(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
+        playerAccurateHandPositionMap.put(player.getUUID(), q);
+        poseStack.popPose();
 
         player.noCulling = true;
         if (playerPerchRendererMap.containsKey(player.getUUID()))

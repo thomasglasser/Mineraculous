@@ -293,6 +293,9 @@ public class MineraculousClientEvents {
                     ClientLookManager.refreshLoaded();
                     LookLoader.loadLoaded(ClientLookManager::add);
                 }, gameExecutor)));
+        if (Minecraft.getInstance().level != null)
+            for (Player p : Minecraft.getInstance().level.players())
+                clearYoyoArmPositionEntry(p);
     }
 
     static void onRegisterRenderBuffers(RegisterRenderBuffersEvent event) {
@@ -468,6 +471,14 @@ public class MineraculousClientEvents {
         poseStack.popPose();
     }
 
+    private static void clearYoyoArmPositionEntry(Player player) {
+        if (player != null) {
+            UUID id = player.getUUID();
+            playerAccurateRightHandPositionMap.remove(id);
+            playerAccurateLeftHandPositionMap.remove(id);
+        }
+    }
+
     static void onRenderLevelStage(RenderLevelStageEvent event) {
         AbstractClientPlayer player = Minecraft.getInstance().player;
         RenderLevelStageEvent.Stage stage = event.getStage();
@@ -552,6 +563,11 @@ public class MineraculousClientEvents {
     // Special Player Handling
     static void onClientPlayerLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
         MineraculousClientUtils.syncSpecialPlayerChoices();
+    }
+
+    static void onClientPlayerLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        Player player = event.getPlayer();
+        clearYoyoArmPositionEntry(player);
     }
 
     static void onConfigChanged(ModConfigEvent event) {

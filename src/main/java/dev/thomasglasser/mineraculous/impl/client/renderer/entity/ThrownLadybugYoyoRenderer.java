@@ -53,6 +53,8 @@ public class ThrownLadybugYoyoRenderer<T extends ThrownLadybugYoyo> extends GeoE
                 HumanoidArm mainArm = projectilePlayer.getMainArm();
                 boolean isLeftHand = offHand ? mainArm != HumanoidArm.LEFT : mainArm == HumanoidArm.LEFT;
                 playerHandPos = MineraculousClientEvents.getYoyoRopePosition(projectilePlayer.getUUID(), isLeftHand);
+                if (playerHandPos == null)
+                    playerHandPos = MineraculousClientUtils.getHumanoidEntityHandPos(projectilePlayer, offHand, partialTick, 0.15f, -0.75, 0.35f);
             }
             maxLength = animatable.getMaxRopeLength();
             Vec3 projectilePos = animatable.getPosition(partialTick);

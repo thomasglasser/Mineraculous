@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.event.StealEvent;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
@@ -102,7 +103,7 @@ public class MineraculousKeyMappings {
         Map<RadialMenuOption, Holder<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();
         for (ItemStack stack : CuriosUtils.getAllItems(ClientUtils.getLocalPlayer()).values()) {
             Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-            if (miraculous != null && !miraculousOptions.containsValue(miraculous)) {
+            if (miraculous != null && !miraculousOptions.containsValue(miraculous) && stack.getItem() == MineraculousItems.MIRACULOUS.asItem()) {
                 ResourceKey<Miraculous> key = miraculous.getKey();
                 if (key != null) {
                     RadialMenuOption option = new RadialMenuOption() {

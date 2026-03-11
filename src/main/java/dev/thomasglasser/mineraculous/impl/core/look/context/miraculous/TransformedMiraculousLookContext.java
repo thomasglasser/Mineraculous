@@ -5,7 +5,7 @@ import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
+import dev.thomasglasser.mineraculous.impl.world.item.AbstractMiraculousItem;
 import net.minecraft.core.Holder;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -21,7 +21,7 @@ public abstract class TransformedMiraculousLookContext implements LookContext {
         Holder<Miraculous> miraculous = (Holder<Miraculous>) selected;
         ItemStack jewel = Miraculous.createMiraculousStack(miraculous);
         jewel.set(MineraculousDataComponents.OWNER, player.getUUID());
-        jewel.set(MineraculousDataComponents.POWER_STATE, MiraculousItem.PowerState.POWERED);
+        jewel.set(MineraculousDataComponents.POWER_STATE, AbstractMiraculousItem.PowerState.POWERED);
         CuriosUtils.setStackInFirstValidSlot(player, jewel);
 
         for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {

@@ -32,6 +32,7 @@ public class MineraculousJeiPlugin implements IModPlugin {
     public void registerItemSubtypes(ISubtypeRegistration registration) {
         registration.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, MineraculousItems.MIRACULOUS.get(), MiraculousSubtypeInterpreter.INSTANCE);
         registration.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, MineraculousItems.KWAMI.get(), MiraculousSubtypeInterpreter.INSTANCE);
+        registration.registerSubtypeInterpreter(VanillaTypes.ITEM_STACK, MineraculousItems.FAKE_MIRACULOUS.get(), MiraculousSubtypeInterpreter.INSTANCE);
     }
 
     @Override

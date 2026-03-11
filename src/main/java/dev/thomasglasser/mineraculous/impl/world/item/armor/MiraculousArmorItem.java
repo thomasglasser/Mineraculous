@@ -3,20 +3,19 @@ package dev.thomasglasser.mineraculous.impl.world.item.armor;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
-import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmorMaterials;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.armor.MiraculousArmorItemRenderer;
 import dev.thomasglasser.tommylib.api.world.item.armor.GeoArmorItem;
 import java.util.function.Consumer;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.client.GeoRenderProvider;
@@ -28,9 +27,8 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class MiraculousArmorItem extends ArmorItem implements GeoArmorItem {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    public MiraculousArmorItem(Type type, Properties pProperties) {
-        super(MineraculousArmorMaterials.MIRACULOUS, type, pProperties
-                .component(DataComponents.UNBREAKABLE, new Unbreakable(false)));
+    public MiraculousArmorItem(Holder<ArmorMaterial> material, Type type, Properties properties) {
+        super(material, type, properties);
         GeckoLibUtil.registerSyncedAnimatable(this);
     }
 

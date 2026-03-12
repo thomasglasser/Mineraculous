@@ -227,6 +227,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         }
 
         private void renderOutline(MultiBufferSource multiBufferSource, PoseStack poseStack, double degrees) {
+            poseStack.pushPose();
             MineraculousClientUtils.rotateFacingCamera(poseStack, pos, degrees);
             VertexConsumer ladybug_outline = multiBufferSource.getBuffer(MineraculousRenderTypes.miraculousLadybugOutline());
             double quadSize = size * 0.47 / 0.4;
@@ -238,6 +239,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         }
 
         private void renderBody(MultiBufferSource multiBufferSource, PoseStack poseStack, double degrees) {
+            poseStack.pushPose();
             MineraculousClientUtils.rotateFacingCamera(poseStack, pos, degrees);
             VertexConsumer ladybug = multiBufferSource.getBuffer(MineraculousRenderTypes.miraculousLadybugBody());
             double quadSize = size;

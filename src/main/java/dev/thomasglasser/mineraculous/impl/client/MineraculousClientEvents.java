@@ -286,6 +286,7 @@ public class MineraculousClientEvents {
             MineraculousItemUtils.clearAnimationData();
             MineraculousClientUtils.refreshCataclysmPixels();
             ConditionalAutoGlowingGeoLayer.clearGlowmasks();
+            clearYoyoArmPositionEntries();
         });
         event.registerReloadListener((preparationBarrier, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor) -> CompletableFuture.allOf(
                 LookLoader.loadBuiltIn(preparationBarrier, resourceManager, backgroundExecutor, gameExecutor),
@@ -293,9 +294,6 @@ public class MineraculousClientEvents {
                     ClientLookManager.refreshLoaded();
                     LookLoader.loadLoaded(ClientLookManager::add);
                 }, gameExecutor)));
-        if (Minecraft.getInstance().level != null)
-            for (Player p : Minecraft.getInstance().level.players())
-                clearYoyoArmPositionEntry(p);
     }
 
     static void onRegisterRenderBuffers(RegisterRenderBuffersEvent event) {
@@ -430,8 +428,7 @@ public class MineraculousClientEvents {
     private static final Map<UUID, Vec3> playerAccurateLeftHandPositionMap = new Object2ObjectOpenHashMap<>();
 
     public static Vec3 getYoyoRopePosition(UUID id, boolean left) {
-        if (left) return playerAccurateLeftHandPositionMap.get(id);
-        return playerAccurateRightHandPositionMap.get(id);
+        return left ? playerAccurateLeftHandPositionMap.get(id) : playerAccurateRightHandPositionMap.get(id);
     }
 
     static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
@@ -469,6 +466,11 @@ public class MineraculousClientEvents {
         else
             playerAccurateLeftHandPositionMap.put(player.getUUID(), worldPos);
         poseStack.popPose();
+    }
+
+    private static void clearYoyoArmPositionEntries() {
+        playerAccurateLeftHandPositionMap.clear();
+        playerAccurateRightHandPositionMap.clear();
     }
 
     private static void clearYoyoArmPositionEntry(Player player) {

@@ -15,18 +15,29 @@ import org.jetbrains.annotations.ApiStatus;
 public class MineraculousArmors {
     private static final DeferredRegister.Items ARMORS = DeferredRegister.createItems(MineraculousConstants.MOD_ID);
 
-    /// A set of epic {@link MiraculousArmorItem}s.
+    /// A set of epic {@link MiraculousArmorItem}s representing the real suits.
     public static final ArmorSet MIRACULOUS = createMiraculousSet();
+    /// A set of uncommon {@link MiraculousArmorItem}s representing fake replicas of the superhero suits.
+    public static final ArmorSet FAKE_MIRACULOUS = createFakeMiraculousSet();
     /// A set of epic {@link KamikotizationArmorItem}s.
     public static final ArmorSet KAMIKOTIZATION = createKamikotizationSet();
 
     private static ArmorSet createMiraculousSet() {
-        DeferredItem<ArmorItem> mask = ItemUtils.register(ARMORS, "miraculous_mask", () -> new MiraculousArmorItem(ArmorItem.Type.HELMET, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
-        DeferredItem<ArmorItem> chestplate = ItemUtils.register(ARMORS, "miraculous_chestplate", () -> new MiraculousArmorItem(ArmorItem.Type.CHESTPLATE, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
-        DeferredItem<ArmorItem> leggings = ItemUtils.register(ARMORS, "miraculous_leggings", () -> new MiraculousArmorItem(ArmorItem.Type.LEGGINGS, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
-        DeferredItem<ArmorItem> boots = ItemUtils.register(ARMORS, "miraculous_boots", () -> new MiraculousArmorItem(ArmorItem.Type.BOOTS, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
+        DeferredItem<ArmorItem> mask = ItemUtils.register(ARMORS, "miraculous_mask", () -> new MiraculousArmorItem(MineraculousArmorMaterials.MIRACULOUS, ArmorItem.Type.HELMET, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
+        DeferredItem<ArmorItem> chestplate = ItemUtils.register(ARMORS, "miraculous_chestplate", () -> new MiraculousArmorItem(MineraculousArmorMaterials.MIRACULOUS, ArmorItem.Type.CHESTPLATE, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
+        DeferredItem<ArmorItem> leggings = ItemUtils.register(ARMORS, "miraculous_leggings", () -> new MiraculousArmorItem(MineraculousArmorMaterials.MIRACULOUS, ArmorItem.Type.LEGGINGS, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
+        DeferredItem<ArmorItem> boots = ItemUtils.register(ARMORS, "miraculous_boots", () -> new MiraculousArmorItem(MineraculousArmorMaterials.MIRACULOUS, ArmorItem.Type.BOOTS, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
 
         return new ArmorSet("miraculous", mask, chestplate, leggings, boots);
+    }
+
+    private static ArmorSet createFakeMiraculousSet() {
+        DeferredItem<ArmorItem> mask = ItemUtils.register(ARMORS, "fake_miraculous_mask", () -> new MiraculousArmorItem(MineraculousArmorMaterials.COSTUME, ArmorItem.Type.HELMET, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.UNCOMMON))));
+        DeferredItem<ArmorItem> chestplate = ItemUtils.register(ARMORS, "fake_miraculous_chestplate", () -> new MiraculousArmorItem(MineraculousArmorMaterials.COSTUME, ArmorItem.Type.CHESTPLATE, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.UNCOMMON))));
+        DeferredItem<ArmorItem> leggings = ItemUtils.register(ARMORS, "fake_miraculous_leggings", () -> new MiraculousArmorItem(MineraculousArmorMaterials.COSTUME, ArmorItem.Type.LEGGINGS, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.UNCOMMON))));
+        DeferredItem<ArmorItem> boots = ItemUtils.register(ARMORS, "fake_miraculous_boots", () -> new MiraculousArmorItem(MineraculousArmorMaterials.COSTUME, ArmorItem.Type.BOOTS, ArmorSet.DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.UNCOMMON))));
+
+        return new ArmorSet("fake_miraculous", mask, chestplate, leggings, boots);
     }
 
     private static ArmorSet createKamikotizationSet() {

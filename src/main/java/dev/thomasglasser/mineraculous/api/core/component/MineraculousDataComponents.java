@@ -4,10 +4,10 @@ import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
+import dev.thomasglasser.mineraculous.impl.world.item.AbstractMiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.item.component.EatingItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
@@ -53,7 +53,7 @@ public class MineraculousDataComponents {
     /// If present, the remaining ticks in an ongoing countdown.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> REMAINING_TICKS = DATA_COMPONENTS.register("remaining_ticks", ByteBufCodecs.VAR_INT, ExtraCodecs.NON_NEGATIVE_INT, true);
     /// Determines the state of the power of a {@link MiraculousItem}.
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<MiraculousItem.PowerState>> POWER_STATE = DATA_COMPONENTS.register("power_state", MiraculousItem.PowerState.STREAM_CODEC, MiraculousItem.PowerState.CODEC, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<AbstractMiraculousItem.PowerState>> POWER_STATE = DATA_COMPONENTS.register("power_state", AbstractMiraculousItem.PowerState.STREAM_CODEC, AbstractMiraculousItem.PowerState.CODEC, true);
 
     // Kwami Item
     /// The food data of the {@link dev.thomasglasser.mineraculous.impl.world.entity.Kwami} of a {@link dev.thomasglasser.mineraculous.impl.world.item.KwamiItem}.

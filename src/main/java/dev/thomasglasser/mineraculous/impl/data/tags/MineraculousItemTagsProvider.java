@@ -132,6 +132,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
     private void addArmors() {
         armorSet(MineraculousArmors.MIRACULOUS);
+        armorSet(MineraculousArmors.FAKE_MIRACULOUS);
         armorSet(MineraculousArmors.KAMIKOTIZATION);
     }
 
@@ -149,6 +150,11 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
     private void addCurios() {
         curios(MineraculousItems.MIRACULOUS.get(),
+                MineraculousCuriosProvider.SLOT_BROOCH,
+                MineraculousCuriosProvider.SLOT_RING,
+                MineraculousCuriosProvider.SLOT_EARRINGS);
+
+        curios(MineraculousItems.FAKE_MIRACULOUS.get(),
                 MineraculousCuriosProvider.SLOT_BROOCH,
                 MineraculousCuriosProvider.SLOT_RING,
                 MineraculousCuriosProvider.SLOT_EARRINGS);

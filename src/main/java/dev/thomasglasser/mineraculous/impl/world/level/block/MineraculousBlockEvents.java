@@ -1,11 +1,14 @@
 package dev.thomasglasser.mineraculous.impl.world.level.block;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.storage.BlockReversionData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.ItemReversionData;
 import java.util.UUID;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.neoforged.neoforge.event.BlockEntityTypeAddBlocksEvent;
 import net.neoforged.neoforge.event.level.BlockDropsEvent;
 
 public class MineraculousBlockEvents {
@@ -20,5 +23,10 @@ public class MineraculousBlockEvents {
                 }
             }
         }
+    }
+
+    public static void onBlockEntityTypeAddBlocks(BlockEntityTypeAddBlocksEvent event) {
+        event.modify(BlockEntityType.SIGN, MineraculousBlocks.ALMOND_WOOD_SET.signs());
+        event.modify(BlockEntityType.HANGING_SIGN, MineraculousBlocks.ALMOND_WOOD_SET.hangingSigns());
     }
 }

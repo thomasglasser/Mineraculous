@@ -23,6 +23,7 @@ public class MineraculousBlockTagsProvider extends ExtendedBlockTagsProvider {
     protected void addTags(HolderLookup.Provider provider) {
         addCheeses();
         addAbilities();
+        addTrees();
     }
 
     private void addCheeses() {
@@ -34,6 +35,12 @@ public class MineraculousBlockTagsProvider extends ExtendedBlockTagsProvider {
         MineraculousBlocks.CHEESE.values().forEach(cheeseBlocks::add);
         ExtendedIntrinsicHolderTagsProvider.ExtendedIntrinsicTagAppender<Block> camembertBlocks = tag(MineraculousBlockTags.CAMEMBERT_BLOCKS);
         MineraculousBlocks.CAMEMBERT.values().forEach(camembertBlocks::add);
+    }
+
+    private void addTrees() {
+        // Almond WoodSet & LeavesSet
+        woodSet(MineraculousBlocks.ALMOND_WOOD_SET);
+        leavesSet(MineraculousBlocks.ALMOND_LEAVES_SET);
     }
 
     private void addAbilities() {

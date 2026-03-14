@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:random_selector",
+  "config": {
+    "default": "mineraculous:fancy_almond_checked",
+    "features": [
+      {
+        "chance": 0.8,
+        "feature": "mineraculous:almond_checked"
+      }
+    ]
+  }
+}

@@ -14,4 +14,9 @@ public class MineraculousFoods {
     public static final FoodProperties RAW_MACARON = new FoodProperties.Builder().nutrition(1).effect(() -> new MobEffectInstance(MobEffects.HUNGER, 300, 0), 0.15F).build();
     /// Base food properties of a cooked macaron
     public static final FoodProperties MACARON = new FoodProperties.Builder().nutrition(4).saturationModifier(0.2F).build();
+
+    /// Base food properties of an almond
+    public static final FoodProperties ALMOND = new FoodProperties.Builder().nutrition(1).build();
+    /// Base food properties of a roasted almond
+    public static final FoodProperties ROASTED_ALMOND = new FoodProperties.Builder().nutrition(2).saturationModifier(0.1F).build();
 }

@@ -87,6 +87,7 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
         cookRecipes(recipeOutput, "oven_cooking", MineraculousRecipeSerializers.OVEN_COOKING.get(), OvenCookingRecipe::new, 400);
 
         simpleTransmuteCookingRecipes(recipeOutput, MineraculousItems.RAW_MACARON, MineraculousItems.MACARON, 0.35f);
+        simpleCookingRecipes(recipeOutput, MineraculousItems.ALMOND, MineraculousItems.ROASTED_ALMOND, 0.35f);
     }
 
     public static void simpleCookingRecipes(RecipeOutput recipeOutput, ItemLike input, ItemLike output, float experience) {

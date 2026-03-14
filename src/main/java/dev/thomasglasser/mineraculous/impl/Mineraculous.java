@@ -111,6 +111,7 @@ public class Mineraculous {
         modBus.addListener(MineraculousCoreEvents::onNewDataPackRegistry);
         modBus.addListener(MineraculousCoreEvents::onAddPackFinders);
         modBus.addListener(MineraculousCoreEvents::onRegisterDataMapTypes);
+        modBus.addListener(MineraculousBlockEvents::onBlockEntityTypeAddBlocks);
 
         modBus.addListener(MineraculousEntityEvents::onEntityAttributeCreation);
 

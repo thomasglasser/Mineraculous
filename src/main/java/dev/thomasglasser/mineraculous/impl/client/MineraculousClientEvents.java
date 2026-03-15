@@ -94,6 +94,7 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -104,6 +105,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
@@ -131,6 +133,8 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
+import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
@@ -286,6 +290,7 @@ public class MineraculousClientEvents {
             MineraculousItemUtils.clearAnimationData();
             MineraculousClientUtils.refreshCataclysmPixels();
             ConditionalAutoGlowingGeoLayer.clearGlowmasks();
+            clearYoyoRopePositions();
         });
         event.registerReloadListener((preparationBarrier, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor) -> CompletableFuture.allOf(
                 LookLoader.loadBuiltIn(preparationBarrier, resourceManager, backgroundExecutor, gameExecutor),
@@ -423,19 +428,61 @@ public class MineraculousClientEvents {
     }
 
     private static final Map<UUID, CatStaffRenderer.PerchRenderer> playerPerchRendererMap = new Object2ObjectOpenHashMap<>();
+    private static final Map<UUID, Vec3> rightHandYoyoRopePositions = new Object2ObjectOpenHashMap<>();
+    private static final Map<UUID, Vec3> leftHandYoyoRopePositions = new Object2ObjectOpenHashMap<>();
+
+    public static Vec3 getYoyoRopePosition(UUID id, boolean left) {
+        return left ? leftHandYoyoRopePositions.get(id) : rightHandYoyoRopePositions.get(id);
+    }
 
     static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
         Player player = event.getEntity();
         PoseStack poseStack = event.getPoseStack();
+        PlayerRenderer renderer = event.getRenderer();
         MultiBufferSource bufferSource = event.getMultiBufferSource();
         int light = event.getPackedLight();
         float partialTick = event.getPartialTick();
+
+        updateYoyoHandPosition(poseStack, player, renderer, partialTick, HumanoidArm.RIGHT);
+        updateYoyoHandPosition(poseStack, player, renderer, partialTick, HumanoidArm.LEFT);
 
         player.noCulling = true;
         if (playerPerchRendererMap.containsKey(player.getUUID()))
             playerPerchRendererMap.get(player.getUUID()).renderPerch(player, poseStack, bufferSource, light, partialTick);
         CatStaffRenderer.renderTravel(player, poseStack, bufferSource, light, partialTick);
         player.noCulling = false;
+    }
+
+    private static void updateYoyoHandPosition(PoseStack poseStack, Player player, PlayerRenderer renderer, float partialTick, HumanoidArm arm) {
+        poseStack.pushPose();
+        poseStack.mulPose(Axis.YN.rotationDegrees(player.getPreciseBodyRotation(partialTick)));
+        renderer.getModel().translateToHand(arm, poseStack);
+        poseStack.mulPose(Axis.XP.rotationDegrees(180));
+        int sign = arm == HumanoidArm.RIGHT ? -1 : 1;
+        poseStack.translate(sign * 0.03F, 0, -0.5F);
+        Matrix4f matrix = poseStack.last().pose();
+        Vector4f localPos = new Vector4f(0, -0.7f, 0, 1);
+        localPos.mul(matrix);
+        Vec3 worldPos = new Vec3(localPos.x, localPos.y, localPos.z);
+        worldPos = worldPos.add(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
+        if (arm == HumanoidArm.RIGHT)
+            rightHandYoyoRopePositions.put(player.getUUID(), worldPos);
+        else
+            leftHandYoyoRopePositions.put(player.getUUID(), worldPos);
+        poseStack.popPose();
+    }
+
+    private static void clearYoyoRopePositions() {
+        leftHandYoyoRopePositions.clear();
+        rightHandYoyoRopePositions.clear();
+    }
+
+    private static void clearYoyoRopePositions(Player player) {
+        if (player != null) {
+            UUID id = player.getUUID();
+            rightHandYoyoRopePositions.remove(id);
+            leftHandYoyoRopePositions.remove(id);
+        }
     }
 
     static void onRenderLevelStage(RenderLevelStageEvent event) {
@@ -522,6 +569,10 @@ public class MineraculousClientEvents {
     // Special Player Handling
     static void onClientPlayerLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
         MineraculousClientUtils.syncSpecialPlayerChoices();
+    }
+
+    static void onClientPlayerLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        clearYoyoRopePositions(event.getPlayer());
     }
 
     static void onConfigChanged(ModConfigEvent event) {

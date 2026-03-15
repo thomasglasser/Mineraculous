@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.api.client.look.util.renderer.ThrownMiraculousToolLookRenderer;
 import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
+import dev.thomasglasser.mineraculous.impl.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import net.minecraft.client.Minecraft;
@@ -14,6 +15,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -48,7 +50,11 @@ public class ThrownLadybugYoyoRenderer<T extends ThrownLadybugYoyo> extends GeoE
             if (projectilePlayer == Minecraft.getInstance().player && Minecraft.getInstance().getEntityRenderDispatcher().options.getCameraType().isFirstPerson()) {
                 playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(offHand, partialTick);
             } else {
-                playerHandPos = MineraculousClientUtils.getHumanoidEntityHandPos(projectilePlayer, offHand, partialTick, 0.15f, -0.75, 0.35f);
+                HumanoidArm mainArm = projectilePlayer.getMainArm();
+                boolean isLeftHand = offHand ? mainArm != HumanoidArm.LEFT : mainArm == HumanoidArm.LEFT;
+                playerHandPos = MineraculousClientEvents.getYoyoRopePosition(projectilePlayer.getUUID(), isLeftHand);
+                if (playerHandPos == null)
+                    playerHandPos = MineraculousClientUtils.getHumanoidEntityHandPos(projectilePlayer, offHand, partialTick, 0.15f, -0.75, 0.35f);
             }
             maxLength = animatable.getMaxRopeLength();
             Vec3 projectilePos = animatable.getPosition(partialTick);

@@ -286,7 +286,7 @@ public class MineraculousClientEvents {
             MineraculousItemUtils.clearAnimationData();
             MineraculousClientUtils.refreshCataclysmPixels();
             ConditionalAutoGlowingGeoLayer.clearGlowmasks();
-            clearYoyoArmPositionEntries();
+            clearYoyoRopePositions();
         });
         event.registerReloadListener((preparationBarrier, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor) -> CompletableFuture.allOf(
                 LookLoader.loadBuiltIn(preparationBarrier, resourceManager, backgroundExecutor, gameExecutor),
@@ -424,11 +424,11 @@ public class MineraculousClientEvents {
     }
 
     private static final Map<UUID, CatStaffRenderer.PerchRenderer> playerPerchRendererMap = new Object2ObjectOpenHashMap<>();
-    private static final Map<UUID, Vec3> playerAccurateRightHandPositionMap = new Object2ObjectOpenHashMap<>();
-    private static final Map<UUID, Vec3> playerAccurateLeftHandPositionMap = new Object2ObjectOpenHashMap<>();
+    private static final Map<UUID, Vec3> rightHandYoyoRopePositions = new Object2ObjectOpenHashMap<>();
+    private static final Map<UUID, Vec3> leftHandYoyoRopePositions = new Object2ObjectOpenHashMap<>();
 
     public static Vec3 getYoyoRopePosition(UUID id, boolean left) {
-        return left ? playerAccurateLeftHandPositionMap.get(id) : playerAccurateRightHandPositionMap.get(id);
+        return left ? leftHandYoyoRopePositions.get(id) : rightHandYoyoRopePositions.get(id);
     }
 
     static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
@@ -439,8 +439,8 @@ public class MineraculousClientEvents {
         int light = event.getPackedLight();
         float partialTick = event.getPartialTick();
 
-        updateYoyoArmPosition(poseStack, player, renderer, partialTick, HumanoidArm.RIGHT);
-        updateYoyoArmPosition(poseStack, player, renderer, partialTick, HumanoidArm.LEFT);
+        updateYoyoHandPosition(poseStack, player, renderer, partialTick, HumanoidArm.RIGHT);
+        updateYoyoHandPosition(poseStack, player, renderer, partialTick, HumanoidArm.LEFT);
 
         player.noCulling = true;
         if (playerPerchRendererMap.containsKey(player.getUUID()))
@@ -449,7 +449,7 @@ public class MineraculousClientEvents {
         player.noCulling = false;
     }
 
-    private static void updateYoyoArmPosition(PoseStack poseStack, Player player, PlayerRenderer renderer, float partialTick, HumanoidArm arm) {
+    private static void updateYoyoHandPosition(PoseStack poseStack, Player player, PlayerRenderer renderer, float partialTick, HumanoidArm arm) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YN.rotationDegrees(player.getPreciseBodyRotation(partialTick)));
         renderer.getModel().translateToHand(arm, poseStack);
@@ -462,22 +462,22 @@ public class MineraculousClientEvents {
         Vec3 worldPos = new Vec3(localPos.x, localPos.y, localPos.z);
         worldPos = worldPos.add(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition());
         if (arm == HumanoidArm.RIGHT)
-            playerAccurateRightHandPositionMap.put(player.getUUID(), worldPos);
+            rightHandYoyoRopePositions.put(player.getUUID(), worldPos);
         else
-            playerAccurateLeftHandPositionMap.put(player.getUUID(), worldPos);
+            leftHandYoyoRopePositions.put(player.getUUID(), worldPos);
         poseStack.popPose();
     }
 
-    private static void clearYoyoArmPositionEntries() {
-        playerAccurateLeftHandPositionMap.clear();
-        playerAccurateRightHandPositionMap.clear();
+    private static void clearYoyoRopePositions() {
+        leftHandYoyoRopePositions.clear();
+        rightHandYoyoRopePositions.clear();
     }
 
-    private static void clearYoyoArmPositionEntry(Player player) {
+    private static void clearYoyoRopePositions(Player player) {
         if (player != null) {
             UUID id = player.getUUID();
-            playerAccurateRightHandPositionMap.remove(id);
-            playerAccurateLeftHandPositionMap.remove(id);
+            rightHandYoyoRopePositions.remove(id);
+            leftHandYoyoRopePositions.remove(id);
         }
     }
 
@@ -568,8 +568,7 @@ public class MineraculousClientEvents {
     }
 
     static void onClientPlayerLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
-        Player player = event.getPlayer();
-        clearYoyoArmPositionEntry(player);
+        clearYoyoRopePositions(event.getPlayer());
     }
 
     static void onConfigChanged(ModConfigEvent event) {

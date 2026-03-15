@@ -1,10 +1,10 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
-import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
@@ -13,20 +13,17 @@ import dev.thomasglasser.mineraculous.api.world.item.ActiveItem;
 import dev.thomasglasser.mineraculous.api.world.item.LeftClickListener;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
-import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiPredicate;
@@ -38,6 +35,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -75,7 +73,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Mode>, ActiveItem, LeftClickListener {
+public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, ActiveItem, LeftClickListener, MiraculousTool<LadybugYoyoItem.Mode> {
     public static final String CONTROLLER_USE = "use_controller";
     public static final String ANIMATION_OPEN_OUT = "open_out";
     public static final String ANIMATION_OPEN_DOWN = "open_down";
@@ -382,69 +380,11 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
         return 0;
     }
 
-    @Override
-    public boolean canOpenMenu(ItemStack stack, InteractionHand hand, Player holder) {
-        return Active.isActive(stack);
-    }
-
-    @Override
-    public int getColor(ItemStack stack, InteractionHand hand, Player holder) {
-        Level level = holder.level();
-        int color = level.holderOrThrow(Miraculouses.LADYBUG).value().color().getValue();
-        UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
-        if (ownerId != null) {
-            Entity owner = level.getEntities().get(ownerId);
-            if (owner != null) {
-                Holder<Miraculous> colorKey = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstTransformedIn(MiraculousTags.CAN_USE_LADYBUG_YOYO);
-                if (colorKey != null)
-                    color = colorKey.value().color().getValue();
-            }
-        }
-        return color;
-    }
-
-    @Override
-    public List<Mode> getOptions(ItemStack stack, InteractionHand hand, Player holder) {
-        return Mode.valuesList();
-    }
-
-    @Override
+    /*@Override
     public boolean handleSecondaryKeyBehavior(ItemStack stack, InteractionHand hand, Player holder) {
         TommyLibServices.NETWORK.sendToServer(new ServerboundEquipToolPayload(hand));
         return true;
-    }
-
-    @Override
-    public Supplier<DataComponentType<Mode>> getComponentType(ItemStack stack, InteractionHand hand, Player holder) {
-        return MineraculousDataComponents.LADYBUG_YOYO_MODE;
-    }
-
-    @Override
-    public Mode setOption(ItemStack stack, InteractionHand hand, Player holder, int index) {
-        Mode old = stack.get(MineraculousDataComponents.LADYBUG_YOYO_MODE);
-        Mode selected = RadialMenuProvider.super.setOption(stack, hand, holder, index);
-        if (holder.level() instanceof ServerLevel level) {
-            String anim = null;
-            if (selected == Mode.PHONE || selected == Mode.SPYGLASS) {
-                if (old == Mode.PURIFY)
-                    anim = ANIMATION_CLOSE_IN_AND_OPEN_DOWN;
-                else
-                    anim = ANIMATION_OPEN_DOWN;
-            } else if (selected == Mode.PURIFY) {
-                if (old == Mode.PHONE || old == Mode.SPYGLASS)
-                    anim = ANIMATION_CLOSE_UP_AND_OPEN_OUT;
-                else
-                    anim = ANIMATION_OPEN_OUT;
-            } else if (old == Mode.PHONE || old == Mode.SPYGLASS)
-                anim = ANIMATION_CLOSE_UP;
-            else if (old == Mode.PURIFY)
-                anim = ANIMATION_CLOSE_IN;
-            if (anim != null) {
-                triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_USE, anim);
-            }
-        }
-        return selected;
-    }
+    }*/
 
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
@@ -475,7 +415,46 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
         }
     }
 
-    public enum Mode implements RadialMenuOption, StringRepresentable {
+    @Override
+    public List<Mode> getToolModes(ItemStack stack, InteractionHand hand, Player holder) {
+        return FluentIterable.from(Mode.valuesList()).toSortedList(Comparator.comparing(Mode::getSerializedName));
+    }
+
+    @Override
+    public boolean canOpenToolModeMenu(ItemStack stack, Player holder) {
+        return Active.isActive(stack);
+    }
+
+    @Override
+    public Supplier<DataComponentType<Mode>> getToolModeComponentType(ItemStack stack, InteractionHand hand, Player holder) {
+        return MineraculousDataComponents.LADYBUG_YOYO_MODE;
+    }
+
+    @Override
+    public void onModeChanged(ItemStack stack, InteractionHand hand, Player holder, Mode oldMode, Mode newMode) {
+        if (holder != null && holder.level() instanceof ServerLevel level) {
+            String anim = null;
+            if (newMode == Mode.PHONE || newMode == Mode.SPYGLASS) {
+                if (oldMode == Mode.PURIFY)
+                    anim = ANIMATION_CLOSE_IN_AND_OPEN_DOWN;
+                else
+                    anim = ANIMATION_OPEN_DOWN;
+            } else if (newMode == Mode.PURIFY) {
+                if (oldMode == Mode.PHONE || oldMode == Mode.SPYGLASS)
+                    anim = ANIMATION_CLOSE_UP_AND_OPEN_OUT;
+                else
+                    anim = ANIMATION_OPEN_OUT;
+            } else if (oldMode == Mode.PHONE || oldMode == Mode.SPYGLASS)
+                anim = ANIMATION_CLOSE_UP;
+            else if (oldMode == Mode.PURIFY)
+                anim = ANIMATION_CLOSE_IN;
+            if (anim != null) {
+                triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_USE, anim);
+            }
+        }
+    }
+
+    public enum Mode implements ToolMode {
         BLOCK,
         LASSO,
         PHONE((stack, player) -> MineraculousConstants.Dependencies.TOMMYTECH.isLoaded()),
@@ -521,6 +500,17 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
         @Override
         public String getSerializedName() {
             return name().toLowerCase();
+        }
+
+        @Override
+        public ResourceLocation getIcon() {
+            return switch (this) {
+                case LASSO -> ResourceLocation.withDefaultNamespace("textures/mob_effect/slowness.png");
+                case SPYGLASS -> ResourceLocation.withDefaultNamespace("textures/mob_effect/invisibility.png");
+                case PURIFY -> ResourceLocation.withDefaultNamespace("textures/mob_effect/glowing.png");
+                case TRAVEL -> ResourceLocation.withDefaultNamespace("textures/mob_effect/speed.png");
+                default -> ResourceLocation.withDefaultNamespace("textures/mob_effect/absorption.png");
+            };
         }
     }
 }

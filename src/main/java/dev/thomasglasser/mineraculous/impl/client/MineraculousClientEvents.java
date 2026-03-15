@@ -65,6 +65,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundRemoteDamagePayloa
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.inventory.MineraculousRecipeBookTypes;
+import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -325,6 +326,7 @@ public class MineraculousClientEvents {
     // GUI
     static void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAboveAll(MineraculousGuiLayers.STEALING_PROGRESS_BAR, MineraculousGuis::renderStealingProgressBar);
+        event.registerAboveAll(MineraculousGuiLayers.TOOL_MODE_HOTBAR, MineraculousGuis::renderToolModeHotbar);
         event.registerAboveAll(MineraculousGuiLayers.REVOKE_BUTTON, MineraculousGuis::renderRevokeButton);
         event.registerAboveAll(MineraculousGuiLayers.KAMIKO_HOTBAR, MineraculousGuis.getKamikoGui()::renderHotbar);
         event.registerAboveAll(MineraculousGuiLayers.KAMIKO_TOOLTIP, MineraculousGuis.getKamikoGui()::renderTooltip);
@@ -380,12 +382,31 @@ public class MineraculousClientEvents {
                 }
             }
         }
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            ItemStack mainHand = player.getMainHandItem();
+            if (mainHand.getItem() instanceof MiraculousTool && MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) {
+                for (int i = 0; i < 9; i++) {
+                    while (Minecraft.getInstance().options.keyHotbarSlots[i].consumeClick() && MineraculousGuis.getToolGui() != null) {
+                        MineraculousGuis.getToolGui().onHotbarSelected(i);
+                    }
+                }
+            }
+        }
     }
 
     static void onMouseScrollingInput(InputEvent.MouseScrollingEvent event) {
+        int i = (int) (event.getScrollDeltaY() == 0 ? -event.getScrollDeltaX() : event.getScrollDeltaY());
         if (MineraculousClientUtils.isInKamikoView()) {
-            int i = (int) (event.getScrollDeltaY() == 0 ? -event.getScrollDeltaX() : event.getScrollDeltaY());
             MineraculousGuis.getKamikoGui().onMouseScrolled(i);
+        }
+        ItemStack mainHand = Minecraft.getInstance().player.getMainHandItem();
+        if (mainHand.getItem() instanceof MiraculousTool && MineraculousGuis.getToolGui() != null) {
+            MineraculousGuis.getToolGui().onMouseScrolled(-i);
+            event.setCanceled(true);
+        }
+        if (!MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) {
+            MineraculousClientUtils.closeToolModeMenu();
         }
     }
 

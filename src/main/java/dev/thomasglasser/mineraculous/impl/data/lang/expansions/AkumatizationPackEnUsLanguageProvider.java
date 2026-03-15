@@ -16,6 +16,7 @@ import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
+import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
 import dev.thomasglasser.tommylib.api.data.lang.EnUsOverrideLanguageProvider;
 import net.minecraft.data.PackOutput;
 
@@ -44,6 +45,10 @@ public class AkumatizationPackEnUsLanguageProvider extends EnUsOverrideLanguageP
 
     protected void add(RadialMenuOption option, String name) {
         add(option.displayName(), name);
+    }
+
+    protected void add(MiraculousTool.ToolMode toolMode, String name) {
+        add(toolMode.displayName(), name);
     }
 
     private void addItems() {

@@ -9,6 +9,8 @@ import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.client.gui.kamiko.categories.KamikoTargetPlayerMenuCategory;
+import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeMenuCategory;
+import dev.thomasglasser.mineraculous.impl.client.gui.tool.ToolModeSelectionGui;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetPlayerAttackTargetPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
@@ -21,14 +23,17 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 public class MineraculousGuis {
     public static final Component REVOKE = Component.translatable("gui.mineraculous.revoke");
     public static final String PRESS_KEY = "gui.mineraculous.press_key";
 
     private static SelectionGui kamikoGui;
+    private static ToolModeSelectionGui toolGui;
     private static Button revokeButton;
 
     public static SelectionGui getKamikoGui() {
@@ -48,6 +53,36 @@ public class MineraculousGuis {
             });
         }
         return kamikoGui;
+    }
+
+    public static ToolModeSelectionGui getToolGui() {
+        return toolGui;
+    }
+
+    public static void resetToolGui() {
+        if (toolGui != null)
+            toolGui.closeGui();
+        toolGui = null;
+    }
+
+    public static void createToolGui(ItemStack stack, InteractionHand hand, Player player) {
+        if (toolGui == null) {
+            toolGui = new ToolModeSelectionGui(
+                    Minecraft.getInstance(),
+                    new ToolModeMenuCategory(stack, hand, player));
+        }
+    }
+
+    public static void renderToolModeHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            ItemStack stack = player.getInventory().getSelected();
+            if (MineraculousClientUtils.isSelectingToolMode() && toolGui != null) {
+                toolGui.renderHotbar(guiGraphics, deltaTracker);
+            } else if (toolGui != null) {
+                resetToolGui();
+            }
+        }
     }
 
     public static Button getRevokeButton() {

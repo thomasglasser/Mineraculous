@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl.mixin.minecraft.client.gui;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
+import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.player.LocalPlayer;
@@ -10,6 +11,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(Gui.class)
 public abstract class GuiMixin {
@@ -26,5 +28,14 @@ public abstract class GuiMixin {
     @ModifyExpressionValue(method = "renderCrosshair", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/CameraType;isFirstPerson()Z"))
     private boolean disableCrosshairForRadialMenuScreen(boolean original) {
         return original && !(this.minecraft.screen instanceof RadialMenuScreen);
+    }
+
+    @ModifyVariable(method = "renderSelectedItemName(Lnet/minecraft/client/gui/GuiGraphics;I)V", at = @At(value = "STORE", ordinal = 0), ordinal = 3)
+    private int modifySelectedItemY(int k) {
+        if (MineraculousClientUtils.isSelectingToolMode()) {
+            return k - 24;
+        }
+
+        return k;
     }
 }

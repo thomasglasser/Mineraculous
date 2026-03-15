@@ -439,6 +439,7 @@
   "gui.mineraculous.press_key": "(Press %s)",
   "gui.mineraculous.registry_element_selection.title": "Select %s",
   "gui.mineraculous.revoke": "Revoke Kamikotization",
+  "gui.mineraculous.tool_mode.prompt": "Select a tool mode",
   "gui.miraculous_transfer.renounce": "Renounce",
   "gui.miraculous_transfer.transfer": "Transfer",
   "gui.name": "Name",

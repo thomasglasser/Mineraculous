@@ -124,6 +124,7 @@ public class MineraculousClientUtils {
     private static final String KWAMI_GLOW_SHADER_STRENGTH_UNIFORM = "BlurSigma";
 
     private static boolean wasJumping = false;
+    private static boolean isToolModeMenuOpen = false;
 
     private static PostChain kwamiEffect;
     private static RenderTarget kwamiTarget;
@@ -425,6 +426,20 @@ public class MineraculousClientUtils {
     public static boolean isInKamikoView() {
         LocalPlayer player = Minecraft.getInstance().player;
         return player != null && !player.isSpectator() && player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).spectatingId().isPresent() && MineraculousClientUtils.getCameraEntity() instanceof Kamiko && MineraculousGuis.getKamikoGui() != null;
+    }
+
+    public static boolean isSelectingToolMode() {
+        return isToolModeMenuOpen;
+    }
+
+    public static void openToolModeMenu(ItemStack stack, InteractionHand hand, Player player) {
+        isToolModeMenuOpen = true;
+        MineraculousGuis.createToolGui(stack, hand, player);
+    }
+
+    public static void closeToolModeMenu() {
+        isToolModeMenuOpen = false;
+        MineraculousGuis.resetToolGui();
     }
 
     // Rendering

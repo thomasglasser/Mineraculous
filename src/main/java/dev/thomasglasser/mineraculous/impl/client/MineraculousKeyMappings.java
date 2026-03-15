@@ -25,6 +25,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundToggleNightVisionP
 import dev.thomasglasser.mineraculous.impl.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoLengthPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
+import dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.ExtendedKeyMapping;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -168,32 +169,40 @@ public class MineraculousKeyMappings {
     private static void handleOpenItemRadialMenu() {
         Player player = ClientUtils.getLocalPlayer();
         if (player != null) {
-            InteractionHand hand = InteractionHand.MAIN_HAND;
-            ItemStack mainHandStack = player.getMainHandItem();
-            if (mainHandStack.getItem() instanceof RadialMenuProvider<?> provider) {
-                if (MineraculousClientUtils.tryOpenRadialMenuScreenFromProvider(hand, mainHandStack, provider)) {
-                    return;
-                } else if (provider.handleSecondaryKeyBehavior(mainHandStack, hand, player)) {
-                    return;
-                }
-            }
-            hand = InteractionHand.OFF_HAND;
-            ItemStack offHandStack = player.getOffhandItem();
-            if (offHandStack.getItem() instanceof RadialMenuProvider<?> provider) {
-                if (!MineraculousClientUtils.tryOpenRadialMenuScreenFromProvider(hand, offHandStack, provider)) {
-                    provider.handleSecondaryKeyBehavior(offHandStack, hand, player);
-                }
-                return;
-            }
-            MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-            List<Holder<Miraculous>> transformed = miraculousesData.getTransformed();
-            if (!transformed.isEmpty()) {
-                Holder<Miraculous> miraculous = transformed.getFirst();
-                if (player.getMainHandItem().isEmpty()) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundPutMiraculousToolInHandPayload(miraculous));
+            boolean consumedBehaviour;
+            consumedBehaviour = consumeToolBehaviour(player, InteractionHand.MAIN_HAND);
+            consumedBehaviour = consumedBehaviour ? consumedBehaviour : consumeToolBehaviour(player, InteractionHand.OFF_HAND);
+            if (!consumedBehaviour) {
+                MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                List<Holder<Miraculous>> transformed = miraculousesData.getTransformed();
+                if (!transformed.isEmpty()) {
+                    Holder<Miraculous> miraculous = transformed.getFirst();
+                    if (player.getMainHandItem().isEmpty()) {
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundPutMiraculousToolInHandPayload(miraculous));
+                    }
                 }
             }
         }
+    }
+
+    private static boolean consumeToolBehaviour(Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (stack.getItem() instanceof RadialMenuProvider<?> provider) {
+            if (MineraculousClientUtils.tryOpenRadialMenuScreenFromProvider(hand, stack, provider)) {
+                return true;
+            } else if (provider.handleSecondaryKeyBehavior(stack, hand, player)) {
+                return true;
+            }
+        } else if (stack.getItem() instanceof MiraculousTool<?> miraculousTool) {
+            if (miraculousTool.canOpenToolModeMenu(stack, player)) {
+                MineraculousClientUtils.openToolModeMenu(stack, hand, player);
+                return true;
+            } else {
+                miraculousTool.onModeMenuFailedToOpen(hand);
+                return true;
+            }
+        }
+        return false;
     }
 
     private static int takeTicks = 0;

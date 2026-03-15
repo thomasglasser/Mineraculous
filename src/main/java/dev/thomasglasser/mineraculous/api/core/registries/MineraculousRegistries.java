@@ -17,6 +17,8 @@ public class MineraculousRegistries {
      * used in serializing the {@link MineraculousRegistries#ABILITY} registry.
      */
     public static final ResourceKey<Registry<MapCodec<? extends Ability>>> ABILITY_SERIALIZER = create("ability_serializer");
+    /// Static registry holding {@link dev.thomasglasser.mineraculous.impl.world.item.MiraculousTool.ToolMode}s for serializing {@link }
+    // TODO for tommy if he is kind enough to make it for me tysm
     /// Static registry holding {@link MiraculousLadybugTargetType}s for serializing {@link dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTarget}s.
     public static final ResourceKey<Registry<MiraculousLadybugTargetType<?>>> MIRACULOUS_LADYBUG_TARGET_TYPE = create("miraculous_ladybug_target_type");
     /// Static registry holding {@link LookContext}s for using and serializing {@link dev.thomasglasser.mineraculous.api.client.look.Look}s.

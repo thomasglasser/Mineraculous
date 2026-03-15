@@ -23,11 +23,11 @@ import org.jetbrains.annotations.Nullable;
  * Handled by the provided {@link SelectionMenu}.
  */
 public class SelectionGui implements SelectionMenuListener {
-    private final Minecraft minecraft;
+    protected final Minecraft minecraft;
     private final Function<SelectionGui, SelectionMenu> menuFunction;
     private long lastSelectionTime;
     @Nullable
-    private SelectionMenu menu;
+    protected SelectionMenu menu;
 
     public SelectionGui(Minecraft minecraft, Function<SelectionGui, SelectionMenu> menuFunction) {
         this.minecraft = minecraft;
@@ -43,7 +43,7 @@ public class SelectionGui implements SelectionMenuListener {
         }
     }
 
-    private float getHotbarAlpha() {
+    protected float getHotbarAlpha() {
         long fadeOutProgress = this.lastSelectionTime - Util.getMillis() + SpectatorGui.FADE_OUT_DELAY;
         return Mth.clamp((float) fadeOutProgress / SpectatorGui.FADE_OUT_TIME, 0, 1);
     }
@@ -82,7 +82,7 @@ public class SelectionGui implements SelectionMenuListener {
         RenderSystem.disableBlend();
     }
 
-    private void renderSlot(GuiGraphics guiGraphics, int slot, int x, float y, float alpha, SelectionMenuItem selectionMenuItem) {
+    protected void renderSlot(GuiGraphics guiGraphics, int slot, int x, float y, float alpha, SelectionMenuItem selectionMenuItem) {
         if (selectionMenuItem != SelectionMenu.EMPTY_SLOT) {
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate((float) x, y, 0);
